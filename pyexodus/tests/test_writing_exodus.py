@@ -55,7 +55,8 @@ def test_initialization(tmpdir):
             'num_elem': 6,
             'num_nodes': 5,
             'num_side_sets': 1,
-            'time_step': 0}
+            # XXX: This is different from the original file!
+            'time_step': 1}
 
         assert list(f.groups) == []
 
@@ -139,10 +140,12 @@ def test_initialization(tmpdir):
                           'dtype': np.dtype('int32'),
                           'shape': (1,)},
             'time_whole': {'attrs': {},
-                           'data': np.array([], dtype=np.float64),
+                           # XXX: Empty array in original file.
+                           'data': np.array([0.], dtype=np.float64),
                            'dimensions': ('time_step',),
                            'dtype': np.dtype('float64'),
-                           'shape': (0,)}}
+                           # XXX: Shape = (0,) in original file.
+                           'shape': (1,)}}
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
