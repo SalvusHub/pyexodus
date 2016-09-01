@@ -100,7 +100,7 @@ class exodus(object):
         self._f.create_variable(
             var_name, (num_el_name, num_node_per_el_name),
             dtype=np.int32)
-        self._f.variables[var_name].attrs['elem_type'] = elemType
+        self._f.variables[var_name].attrs['elem_type'] = np.string_(elemType)
 
     def put_elem_connectivity(self, id, connectivity):
         """
@@ -157,6 +157,9 @@ class exodus(object):
         :type number: int
         :param number: The number of global variables.
         """
+        if not number:
+            return
+
         self._f.dimensions["num_glo_var"] = number
 
         self._f.create_variable(
@@ -418,12 +421,14 @@ class exodus(object):
         """
         # XXX: Should probably all be defined in some header file.
         self._f.attrs['api_version'] = np.float32([6.30000019])
-        self._f.attrs['version'] = np.float32(6.30000019)
-        self._f.attrs['floating_point_word_size'] = np.int32(8)
-        self._f.attrs['file_size'] = np.int32(1)
-        self._f.attrs['maximum_name_length'] = np.int32(32)
-        self._f.attrs['int64_status'] = np.int32(0)
-        self._f.attrs['title'] = title.encode()
+        self._f.attrs['version'] = np.float32([6.30000019])
+        self._f.attrs['floating_point_word_size'] = \
+            np.array([8], dtype=np.int32)
+        self._f.attrs['file_size'] = np.array([1], dtype=np.int32)
+        self._f.attrs['maximum_name_length'] = np.array([32],
+                                                        dtype=np.int32)
+        self._f.attrs['int64_status'] = np.array([0], dtype=np.int32)
+        self._f.attrs['title'] = np.string_(title)
 
     def _create_variables(self):
         # Coordinate names.
@@ -442,8 +447,9 @@ class exodus(object):
         # I don't really understand the number here yet...
         self._f.create_variable('/eb_prop1', ('num_el_blk',),
                                 dtype=np.int32, data=[-1])
-        self._f.variables["eb_prop1"].attrs['name'] = 'ID'
-        self._f.create_variable('/eb_status', ('num_el_blk',), dtype=np.int32)
+        self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
+        self._f.create_variable('/eb_status', ('num_el_blk',),
+                                dtype=np.int32)
 
         # Side sets.
         if "num_side_sets" in self._f.dimensions:
@@ -451,7 +457,7 @@ class exodus(object):
                 '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1')
             self._f.create_variable(
                 '/ss_prop1', ('num_side_sets',), dtype=np.int32, data=[-1])
-            self._f.variables["ss_prop1"].attrs['name'] = 'ID'
+            self._f.variables["ss_prop1"].attrs['name'] = np.string_('ID')
             self._f.create_variable('/ss_status', ('num_side_sets',),
                                     dtype=np.int32)
 
