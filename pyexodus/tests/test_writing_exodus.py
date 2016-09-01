@@ -742,3 +742,41 @@ def test_put_side_set_params(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_put_side_set(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.put_side_set_params(4, 5, 0)
+    e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
+                   np.ones(5, dtype=np.int32) * 3)
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "elem_ss1": {
+                "attrs": {},
+                "data": [2, 2, 2, 2, 2],
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)},
+            "side_ss1": {
+                "attrs": {},
+                "data": [3, 3, 3, 3, 3],
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key

@@ -8,7 +8,9 @@
 """
 from __future__ import absolute_import
 
+import re
 import os
+
 import numpy as np
 
 import h5netcdf
@@ -371,6 +373,23 @@ class exodus(object):
         # Set meta-data.
         self._f.variables["ss_status"][:] += 1
         self._f.variables["ss_prop%i" % idx][:] = id
+
+    def put_side_set(self, id, sideSetElements, sideSetSides):
+        """
+        Set the id, element ids, and side ids for a side set (creates the
+        side set).
+        """
+        # Find the side set.
+        cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
+        ss_ids = [_i for _i in cur_ss if self._f.variables[_i][0] == id]
+        assert len(ss_ids) == 1, "Could not find side set with id %i." % id
+        ss = ss_ids[0]
+        idx = int(re.findall(r"\d+", ss)[0])
+        elem_ss_name = "elem_ss%i" % idx
+        side_ss_name = "side_ss%i" % idx
+
+        self._f.variables[elem_ss_name][:] = sideSetElements
+        self._f.variables[side_ss_name][:] = sideSetSides
 
     def _write_attrs(self, title):
         """
