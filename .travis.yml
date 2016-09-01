@@ -27,7 +27,7 @@ before_install:
 
 install:
   - git version
-  - git fetch origin --tags --unshallow
+  - git fetch origin --tags
   - git remote add pyexodus git://github.com/krischer/pyexodus.git
   - git fetch pyexodus --tags
   - git status
