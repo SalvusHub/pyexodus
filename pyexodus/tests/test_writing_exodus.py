@@ -337,12 +337,50 @@ def test_put_elem_connectivity(tmpdir):
 
 
 def test_put_time(tmpdir):
-        filename = os.path.join(tmpdir.strpath, "example.e")
+    filename = os.path.join(tmpdir.strpath, "example.e")
 
-        e = exodus(filename, mode="w", title="Example", array_type="numpy",
-                   numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                   numNodeSets=0, numSideSets=1)
-        e.put_time(1, 1.1)
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.put_time(1, 1.1)
 
-        with h5netcdf.File(filename, mode="r") as f:
-            np.testing.assert_allclose(f.variables["time_whole"], [1.1])
+    with h5netcdf.File(filename, mode="r") as f:
+        np.testing.assert_allclose(f.variables["time_whole"], [1.1])
+
+
+def test_set_global_variable_number(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_global_variable_number(3)
+
+    with h5netcdf.File(filename, mode="r") as f:
+        _d = np.empty((3, 33), dtype="|S1")
+        _d.fill("")
+
+        expected = {
+            "name_glo_var": {
+                "attrs": {},
+                "data": _d,
+                "dimensions": ("num_glo_var", "len_name"),
+                "dtype": np.dtype("|S1"),
+                "shape": (3, 33)},
+            "vals_glo_var": {
+                "attrs": {},
+                "data": np.zeros((1, 3)),
+                "dimensions": ("time_step", "num_glo_var"),
+                "dtype": np.float64,
+                "shape": (1, 3)}
+            }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key

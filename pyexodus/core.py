@@ -146,6 +146,22 @@ class exodus(object):
 
         self._f.variables["time_whole"][step - 1] = value
 
+    def set_global_variable_number(self, number):
+        """
+        Set number of global variables in exodus file.
+
+        :type number: int
+        :param number: The number of global variables.
+        """
+        self._f.dimensions["num_glo_var"] = number
+
+        self._f.create_variable(
+            "name_glo_var", ("num_glo_var", "len_name"),
+            dtype="|S1")
+        self._f.create_variable(
+            "vals_glo_var", ("time_step", "num_glo_var"),
+            dtype=np.float64)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
