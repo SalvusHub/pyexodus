@@ -821,3 +821,15 @@ def test_put_side_set_name(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_usage_as_context_manager(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1) as e:
+        e.put_time(1, 1.1)
+
+    with h5netcdf.File(filename, mode="r") as f:
+        np.testing.assert_allclose(f.variables["time_whole"], [1.1])
