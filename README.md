@@ -4,7 +4,7 @@
 [![OS-support](https://img.shields.io/badge/OS-linux,win,osx-850A8B.svg)](https://github.com/SalvusHub/pyexodus)
 
 
-Documentation: https://salvushub.github.io/pyexodus/
+**Documentation:** https://salvushub.github.io/pyexodus/
 
 Pure Python (still requires h5py and numpy) package to write exodus files. It
 emulates the Python API of the official Python exodus wrapper but is much much
