@@ -418,3 +418,13 @@ def test_put_global_variable_name(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_get_global_variable_names(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_global_variable_number(3)
+    e.put_global_variable_name(name="hello", index=2)
+    assert e.get_global_variable_names() == ['', 'hello', '']

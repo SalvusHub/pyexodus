@@ -174,6 +174,13 @@ class exodus(object):
         self._f.variables["name_glo_var"][index - 1] = ""
         self._f.variables["name_glo_var"][index - 1, :len(name)] = list(name)
 
+    def get_global_variable_names(self):
+        """
+        Get list of global variable names in exodus file.
+        """
+        return ["".join(_i).strip()
+                for _i in self._f.variables["name_glo_var"][:]]
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
