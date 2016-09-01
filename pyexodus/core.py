@@ -129,6 +129,23 @@ class exodus(object):
             connectivity.reshape((self._f.dimensions[num_el_name],
                                   self._f.dimensions[num_node_per_el_name]))
 
+    def put_time(self, step, value):
+        """
+        Put time step and value into exodus file.
+
+        :type step: int
+        :param step: The index of the time step. First is 1.
+        :type value: float
+        :param value: The actual time at that index.
+        """
+        assert step > 0, "Step must be larger than 0."
+        # XXX: Currently the time axis is not unlimited due to a limitation
+        # in h5netcdf - thus no new time steps can be created after the
+        # initialization.
+        assert step <= self._f.dimensions["time_step"]
+
+        self._f.variables["time_whole"][step - 1] = value
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
