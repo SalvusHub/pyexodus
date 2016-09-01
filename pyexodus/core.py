@@ -221,8 +221,9 @@ class exodus(object):
         :type index: int
         :param index: The index of the global variable. First is 1!
         """
-        self._f.variables["name_glo_var"][index - 1] = ""
-        self._f.variables["name_glo_var"][index - 1, :len(name)] = list(name)
+        self._f.variables["name_glo_var"][index - 1] = b""
+        self._f.variables["name_glo_var"][index - 1, :len(name)] = \
+            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
 
     def put_global_variable_value(self, name, step, value):
         """
@@ -249,7 +250,7 @@ class exodus(object):
         """
         Get list of global variable names in exodus file.
         """
-        return ["".join(_i).strip()
+        return [b"".join(_i).strip().decode()
                 for _i in self._f.variables["name_glo_var"][:]]
 
     def set_element_variable_number(self, number):
@@ -274,15 +275,15 @@ class exodus(object):
         :type index: int
         :param index: The index of the element variable. Starts with 1!
         """
-        self._f.variables["name_elem_var"][index - 1] = ""
+        self._f.variables["name_elem_var"][index - 1] = b""
         self._f.variables["name_elem_var"][index - 1, :len(name)] = \
-            list(name)
+            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
 
     def get_element_variable_names(self):
         """
         Get list of element variable names in exodus file.
         """
-        return ["".join(_i).strip()
+        return [b"".join(_i).strip().decode()
                 for _i in self._f.variables["name_elem_var"][:]]
 
     def put_element_variable_values(self, blockId, name, step, values):
@@ -354,15 +355,15 @@ class exodus(object):
         """
         assert index < self._f.dimensions["num_nod_var"]
 
-        self._f.variables["name_nod_var"][index - 1] = ""
+        self._f.variables["name_nod_var"][index - 1] = b""
         self._f.variables["name_nod_var"][index - 1, :len(name)] = \
-            list(name)
+            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
 
     def get_node_variable_names(self):
         """
         Get list of node variable names in exodus file.
         """
-        return ["".join(_i).strip()
+        return [b"".join(_i).strip().decode()
                 for _i in self._f.variables["name_nod_var"][:]]
 
     def put_node_variable_values(self, name, step, values):
@@ -467,8 +468,9 @@ class exodus(object):
         # 1 based indexing.
         idx = int(re.findall(r"\d+", ss)[0]) - 1
 
-        self._f.variables["ss_names"][idx - 1] = ""
-        self._f.variables["ss_names"][idx - 1, :len(name)] = list(name)
+        self._f.variables["ss_names"][idx - 1] = b""
+        self._f.variables["ss_names"][idx - 1, :len(name)] = \
+            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
 
     def _write_attrs(self, title):
         """

@@ -42,7 +42,7 @@ def test_initialization(tmpdir):
             'floating_point_word_size': np.array([8], dtype=np.int32),
             'int64_status': np.array([0], dtype=np.int32),
             'maximum_name_length': np.array([32], dtype=np.int32),
-            'title': 'Example',
+            'title': b'Example',
             'version': np.array([6.30000019], dtype=np.float32)}
 
         assert dict(f.dimensions) == {
@@ -110,7 +110,7 @@ def test_initialization(tmpdir):
                          'dimensions': ('num_el_blk', 'len_name'),
                          'dtype': np.dtype('S1'),
                          'shape': (1, 33)},
-            'eb_prop1': {'attrs': {'name': 'ID'},
+            'eb_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([-1], dtype=np.int32),
                          'dimensions': ('num_el_blk',),
                          'dtype': np.dtype('int32'),
@@ -129,7 +129,7 @@ def test_initialization(tmpdir):
                          'dimensions': ('num_side_sets', 'len_name'),
                          'dtype': np.dtype('S1'),
                          'shape': (1, 33)},
-            'ss_prop1': {'attrs': {'name': 'ID'},
+            'ss_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([-1], dtype=np.int32),
                          'dimensions': ('num_side_sets',),
                          'dtype': np.dtype('int32'),
@@ -268,7 +268,7 @@ def test_put_elem_blk_info(tmpdir):
 
         # One new variable.
         expected = {
-            "connect1": {"attrs": {"elem_type": "HEX"},
+            "connect1": {"attrs": {"elem_type": b"HEX"},
                          "data": np.zeros((6, 3), dtype=np.int32),
                          "dimensions": ("num_el_in_blk1",
                                         "num_nod_per_el1"),
@@ -322,7 +322,7 @@ def test_put_elem_connectivity(tmpdir):
     with h5netcdf.File(filename, mode="r") as f:
         # connect1 should now be filled.
         expected = {
-            "connect1": {"attrs": {"elem_type": "HEX"},
+            "connect1": {"attrs": {"elem_type": b"HEX"},
                          "data": (np.arange(6 * 3) + 7).reshape((6, 3)),
                          "dimensions": ("num_el_in_blk1",
                                         "num_nod_per_el1"),
@@ -726,7 +726,7 @@ def test_put_side_set_params(tmpdir):
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
                 "shape": (5,)},
-            'ss_prop1': {'attrs': {'name': 'ID'},
+            'ss_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([4], dtype=np.int32),
                          'dimensions': ('num_side_sets',),
                          'dtype': np.dtype('int32'),
