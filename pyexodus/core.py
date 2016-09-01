@@ -98,6 +98,37 @@ class exodus(object):
             dtype=np.int32)
         self._f.variables[var_name].attrs['elem_type'] = elemType
 
+    def put_elem_connectivity(self, id, connectivity):
+        """
+        Set the element connectivity array for all elements in a block.
+
+        The information for this block must have already been set by calling
+        e.put_elem_blk_info() on this block.
+
+        :type id: int
+        :param id: The id of the element block.
+        :type connectivity: :class:`numpy.ndarray`
+        :param connectivity: The connectivity. Must be equal to the number
+            of of elements times the number of nodes per element for any
+            given block.
+        """
+        num_el_name = "num_el_in_blk%i" % id
+        num_node_per_el_name = "num_nod_per_el%i" % id
+        var_name = "connect%i" % id
+
+        assert num_el_name in self._f.dimensions, \
+            "Block id %i does not exist" % id
+        assert num_node_per_el_name in self._f.dimensions, \
+            "Block id %i does not exist" % id
+
+        assert connectivity.shape == (
+            self._f.dimensions[num_el_name] *
+            self._f.dimensions[num_node_per_el_name],)
+
+        self._f.variables[var_name][:] = \
+            connectivity.reshape((self._f.dimensions[num_el_name],
+                                  self._f.dimensions[num_node_per_el_name]))
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
