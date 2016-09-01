@@ -1,3 +1,4 @@
 *.egg-info
 .cache
 pyexodus/RELEASE-VERSION
+doc/_build/
