@@ -1,0 +1,44 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+
+env:
+  global:
+    secure: "MhW7gICzNIUwodMqpkVrpLQjGbkP/dpsBJu6GJZl/lobs0LmzSV9iFEXamG48Tmbxtfgf1pcciu0b6xCnuAeLpcoe0dvOC5+MF5HOwqanmQMbqi9tJduzzFEn9UUySUcdochG62lMtg1g1dR3f0T3q0JaX4a0axMOTC7d/AK6og="
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
+  - conda update --yes conda
+  - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
+  - conda install --yes -n condaenv pip
+  - source activate condaenv
+  - conda install --yes -c conda-forge numpy h5netcdf pytest python=$TRAVIS_PYTHON_VERSION
+  # build doc only on Python 3.5
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then conda install --yes sphinx ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then pip install klink ; fi
+  - pip install flake8  # Make sure this is up-to-date (don't use conda).
+  - pip install codecov
+
+install:
+  - git version
+  - git fetch origin --tags --unshallow
+  - git remote add pyexodus git://github.com/krischer/pyexodus.git
+  - git fetch pyexodus --tags
+  - git status
+  - pip install --no-deps -v -e .
+  - git status
+
+script:
+  - py.test --cov=pyexodus
+  # Docs only need to be built once.
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+
+after_success:
+  - cd $TRAVIS_BUILD_DIR; codecov
+  #- if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
