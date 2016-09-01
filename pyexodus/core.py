@@ -58,6 +58,14 @@ class exodus(object):
         # XXX: Currently a no-op as our examples don't really use it.
         assert not strings, "Not yet implemented."
 
+    def put_coords(self, xCoords, yCoords, zCoords):
+        """
+        Put coordinates in the exodus file.
+        """
+        self._f.variables["coordx"][:] = xCoords
+        self._f.variables["coordy"][:] = yCoords
+        self._f.variables["coordz"][:] = zCoords
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
