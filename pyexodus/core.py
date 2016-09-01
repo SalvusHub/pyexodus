@@ -290,6 +290,21 @@ class exodus(object):
                 name, ("time_step", "num_nodes"),
                 dtype=np.float64)
 
+    def put_node_variable_name(self, name, index):
+        """
+        Node variable with name at index into exodus file.
+
+        :type name: str
+        :param name: The name of the element variable.
+        :type index: int
+        :param index: The index of the element variable. Starts with 1!
+        """
+        assert index < self._f.dimensions["num_nod_var"]
+
+        self._f.variables["name_nod_var"][index - 1] = ""
+        self._f.variables["name_nod_var"][index - 1, :len(name)] = \
+            list(name)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
