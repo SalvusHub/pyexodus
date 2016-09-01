@@ -215,6 +215,19 @@ class exodus(object):
             "name_elem_var", ("num_elem_var", "len_name"),
             dtype="|S1")
 
+    def put_element_variable_name(self, name, index):
+        """
+        Element variable with name at index into exodus file.
+
+        :type name: str
+        :param name: The name of the element variable.
+        :type index: int
+        :param index: The index of the element variable. Starts with 1!
+        """
+        self._f.variables["name_elem_var"][index - 1] = ""
+        self._f.variables["name_elem_var"][index - 1, :len(name)] = \
+            list(name)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
