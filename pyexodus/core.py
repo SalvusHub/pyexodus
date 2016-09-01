@@ -17,10 +17,35 @@ import h5netcdf
 
 
 class exodus(object):
+    """
+    Create a new Exodus file. Can also be used as a context manager.
+
+    :type file: str
+    :param file: Filename
+    :type mode: str
+    :param mode: File mode. Must currently be ``"w"``.
+    :type array_type: str
+    :param array_type: Must be ``"numpy"``.
+    :type title: str
+    :param title: The title of the mesh.
+    :type numDims: int
+    :param numDims: The number of dimensions.
+    :type numNodes: int
+    :param numNodes: The number of nodes.
+    :type numElems: int
+    :param numElems: The number of elements.
+    :type numBlocks: int
+    :param numBlocks: The number of element blocks.
+    :type numNodeSets: int
+    :param numNodeSets: The number of node side sets.
+    :type numSideSets: int
+    :param numSideSets: The number of element side sets.
+    :type io_size: int
+    :param io_size: No clue - must be zero for now.
+    """
     def __init__(self, file, mode="r", array_type="numpy", title=None,
                  numDims=None, numNodes=None, numElems=None, numBlocks=None,
                  numNodeSets=None, numSideSets=None, io_size=0):
-
         # API is currently quite limited...mainly because nothing else is
         # implemented.
         assert mode == "w", "Currently only writing is supported."
@@ -60,12 +85,27 @@ class exodus(object):
         self._create_variables()
 
     def put_info_records(self, strings):
+        """
+        Puts the info records into the exodus file.
+
+        Does currently not do anything.
+
+        :type strings: list of str
+        :param strings: The strings to save.
+        """
         # XXX: Currently a no-op as our examples don't really use it.
         assert not strings, "Not yet implemented."
 
     def put_coords(self, xCoords, yCoords, zCoords):
         """
         Put coordinates in the exodus file.
+
+        :type xCoords: :class:`numpy.ndarray`
+        :param xCoords: The X coordiantes.
+        :type yCoords: :class:`numpy.ndarray`
+        :param yCoords:  The Y coordinates.
+        :type zCoords: :class:`numpy.ndarray`
+        :param zCoords:  The Z coordinates.
         """
         self._f.variables["coordx"][:] = xCoords
         self._f.variables["coordy"][:] = yCoords
@@ -389,6 +429,13 @@ class exodus(object):
         """
         Set the id, element ids, and side ids for a side set (creates the
         side set).
+
+        :type id: int
+        :param id:
+        :type sideSetElements: :class:`numpy.ndarray`
+        :param sideSetElements: The side set elements.
+        :type sideSetSides: :class:`numpy.ndarray`
+        :param sideSetSides: The side set sides.
         """
         # Find the side set.
         cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
@@ -405,6 +452,11 @@ class exodus(object):
     def put_side_set_name(self, id, name):
         """
         Write side set name for side set "id" in exodus file
+
+        :type id: int
+        :param id: The id of the side set.
+        :type name: str
+        :param name: The string of the side set.
         """
         # Find the side set.
         cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
