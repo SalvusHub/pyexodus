@@ -530,6 +530,18 @@ def test_put_element_variable_name(tmpdir):
             assert a.shape == e["shape"], key
 
 
+def test_get_element_variable_values(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_element_variable_number(5)
+    e.put_element_variable_name("random", 3)
+
+    assert e.get_element_variable_names() == ["", "", "random", "", ""]
+
+
 def test_put_element_variable_values(tmpdir):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
