@@ -54,6 +54,10 @@ class exodus(object):
 
         self._create_variables()
 
+    def put_info_records(self, strings):
+        # XXX: Currently a no-op as our examples don't really use it.
+        assert not strings, "Not yet implemented."
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
