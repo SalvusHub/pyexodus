@@ -202,6 +202,19 @@ class exodus(object):
         return ["".join(_i).strip()
                 for _i in self._f.variables["name_glo_var"][:]]
 
+    def set_element_variable_number(self, number):
+        """
+        Set number of element variables in exodus file.
+
+        :type number: int
+        :param number: The number of variables per element.
+        """
+        self._f.dimensions["num_elem_var"] = number
+
+        self._f.create_variable(
+            "name_elem_var", ("num_elem_var", "len_name"),
+            dtype="|S1")
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
