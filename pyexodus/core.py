@@ -305,6 +305,36 @@ class exodus(object):
         self._f.variables["name_nod_var"][index - 1, :len(name)] = \
             list(name)
 
+    def get_node_variable_names(self):
+        """
+        Get list of node variable names in exodus file.
+        """
+        return ["".join(_i).strip()
+                for _i in self._f.variables["name_nod_var"][:]]
+
+    def put_node_variable_values(self, name, step, values):
+        """
+        Put node values into variable name at step into exodus file
+
+        :type name: str
+        :param name: The name of the variable.
+        :type step: int
+        :param step: The time step at which to put the values.
+        :type values: :class:`numpy.ndarray`
+        :param values: The actual values.
+        """
+        assert step > 0, "Step must be larger than 0."
+        # XXX: Currently the time axis is not unlimited due to a limitation
+        # in h5netcdf - thus no new time steps can be created after the
+        # initialization.
+        assert step <= self._f.dimensions["time_step"]
+
+        # 1-based indexing!
+        idx = self.get_node_variable_names().index(name) + 1
+
+        d_name = "vals_nod_var%i" % idx
+        self._f.variables[d_name][step - 1] = values
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
