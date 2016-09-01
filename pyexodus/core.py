@@ -391,6 +391,22 @@ class exodus(object):
         self._f.variables[elem_ss_name][:] = sideSetElements
         self._f.variables[side_ss_name][:] = sideSetSides
 
+    def put_side_set_name(self, id, name):
+        """
+        Write side set name for side set "id" in exodus file
+        """
+        # Find the side set.
+        cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
+        ss_ids = [_i for _i in cur_ss if self._f.variables[_i][0] == id]
+        assert len(ss_ids) == 1, "Could not find side set with id %i." % id
+        ss = ss_ids[0]
+
+        # 1 based indexing.
+        idx = int(re.findall(r"\d+", ss)[0]) - 1
+
+        self._f.variables["ss_names"][idx - 1] = ""
+        self._f.variables["ss_names"][idx - 1, :len(name)] = list(name)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
