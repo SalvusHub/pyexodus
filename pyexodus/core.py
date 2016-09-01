@@ -228,6 +228,49 @@ class exodus(object):
         self._f.variables["name_elem_var"][index - 1, :len(name)] = \
             list(name)
 
+    def get_element_variable_names(self):
+        """
+        Get list of element variable names in exodus file.
+        """
+        return ["".join(_i).strip()
+                for _i in self._f.variables["name_elem_var"][:]]
+
+    def put_element_variable_values(self, blockId, name, step, values):
+        """
+        Put values into element block id and variable name at step.
+
+        :type blockId: int
+        :param blockId: The block id.
+        :type name: str
+        :param name: The name of the variable.
+        :type step: int
+        :param step: The time step at which to put the values.
+        :type values: :class:`numpy.ndarray`
+        :param values: The actual values.
+        """
+        assert step > 0, "Step must be larger than 0."
+        # XXX: Currently the time axis is not unlimited due to a limitation
+        # in h5netcdf - thus no new time steps can be created after the
+        # initialization.
+        assert step <= self._f.dimensions["time_step"]
+
+        num_elem_name = "num_el_in_blk%i" % blockId
+        assert num_elem_name in self._f.dimensions, \
+            "Block id %i not found." % blockId
+
+        # 1-based indexing!
+        idx = self.get_element_variable_names().index(name) + 1
+
+        variable_name = "vals_elem_var%ieb%i" % (idx, blockId)
+
+        # If it does not exist, create it.
+        if variable_name not in self._f.variables:
+            self._f.create_variable(
+                variable_name, ("time_step", num_elem_name),
+                dtype=np.float64)
+
+        self._f.variables[variable_name][step - 1] = values
+
     def _write_attrs(self, title):
         """
         Write all the attributes.

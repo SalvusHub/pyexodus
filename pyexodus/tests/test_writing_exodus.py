@@ -528,3 +528,38 @@ def test_put_element_variable_name(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_put_element_variable_values(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_element_variable_number(5)
+    e.put_element_variable_name("random", 3)
+    # requires an actual element block.
+    e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+    e.put_element_variable_values(1, "random", 1, np.arange(6))
+
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "vals_elem_var3eb1": {
+                "attrs": {},
+                "data": np.arange(6, dtype=np.float64).reshape(1, 6),
+                "dimensions": ("time_step", "num_el_in_blk1"),
+                "dtype": np.float64,
+                "shape": (1, 6)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
