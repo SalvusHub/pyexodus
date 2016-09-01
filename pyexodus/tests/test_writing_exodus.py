@@ -270,8 +270,8 @@ def test_put_elem_blk_info(tmpdir):
         expected = {
             "connect1": {"attrs": {"elem_type": "HEX"},
                          "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk_1",
-                                        "num_node_per_el1"),
+                         "dimensions": ("num_el_in_blk1",
+                                        "num_nod_per_el1"),
                          "dtype": np.int32,
                          "shape": (6, 3)}
         }

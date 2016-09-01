@@ -66,6 +66,38 @@ class exodus(object):
         self._f.variables["coordy"][:] = yCoords
         self._f.variables["coordz"][:] = zCoords
 
+    def put_elem_blk_info(self, id, elemType, numElems, numNodesPerElem,
+                          numAttrsPerElem):
+        """
+        Set the details of an element block.
+
+        :type id: int
+        :param id: The id of the element block.
+        :type elemType: str
+        :param elemType: The name of the element block.
+        :type numElems: int
+        :param numElems: The number of elements in the block.
+        :type numNodesPerElem: int
+        :param numNodesPerElem: The number of nodes per element.
+        :type numAttrsPerElem: int
+        :param numAttrsPerElem: The number of attributes per element.
+        """
+        assert numElems <= self._f.dimensions["num_elem"], \
+            "Canont have more elements in the block then globally set."
+        assert numAttrsPerElem == 0, "Must be 0 for now."
+
+        num_el_name = "num_el_in_blk%i" % id
+        num_node_per_el_name = "num_nod_per_el%i" % id
+        var_name = "connect%i" % id
+
+        self._f.dimensions[num_el_name] = numElems
+        self._f.dimensions[num_node_per_el_name] = numNodesPerElem
+
+        self._f.create_variable(
+            var_name, (num_el_name, num_node_per_el_name),
+            dtype=np.int32)
+        self._f.variables[var_name].attrs['elem_type'] = elemType
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
