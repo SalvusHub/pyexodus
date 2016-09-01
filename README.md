@@ -1,5 +1,4 @@
-pyexodus
-========
+<img src="http://salvushub.github.io/pyexodus/_static/logo.svg" width="250">
 
 [![Build Status](https://travis-ci.org/krischer/instaseis.svg?branch=master)](https://travis-ci.org/krischer/instaseis) [![codecov](https://codecov.io/gh/SalvusHub/pyexodus/branch/master/graph/badge.svg)](https://codecov.io/gh/SalvusHub/pyexodus) [![license](https://img.shields.io/badge/license-MIT-F57F17.svg)](https://opensource.org/licenses/MIT) [![python-version](https://img.shields.io/badge/python-2.7,3.4,3.5-blue.svg)](http://python.org)
 [![OS-support](https://img.shields.io/badge/OS-linux,win,osx-850A8B.svg)](https://github.com/SalvusHub/pyexodus)
