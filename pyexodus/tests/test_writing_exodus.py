@@ -696,3 +696,49 @@ def test_get_node_variable_names(tmpdir):
     e.put_node_variable_name("good friend", 1)
 
     assert e.get_node_variable_names() == ["good friend", ""]
+
+
+def test_put_side_set_params(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.put_side_set_params(4, 5, 0)
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "elem_ss1": {
+                "attrs": {},
+                "data": np.zeros(5),
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)},
+            "side_ss1": {
+                "attrs": {},
+                "data": np.zeros(5),
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)},
+            'ss_prop1': {'attrs': {'name': 'ID'},
+                         'data': np.array([4], dtype=np.int32),
+                         'dimensions': ('num_side_sets',),
+                         'dtype': np.dtype('int32'),
+                         'shape': (1,)},
+            'ss_status': {'attrs': {},
+                          'data': np.array([1], dtype=np.int32),
+                          'dimensions': ('num_side_sets',),
+                          'dtype': np.dtype('int32'),
+                          'shape': (1,)},
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key

@@ -335,6 +335,43 @@ class exodus(object):
         d_name = "vals_nod_var%i" % idx
         self._f.variables[d_name][step - 1] = values
 
+    def put_side_set_params(self, id, numSetSides, numSetDistFacts):
+        """
+        Set ID, num elements, and num nodes of a sideset
+
+        :type id: int
+        :param id: The id of the side set.
+        :type numSetSides: int
+        :param numSetSides: The number of elements for a side set.
+        :type numSetDistFacts: int
+        :param numSetDistFacts: The number of nodes for the side set.
+        """
+        assert numSetDistFacts == 0, "Only 0 is currently supported."
+
+        max_ss = self._f.dimensions["num_side_sets"]
+
+        cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
+        ss_ids = [self._f.variables[_i][0] for _i in cur_ss]
+        # -1 stands for now side set id.
+        ss_ids = [_i for _i in ss_ids if _i >= 0]
+
+        assert id not in ss_ids, "Side set id %i already exists." % id
+        assert len(ss_ids) < max_ss, "Maximum number of side sets reached."
+
+        idx = len(ss_ids) + 1
+        dim_name = "num_side_ss%i" % idx
+        elem_ss_name = "elem_ss%i" % idx
+        side_ss_name = "side_ss%i" % idx
+
+        # Create the dimension and variables.
+        self._f.dimensions[dim_name] = numSetSides
+        self._f.create_variable(elem_ss_name, (dim_name,), dtype=np.int32)
+        self._f.create_variable(side_ss_name, (dim_name,), dtype=np.int32)
+
+        # Set meta-data.
+        self._f.variables["ss_status"][:] += 1
+        self._f.variables["ss_prop%i" % idx][:] = id
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
