@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyexodus &mdash; pyexodus 0.0.0-gca95 documentation</title>
+    
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.0-gca95',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyexodus 0.0.0-gca95 documentation" href="#" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pyexodus">
+<h1>pyexodus<a class="headerlink" href="#pyexodus" title="Permalink to this headline">¶</a></h1>
+<p>Pure Python (still requires h5py and numpy) package to write exodus files. It
+emulates the Python API of the official Python exodus wrapper but is much much
+easier to get going. Additionally it manages to avoid the installation of two
+very large C/C++ libraries (netCDF and exodus) that are potentially tricky to
+install, and is also easy to install on Windows.</p>
+<p>Don&#8217;t expect this to be complete anytime soon - we will add stuff as soon as we
+need it. Currently it does exactly what we need it to do and nothing else. As
+of now it can write some kinds of exodus files that can then be opened by
+Paraview.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ conda install -c conda-forge numpy h5netcdf pip pytest
+$ git clone https://github.com/SalvusHub/pyexodus.git
+$ <span class="nb">cd</span> pyexodus
+$ pip install -v -e .
+<span class="c1"># Run the tests to make sure everything works.</span>
+$ py.test
+</pre></div>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyexodus.exodus">
+<em class="property">class </em><code class="descclassname">pyexodus.</code><code class="descname">exodus</code><span class="sig-paren">(</span><em>file</em>, <em>mode='r'</em>, <em>array_type='numpy'</em>, <em>title=None</em>, <em>numDims=None</em>, <em>numNodes=None</em>, <em>numElems=None</em>, <em>numBlocks=None</em>, <em>numNodeSets=None</em>, <em>numSideSets=None</em>, <em>io_size=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Exodus file. Can also be used as a context manager.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Filename</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; File mode. Must currently be <code class="docutils literal"><span class="pre">&quot;w&quot;</span></code>.</li>
+<li><strong>array_type</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Must be <code class="docutils literal"><span class="pre">&quot;numpy&quot;</span></code>.</li>
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The title of the mesh.</li>
+<li><strong>numDims</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of dimensions.</li>
+<li><strong>numNodes</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of nodes.</li>
+<li><strong>numElems</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of elements.</li>
+<li><strong>numBlocks</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of element blocks.</li>
+<li><strong>numNodeSets</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of node side sets.</li>
+<li><strong>numSideSets</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of element side sets.</li>
+<li><strong>io_size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; No clue - must be zero for now.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyexodus.exodus.get_element_variable_names">
+<code class="descname">get_element_variable_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_element_variable_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_element_variable_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of element variable names in exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_global_variable_names">
+<code class="descname">get_global_variable_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_global_variable_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_global_variable_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of global variable names in exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_node_variable_names">
+<code class="descname">get_node_variable_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_node_variable_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_node_variable_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of node variable names in exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_coords">
+<code class="descname">put_coords</code><span class="sig-paren">(</span><em>xCoords</em>, <em>yCoords</em>, <em>zCoords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put coordinates in the exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xCoords</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The X coordiantes.</li>
+<li><strong>yCoords</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The Y coordinates.</li>
+<li><strong>zCoords</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The Z coordinates.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_elem_blk_info">
+<code class="descname">put_elem_blk_info</code><span class="sig-paren">(</span><em>id</em>, <em>elemType</em>, <em>numElems</em>, <em>numNodesPerElem</em>, <em>numAttrsPerElem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_elem_blk_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_elem_blk_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the details of an element block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the element block.</li>
+<li><strong>elemType</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the element block.</li>
+<li><strong>numElems</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of elements in the block.</li>
+<li><strong>numNodesPerElem</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of nodes per element.</li>
+<li><strong>numAttrsPerElem</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of attributes per element.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_elem_connectivity">
+<code class="descname">put_elem_connectivity</code><span class="sig-paren">(</span><em>id</em>, <em>connectivity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_elem_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_elem_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the element connectivity array for all elements in a block.</p>
+<p>The information for this block must have already been set by calling
+e.put_elem_blk_info() on this block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the element block.</li>
+<li><strong>connectivity</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The connectivity. Must be equal to the number
+of of elements times the number of nodes per element for any
+given block.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_element_variable_name">
+<code class="descname">put_element_variable_name</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_element_variable_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_element_variable_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Element variable with name at index into exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the element variable.</li>
+<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The index of the element variable. Starts with 1!</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_element_variable_values">
+<code class="descname">put_element_variable_values</code><span class="sig-paren">(</span><em>blockId</em>, <em>name</em>, <em>step</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_element_variable_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_element_variable_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put values into element block id and variable name at step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>blockId</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The block id.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the variable.</li>
+<li><strong>step</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The time step at which to put the values.</li>
+<li><strong>values</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The actual values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_global_variable_name">
+<code class="descname">put_global_variable_name</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_global_variable_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_global_variable_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put global variable with name at index into exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the variable.</li>
+<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The index of the global variable. First is 1!</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_global_variable_value">
+<code class="descname">put_global_variable_value</code><span class="sig-paren">(</span><em>name</em>, <em>step</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_global_variable_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_global_variable_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put global variable value and variable name at time step into exodus
+file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the variable.</li>
+<li><strong>step</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The index of the time step. First is 1.</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The actual time at that index.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_info_records">
+<code class="descname">put_info_records</code><span class="sig-paren">(</span><em>strings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_info_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_info_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the info records into the exodus file.</p>
+<p>Does currently not do anything.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strings</strong> (<em>list of str</em>) &#8211; The strings to save.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_node_variable_name">
+<code class="descname">put_node_variable_name</code><span class="sig-paren">(</span><em>name</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_node_variable_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_node_variable_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Node variable with name at index into exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the element variable.</li>
+<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The index of the element variable. Starts with 1!</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_node_variable_values">
+<code class="descname">put_node_variable_values</code><span class="sig-paren">(</span><em>name</em>, <em>step</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_node_variable_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_node_variable_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put node values into variable name at step into exodus file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the variable.</li>
+<li><strong>step</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The time step at which to put the values.</li>
+<li><strong>values</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The actual values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_side_set">
+<code class="descname">put_side_set</code><span class="sig-paren">(</span><em>id</em>, <em>sideSetElements</em>, <em>sideSetSides</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_side_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_side_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the id, element ids, and side ids for a side set (creates the
+side set).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; </li>
+<li><strong>sideSetElements</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The side set elements.</li>
+<li><strong>sideSetSides</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The side set sides.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_side_set_name">
+<code class="descname">put_side_set_name</code><span class="sig-paren">(</span><em>id</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_side_set_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_side_set_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write side set name for side set &#8220;id&#8221; in exodus file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the side set.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The string of the side set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_side_set_params">
+<code class="descname">put_side_set_params</code><span class="sig-paren">(</span><em>id</em>, <em>numSetSides</em>, <em>numSetDistFacts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_side_set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_side_set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set ID, num elements, and num nodes of a sideset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the side set.</li>
+<li><strong>numSetSides</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of elements for a side set.</li>
+<li><strong>numSetDistFacts</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of nodes for the side set.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.put_time">
+<code class="descname">put_time</code><span class="sig-paren">(</span><em>step</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put time step and value into exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>step</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The index of the time step. First is 1.</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The actual time at that index.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.set_element_variable_number">
+<code class="descname">set_element_variable_number</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.set_element_variable_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.set_element_variable_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of element variables in exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of variables per element.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.set_global_variable_number">
+<code class="descname">set_global_variable_number</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.set_global_variable_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.set_global_variable_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of global variables in exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of global variables.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.set_node_variable_number">
+<code class="descname">set_node_variable_number</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.set_node_variable_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.set_node_variable_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set number of node variables in exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of node variables.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Acknowledgements</p>
+<ul class="last simple">
+<li>The offical Python API can be here: <a class="reference external" href="https://github.com/gsjaardema/seacas">https://github.com/gsjaardema/seacas</a></li>
+<li>Logo made by Roundicons from <a class="reference external" href="http://www.flaticon.com">http://www.flaticon.com</a> (Creative Commons BY 3.0 License)</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="#" id="logo" title=pyexodus><img class="logo" src="_static/logo.svg" width="150px" height="150px" title=pyexodus /></a>
+            
+            
+            
+
+            
+            <ul>
+                <li><a href="https://github.com/SalvusHub/pyexodus">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2016, Lion Krischer
+        </div>
+
+        
+  </body>
+</html>

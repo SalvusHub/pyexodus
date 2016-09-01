@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyexodus.core &mdash; pyexodus 0.0.0-gca95 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.0-gca95',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pyexodus 0.0.0-gca95 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyexodus.core</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:copyright:</span>
+<span class="sd">    Lion Krischer (lionkrischer@gmail.com), 2016</span>
+<span class="sd">:license:</span>
+<span class="sd">    MIT License</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">h5netcdf</span>
+
+
+<div class="viewcode-block" id="exodus"><a class="viewcode-back" href="../../index.html#pyexodus.exodus">[docs]</a><span class="k">class</span> <span class="nc">exodus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new Exodus file. Can also be used as a context manager.</span>
+
+<span class="sd">    :type file: str</span>
+<span class="sd">    :param file: Filename</span>
+<span class="sd">    :type mode: str</span>
+<span class="sd">    :param mode: File mode. Must currently be ``&quot;w&quot;``.</span>
+<span class="sd">    :type array_type: str</span>
+<span class="sd">    :param array_type: Must be ``&quot;numpy&quot;``.</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param title: The title of the mesh.</span>
+<span class="sd">    :type numDims: int</span>
+<span class="sd">    :param numDims: The number of dimensions.</span>
+<span class="sd">    :type numNodes: int</span>
+<span class="sd">    :param numNodes: The number of nodes.</span>
+<span class="sd">    :type numElems: int</span>
+<span class="sd">    :param numElems: The number of elements.</span>
+<span class="sd">    :type numBlocks: int</span>
+<span class="sd">    :param numBlocks: The number of element blocks.</span>
+<span class="sd">    :type numNodeSets: int</span>
+<span class="sd">    :param numNodeSets: The number of node side sets.</span>
+<span class="sd">    :type numSideSets: int</span>
+<span class="sd">    :param numSideSets: The number of element side sets.</span>
+<span class="sd">    :type io_size: int</span>
+<span class="sd">    :param io_size: No clue - must be zero for now.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">array_type</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">numDims</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numNodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numElems</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numBlocks</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">numNodeSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numSideSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">io_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># API is currently quite limited...mainly because nothing else is</span>
+        <span class="c1"># implemented.</span>
+        <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;Currently only writing is supported.&quot;</span>
+        <span class="k">assert</span> <span class="n">array_type</span> <span class="o">==</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;array_type must be &#39;numpy&#39;.&quot;</span>
+        <span class="k">assert</span> <span class="n">numBlocks</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;numBlocks must be 1 for now.&quot;</span>
+        <span class="k">assert</span> <span class="n">numNodeSets</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;numNodeSets must be 1 for now.&quot;</span>
+        <span class="k">assert</span> <span class="n">io_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;io_size must be 0 for now.&quot;</span>
+        <span class="k">assert</span> <span class="n">numDims</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Only 2 or 3 dimensions are supported.&quot;</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">file</span><span class="p">),</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; already exists.&quot;</span> <span class="o">%</span> <span class="nb">file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="n">h5netcdf</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_attrs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="c1"># Set the dimensions - very straightforward.</span>
+        <span class="c1"># XXX: These should come from some header variable.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;len_string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">33</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;len_line&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">81</span>
+        <span class="c1"># No clue what this is for...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;four&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;len_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">33</span>
+
+        <span class="c1"># XXX: Currently must be set to one as h5netcdf does currently</span>
+        <span class="c1"># not support unlimited dimensions altough this should be easy</span>
+        <span class="c1"># to add.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># These are dynamic.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numDims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_elem&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numElems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_el_blk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numBlocks</span>
+        <span class="k">if</span> <span class="n">numSideSets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_side_sets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numSideSets</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_variables</span><span class="p">()</span>
+
+<div class="viewcode-block" id="exodus.put_info_records"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_info_records">[docs]</a>    <span class="k">def</span> <span class="nf">put_info_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Puts the info records into the exodus file.</span>
+
+<span class="sd">        Does currently not do anything.</span>
+
+<span class="sd">        :type strings: list of str</span>
+<span class="sd">        :param strings: The strings to save.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># XXX: Currently a no-op as our examples don&#39;t really use it.</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">strings</span><span class="p">,</span> <span class="s2">&quot;Not yet implemented.&quot;</span></div>
+
+<div class="viewcode-block" id="exodus.put_coords"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_coords">[docs]</a>    <span class="k">def</span> <span class="nf">put_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xCoords</span><span class="p">,</span> <span class="n">yCoords</span><span class="p">,</span> <span class="n">zCoords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put coordinates in the exodus file.</span>
+
+<span class="sd">        :type xCoords: :class:`numpy.ndarray`</span>
+<span class="sd">        :param xCoords: The X coordiantes.</span>
+<span class="sd">        :type yCoords: :class:`numpy.ndarray`</span>
+<span class="sd">        :param yCoords:  The Y coordinates.</span>
+<span class="sd">        :type zCoords: :class:`numpy.ndarray`</span>
+<span class="sd">        :param zCoords:  The Z coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordx&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">xCoords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordy&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">yCoords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordz&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">zCoords</span></div>
+
+<div class="viewcode-block" id="exodus.put_elem_blk_info"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_elem_blk_info">[docs]</a>    <span class="k">def</span> <span class="nf">put_elem_blk_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">elemType</span><span class="p">,</span> <span class="n">numElems</span><span class="p">,</span> <span class="n">numNodesPerElem</span><span class="p">,</span>
+                          <span class="n">numAttrsPerElem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the details of an element block.</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: The id of the element block.</span>
+<span class="sd">        :type elemType: str</span>
+<span class="sd">        :param elemType: The name of the element block.</span>
+<span class="sd">        :type numElems: int</span>
+<span class="sd">        :param numElems: The number of elements in the block.</span>
+<span class="sd">        :type numNodesPerElem: int</span>
+<span class="sd">        :param numNodesPerElem: The number of nodes per element.</span>
+<span class="sd">        :type numAttrsPerElem: int</span>
+<span class="sd">        :param numAttrsPerElem: The number of attributes per element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">numElems</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_elem&quot;</span><span class="p">],</span> \
+            <span class="s2">&quot;Canont have more elements in the block then globally set.&quot;</span>
+        <span class="k">assert</span> <span class="n">numAttrsPerElem</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Must be 0 for now.&quot;</span>
+
+        <span class="n">num_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">num_node_per_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_nod_per_el</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_el_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numElems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_node_per_el_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numNodesPerElem</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+            <span class="n">var_name</span><span class="p">,</span> <span class="p">(</span><span class="n">num_el_name</span><span class="p">,</span> <span class="n">num_node_per_el_name</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;elem_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">elemType</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;eb_status&#39;</span><span class="p">][:]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="exodus.put_elem_connectivity"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_elem_connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">put_elem_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the element connectivity array for all elements in a block.</span>
+
+<span class="sd">        The information for this block must have already been set by calling</span>
+<span class="sd">        e.put_elem_blk_info() on this block.</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: The id of the element block.</span>
+<span class="sd">        :type connectivity: :class:`numpy.ndarray`</span>
+<span class="sd">        :param connectivity: The connectivity. Must be equal to the number</span>
+<span class="sd">            of of elements times the number of nodes per element for any</span>
+<span class="sd">            given block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">num_node_per_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_nod_per_el</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+
+        <span class="k">assert</span> <span class="n">num_el_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> \
+            <span class="s2">&quot;Block id </span><span class="si">%i</span><span class="s2"> does not exist&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="k">assert</span> <span class="n">num_node_per_el_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> \
+            <span class="s2">&quot;Block id </span><span class="si">%i</span><span class="s2"> does not exist&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+
+        <span class="k">assert</span> <span class="n">connectivity</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_el_name</span><span class="p">]</span> <span class="o">*</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_node_per_el_name</span><span class="p">],)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">][:]</span> <span class="o">=</span> \
+            <span class="n">connectivity</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_el_name</span><span class="p">],</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_node_per_el_name</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="exodus.put_time"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_time">[docs]</a>    <span class="k">def</span> <span class="nf">put_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put time step and value into exodus file.</span>
+
+<span class="sd">        :type step: int</span>
+<span class="sd">        :param step: The index of the time step. First is 1.</span>
+<span class="sd">        :type value: float</span>
+<span class="sd">        :param value: The actual time at that index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Step must be larger than 0.&quot;</span>
+        <span class="c1"># XXX: Currently the time axis is not unlimited due to a limitation</span>
+        <span class="c1"># in h5netcdf - thus no new time steps can be created after the</span>
+        <span class="c1"># initialization.</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;time_whole&quot;</span><span class="p">][</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="exodus.set_global_variable_number"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.set_global_variable_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_global_variable_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set number of global variables in exodus file.</span>
+
+<span class="sd">        :type number: int</span>
+<span class="sd">        :param number: The number of global variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">number</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_glo_var&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+            <span class="s2">&quot;name_glo_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_glo_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+            <span class="s2">&quot;vals_glo_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="s2">&quot;num_glo_var&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="exodus.put_global_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_global_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_global_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put global variable with name at index into exodus file.</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the variable.</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :param index: The index of the global variable. First is 1!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_glo_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_glo_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="exodus.put_global_variable_value"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_global_variable_value">[docs]</a>    <span class="k">def</span> <span class="nf">put_global_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put global variable value and variable name at time step into exodus</span>
+<span class="sd">        file.</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the variable.</span>
+<span class="sd">        :type step: int</span>
+<span class="sd">        :param step: The index of the time step. First is 1.</span>
+<span class="sd">        :type value: float</span>
+<span class="sd">        :param value: The actual time at that index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Step must be larger than 0.&quot;</span>
+        <span class="c1"># XXX: Currently the time axis is not unlimited due to a limitation</span>
+        <span class="c1"># in h5netcdf - thus no new time steps can be created after the</span>
+        <span class="c1"># initialization.</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">]</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_variable_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;vals_glo_var&quot;</span><span class="p">][</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="exodus.get_global_variable_names"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_global_variable_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of global variable names in exodus file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_glo_var&quot;</span><span class="p">][:]]</span></div>
+
+<div class="viewcode-block" id="exodus.set_element_variable_number"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.set_element_variable_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_element_variable_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set number of element variables in exodus file.</span>
+
+<span class="sd">        :type number: int</span>
+<span class="sd">        :param number: The number of variables per element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_elem_var&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+            <span class="s2">&quot;name_elem_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_elem_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="exodus.put_element_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_element_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_element_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element variable with name at index into exodus file.</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the element variable.</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :param index: The index of the element variable. Starts with 1!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_elem_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_elem_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="exodus.get_element_variable_names"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_element_variable_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_element_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of element variable names in exodus file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_elem_var&quot;</span><span class="p">][:]]</span></div>
+
+<div class="viewcode-block" id="exodus.put_element_variable_values"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_element_variable_values">[docs]</a>    <span class="k">def</span> <span class="nf">put_element_variable_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blockId</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put values into element block id and variable name at step.</span>
+
+<span class="sd">        :type blockId: int</span>
+<span class="sd">        :param blockId: The block id.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the variable.</span>
+<span class="sd">        :type step: int</span>
+<span class="sd">        :param step: The time step at which to put the values.</span>
+<span class="sd">        :type values: :class:`numpy.ndarray`</span>
+<span class="sd">        :param values: The actual values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Step must be larger than 0.&quot;</span>
+        <span class="c1"># XXX: Currently the time axis is not unlimited due to a limitation</span>
+        <span class="c1"># in h5netcdf - thus no new time steps can be created after the</span>
+        <span class="c1"># initialization.</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">]</span>
+
+        <span class="n">num_elem_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">blockId</span>
+        <span class="k">assert</span> <span class="n">num_elem_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> \
+            <span class="s2">&quot;Block id </span><span class="si">%i</span><span class="s2"> not found.&quot;</span> <span class="o">%</span> <span class="n">blockId</span>
+
+        <span class="c1"># 1-based indexing!</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_element_variable_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;vals_elem_var</span><span class="si">%i</span><span class="s2">eb</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">blockId</span><span class="p">)</span>
+
+        <span class="c1"># If it does not exist, create it.</span>
+        <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+                <span class="n">variable_name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="n">num_elem_name</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">variable_name</span><span class="p">][</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="exodus.set_node_variable_number"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.set_node_variable_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_variable_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set number of node variables in exodus file.</span>
+
+<span class="sd">        :type number: int</span>
+<span class="sd">        :param number: The number of node variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nod_var&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+            <span class="s2">&quot;name_nod_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_nod_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;vals_nod_var</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="s2">&quot;num_nodes&quot;</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="exodus.put_node_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_node_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_node_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Node variable with name at index into exodus file.</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the element variable.</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :param index: The index of the element variable. Starts with 1!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nod_var&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_nod_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_nod_var&quot;</span><span class="p">][</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="exodus.get_node_variable_names"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_node_variable_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_variable_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of node variable names in exodus file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;name_nod_var&quot;</span><span class="p">][:]]</span></div>
+
+<div class="viewcode-block" id="exodus.put_node_variable_values"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_node_variable_values">[docs]</a>    <span class="k">def</span> <span class="nf">put_node_variable_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put node values into variable name at step into exodus file</span>
+
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The name of the variable.</span>
+<span class="sd">        :type step: int</span>
+<span class="sd">        :param step: The time step at which to put the values.</span>
+<span class="sd">        :type values: :class:`numpy.ndarray`</span>
+<span class="sd">        :param values: The actual values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Step must be larger than 0.&quot;</span>
+        <span class="c1"># XXX: Currently the time axis is not unlimited due to a limitation</span>
+        <span class="c1"># in h5netcdf - thus no new time steps can be created after the</span>
+        <span class="c1"># initialization.</span>
+        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">]</span>
+
+        <span class="c1"># 1-based indexing!</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_variable_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">d_name</span> <span class="o">=</span> <span class="s2">&quot;vals_nod_var</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">d_name</span><span class="p">][</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="exodus.put_side_set_params"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_side_set_params">[docs]</a>    <span class="k">def</span> <span class="nf">put_side_set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">numSetSides</span><span class="p">,</span> <span class="n">numSetDistFacts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set ID, num elements, and num nodes of a sideset</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: The id of the side set.</span>
+<span class="sd">        :type numSetSides: int</span>
+<span class="sd">        :param numSetSides: The number of elements for a side set.</span>
+<span class="sd">        :type numSetDistFacts: int</span>
+<span class="sd">        :param numSetDistFacts: The number of nodes for the side set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">numSetDistFacts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Only 0 is currently supported.&quot;</span>
+
+        <span class="n">max_ss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_side_sets&quot;</span><span class="p">]</span>
+
+        <span class="n">cur_ss</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ss_prop&quot;</span><span class="p">)]</span>
+        <span class="n">ss_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">cur_ss</span><span class="p">]</span>
+        <span class="c1"># -1 stands for now side set id.</span>
+        <span class="n">ss_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">ss_ids</span> <span class="k">if</span> <span class="n">_i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="nb">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ss_ids</span><span class="p">,</span> <span class="s2">&quot;Side set id </span><span class="si">%i</span><span class="s2"> already exists.&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_ss</span><span class="p">,</span> <span class="s2">&quot;Maximum number of side sets reached.&quot;</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss_ids</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">dim_name</span> <span class="o">=</span> <span class="s2">&quot;num_side_ss</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="n">elem_ss_name</span> <span class="o">=</span> <span class="s2">&quot;elem_ss</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="n">side_ss_name</span> <span class="o">=</span> <span class="s2">&quot;side_ss</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+
+        <span class="c1"># Create the dimension and variables.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numSetSides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">elem_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">side_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="c1"># Set meta-data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_status&quot;</span><span class="p">][:]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_prop</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span><span class="p">][:]</span> <span class="o">=</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="exodus.put_side_set"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_side_set">[docs]</a>    <span class="k">def</span> <span class="nf">put_side_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">sideSetElements</span><span class="p">,</span> <span class="n">sideSetSides</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the id, element ids, and side ids for a side set (creates the</span>
+<span class="sd">        side set).</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id:</span>
+<span class="sd">        :type sideSetElements: :class:`numpy.ndarray`</span>
+<span class="sd">        :param sideSetElements: The side set elements.</span>
+<span class="sd">        :type sideSetSides: :class:`numpy.ndarray`</span>
+<span class="sd">        :param sideSetSides: The side set sides.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find the side set.</span>
+        <span class="n">cur_ss</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ss_prop&quot;</span><span class="p">)]</span>
+        <span class="n">ss_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">cur_ss</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find side set with id </span><span class="si">%i</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">ss_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">r&quot;\d+&quot;</span><span class="p">,</span> <span class="n">ss</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">elem_ss_name</span> <span class="o">=</span> <span class="s2">&quot;elem_ss</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="n">side_ss_name</span> <span class="o">=</span> <span class="s2">&quot;side_ss</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">elem_ss_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">sideSetElements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">side_ss_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">sideSetSides</span></div>
+
+<div class="viewcode-block" id="exodus.put_side_set_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_side_set_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_side_set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write side set name for side set &quot;id&quot; in exodus file</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: The id of the side set.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param name: The string of the side set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find the side set.</span>
+        <span class="n">cur_ss</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ss_prop&quot;</span><span class="p">)]</span>
+        <span class="n">ss_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">cur_ss</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find side set with id </span><span class="si">%i</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">ss_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># 1 based indexing.</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">r&quot;\d+&quot;</span><span class="p">,</span> <span class="n">ss</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_names&quot;</span><span class="p">][</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_names&quot;</span><span class="p">][</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_write_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write all the attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># XXX: Should probably all be defined in some header file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;api_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([</span><span class="mf">6.30000019</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([</span><span class="mf">6.30000019</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;floating_point_word_size&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">8</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;file_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;maximum_name_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">32</span><span class="p">],</span>
+                                                        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;int64_status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Coordinate names.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/coor_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Coordinates.</span>
+        <span class="n">_coords</span> <span class="o">=</span> <span class="s2">&quot;xyz&quot;</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+                <span class="s1">&#39;/coord&#39;</span> <span class="o">+</span> <span class="n">_coords</span><span class="p">[</span><span class="n">_i</span><span class="p">],</span> <span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Element block stuff.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+        <span class="c1"># I don&#39;t really understand the number here yet...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_prop1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;eb_prop1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_status&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="c1"># Side sets.</span>
+        <span class="k">if</span> <span class="s2">&quot;num_side_sets&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+                <span class="s1">&#39;/ss_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
+                <span class="s1">&#39;/ss_prop1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_prop1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/ss_status&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,),</span>
+                                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="c1"># Time steps.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/time_whole&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;time_step&#39;</span><span class="p">,),</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable usage as a context manager.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable usage as a context manager.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__del__</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../index.html" id="logo" title=pyexodus><img class="logo" src="../../_static/logo.svg" width="150px" height="150px" title=pyexodus /></a>
+            
+            
+            
+
+            
+            <ul>
+                <li><a href="https://github.com/SalvusHub/pyexodus">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2016, Lion Krischer
+        </div>
+
+        
+  </body>
+</html>
