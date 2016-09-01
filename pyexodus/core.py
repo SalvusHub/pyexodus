@@ -162,6 +162,18 @@ class exodus(object):
             "vals_glo_var", ("time_step", "num_glo_var"),
             dtype=np.float64)
 
+    def put_global_variable_name(self, name, index):
+        """
+        Put global variable with name at index into exodus file.
+
+        :type name: str
+        :param name: The name of the variable.
+        :type index: int
+        :param index: The index of the global variable. First is 1!
+        """
+        self._f.variables["name_glo_var"][index - 1] = ""
+        self._f.variables["name_glo_var"][index - 1, :len(name)] = list(name)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
