@@ -174,6 +174,27 @@ class exodus(object):
         self._f.variables["name_glo_var"][index - 1] = ""
         self._f.variables["name_glo_var"][index - 1, :len(name)] = list(name)
 
+    def put_global_variable_value(self, name, step, value):
+        """
+        Put global variable value and variable name at time step into exodus
+        file.
+
+        :type name: str
+        :param name: The name of the variable.
+        :type step: int
+        :param step: The index of the time step. First is 1.
+        :type value: float
+        :param value: The actual time at that index.
+        """
+        assert step > 0, "Step must be larger than 0."
+        # XXX: Currently the time axis is not unlimited due to a limitation
+        # in h5netcdf - thus no new time steps can be created after the
+        # initialization.
+        assert step <= self._f.dimensions["time_step"]
+
+        idx = self.get_global_variable_names().index(name)
+        self._f.variables["vals_glo_var"][step - 1, idx] = value
+
     def get_global_variable_names(self):
         """
         Get list of global variable names in exodus file.

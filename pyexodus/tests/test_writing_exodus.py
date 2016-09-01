@@ -428,3 +428,35 @@ def test_get_global_variable_names(tmpdir):
     e.set_global_variable_number(3)
     e.put_global_variable_name(name="hello", index=2)
     assert e.get_global_variable_names() == ['', 'hello', '']
+
+
+def test_put_global_variable_value(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_global_variable_number(3)
+    e.put_global_variable_name(name="hello", index=2)
+
+    e.put_global_variable_value("hello", 1, 1.1)
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "vals_glo_var": {
+                "attrs": {},
+                "data": [[0, 1.1, 0]],
+                "dimensions": ("time_step", "num_glo_var"),
+                "dtype": np.float64,
+                "shape": (1, 3)}
+            }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
