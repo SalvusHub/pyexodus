@@ -160,7 +160,7 @@ class exodus(object):
         :type number: int
         :param number: The number of global variables.
         """
-        if not number:
+        if not number:  # pragma: no cover
             return
 
         self._f.dimensions["num_glo_var"] = number
@@ -288,7 +288,7 @@ class exodus(object):
         :type number: int
         :param number: The number of node variables.
         """
-        if number == 0:
+        if number == 0:  # pragma: no cover
             return
 
         self._f.dimensions["num_nod_var"] = number
@@ -471,13 +471,13 @@ class exodus(object):
     def __del__(self):
         try:
             self._f.close()
-        except:
+        except:  # pragma: no cover
             pass
 
     def close(self):
         try:
             self._f.close()
-        except:
+        except:  # pragma: no cover
             pass
 
     def __enter__(self):
