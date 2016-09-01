@@ -19,9 +19,9 @@ before_install:
   - conda install --yes -n condaenv pip
   - source activate condaenv
   - conda install --yes -c conda-forge numpy h5netcdf pytest pytest-cov python=$TRAVIS_PYTHON_VERSION
-  # build doc only on Python 3.5
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then conda install --yes sphinx ; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then pip install klink ; fi
+  # build doc only on Python 2.7
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then conda install --yes sphinx ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install klink ; fi
   - pip install flake8  # Make sure this is up-to-date (don't use conda).
   - pip install codecov
 
@@ -37,8 +37,8 @@ install:
 script:
   - py.test --cov=pyexodus
   # Docs only need to be built once.
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; codecov
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
