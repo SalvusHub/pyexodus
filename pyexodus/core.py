@@ -36,23 +36,25 @@ class exodus(object):
 
         self._write_attrs(title=title)
 
-        # Set the dimensions - very straighforward.
-        self._f.dimensions = {
-            # XXX: These should come from some header variable.
-            "four": 4,  # No clue what the purpose of this is...
-            "len_line": 81,
-            "len_name": 33,
-            "len_string": 33,
-            # These are dynamic.
-            "num_dim": numDims,
-            "num_el_blk": numBlocks,
-            "num_elem": numElems,
-            "num_nodes": numNodes,
-            "num_side_sets": numSideSets,
-            # XXX: Currently must be set to one as h5netcdf does currently
-            # not support unlimited dimensions altough this should be easy
-            # to add.
-            "time_step": 1}
+        # Set the dimensions - very straightforward.
+        # XXX: These should come from some header variable.
+        self._f.dimensions["len_string"] = 33
+        self._f.dimensions["len_line"] = 81
+        self._f.dimensions["four"] = 4  # No clue what this is...
+        self._f.dimensions["len_name"] = 33
+
+        # XXX: Currently must be set to one as h5netcdf does currently
+        # not support unlimited dimensions altough this should be easy
+        # to add.
+        self._f.dimensions["time_step"] = 1
+
+        # These are dynamic.
+        self._f.dimensions["num_dim"] = numDims
+        self._f.dimensions["num_nodes"] = numNodes
+        self._f.dimensions["num_elem"] = numElems
+        self._f.dimensions["num_el_blk"] = numBlocks
+        if numSideSets:
+            self._f.dimensions["num_side_sets"] = numSideSets
 
         self._create_variables()
 
@@ -280,6 +282,9 @@ class exodus(object):
         :type number: int
         :param number: The number of node variables.
         """
+        if number == 0:
+            return
+
         self._f.dimensions["num_nod_var"] = number
 
         self._f.create_variable(
@@ -412,15 +417,13 @@ class exodus(object):
         Write all the attributes.
         """
         # XXX: Should probably all be defined in some header file.
-        self._f.attrs['api_version'] = \
-            np.array([6.30000019], dtype=np.float32),
-        self._f.attrs['file_size'] = np.array([1], dtype=np.int32),
-        self._f.attrs['floating_point_word_size'] = \
-            np.array([8], dtype=np.int32),
-        self._f.attrs['int64_status'] = np.array([0], dtype=np.int32),
-        self._f.attrs['maximum_name_length'] = np.array([32], dtype=np.int32)
-        self._f.attrs['title'] = title
-        self._f.attrs['version'] = np.array([6.30000019], dtype=np.float32)
+        self._f.attrs['api_version'] = np.float32([6.30000019])
+        self._f.attrs['version'] = np.float32(6.30000019)
+        self._f.attrs['floating_point_word_size'] = np.int32(8)
+        self._f.attrs['file_size'] = np.int32(1)
+        self._f.attrs['maximum_name_length'] = np.int32(32)
+        self._f.attrs['int64_status'] = np.int32(0)
+        self._f.attrs['title'] = title.encode()
 
     def _create_variables(self):
         # Coordinate names.
@@ -443,13 +446,14 @@ class exodus(object):
         self._f.create_variable('/eb_status', ('num_el_blk',), dtype=np.int32)
 
         # Side sets.
-        self._f.create_variable('/ss_names', ('num_side_sets', 'len_name'),
-                                dtype='|S1')
-        self._f.create_variable('/ss_prop1', ('num_side_sets',),
-                                dtype=np.int32, data=[-1])
-        self._f.variables["ss_prop1"].attrs['name'] = 'ID'
-        self._f.create_variable('/ss_status', ('num_side_sets',),
-                                dtype=np.int32)
+        if "num_side_sets" in self._f.dimensions:
+            self._f.create_variable(
+                '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1')
+            self._f.create_variable(
+                '/ss_prop1', ('num_side_sets',), dtype=np.int32, data=[-1])
+            self._f.variables["ss_prop1"].attrs['name'] = 'ID'
+            self._f.create_variable('/ss_status', ('num_side_sets',),
+                                    dtype=np.int32)
 
         # Time steps.
         self._f.create_variable('/time_whole', ('time_step',),
