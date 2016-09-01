@@ -271,6 +271,25 @@ class exodus(object):
 
         self._f.variables[variable_name][step - 1] = values
 
+    def set_node_variable_number(self, number):
+        """
+        Set number of node variables in exodus file.
+
+        :type number: int
+        :param number: The number of node variables.
+        """
+        self._f.dimensions["num_nod_var"] = number
+
+        self._f.create_variable(
+            "name_nod_var", ("num_nod_var", "len_name"),
+            dtype="|S1")
+
+        for _i in range(number):
+            name = "vals_nod_var%i" % (_i + 1)
+            self._f.create_variable(
+                name, ("time_step", "num_nodes"),
+                dtype=np.float64)
+
     def _write_attrs(self, title):
         """
         Write all the attributes.

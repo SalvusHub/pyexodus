@@ -575,3 +575,47 @@ def test_put_element_variable_values(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_set_node_variable_number(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_node_variable_number(2)
+
+    _d = np.empty((2, 33), dtype="|S1")
+    _d.fill("")
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "name_nod_var": {
+                "attrs": {},
+                "data": _d,
+                "dimensions": ("num_nod_var", "len_name"),
+                "dtype": np.dtype("|S1"),
+                "shape": (2, 33)},
+            "vals_nod_var1": {
+                "attrs": {},
+                "data": np.zeros((1, 5)),
+                "dimensions": ("time_step", "num_nodes"),
+                "dtype": np.float64,
+                "shape": (1, 5)},
+            "vals_nod_var1": {
+                "attrs": {},
+                "data": np.zeros((1, 5)),
+                "dimensions": ("time_step", "num_nodes"),
+                "dtype": np.float64,
+                "shape": (1, 5)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
