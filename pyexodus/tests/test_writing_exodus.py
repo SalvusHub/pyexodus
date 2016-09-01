@@ -530,7 +530,7 @@ def test_put_element_variable_name(tmpdir):
             assert a.shape == e["shape"], key
 
 
-def test_get_element_variable_values(tmpdir):
+def test_get_element_variable_names(tmpdir):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     e = exodus(filename, mode="w", title="Example", array_type="numpy",
@@ -684,3 +684,15 @@ def test_put_node_variable_values(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_get_node_variable_names(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1)
+    e.set_node_variable_number(2)
+    e.put_node_variable_name("good friend", 1)
+
+    assert e.get_node_variable_names() == ["good friend", ""]
