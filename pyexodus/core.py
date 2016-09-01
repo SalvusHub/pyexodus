@@ -331,9 +331,10 @@ class exodus(object):
             self._f.create_variable(
                 '/coord' + _coords[_i], ('num_nodes',), dtype=np.float64)
 
-        # ??
+        # Element block stuff.
         self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
                                 dtype='|S1')
+        # I don't really understand the number here yet...
         self._f.create_variable('/eb_prop1', ('num_el_blk',),
                                 dtype=np.int32, data=[-1])
         self._f.variables["eb_prop1"].attrs['name'] = 'ID'
