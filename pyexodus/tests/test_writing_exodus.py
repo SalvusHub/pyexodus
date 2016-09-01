@@ -273,7 +273,12 @@ def test_put_elem_blk_info(tmpdir):
                          "dimensions": ("num_el_in_blk1",
                                         "num_nod_per_el1"),
                          "dtype": np.int32,
-                         "shape": (6, 3)}
+                         "shape": (6, 3)},
+            "eb_status": {"attrs": {},
+                          "data": np.ones(1),
+                          "dimensions": ("num_el_blk",),
+                          "dtype": np.int32,
+                          "shape": (1,)}
         }
 
         for key in sorted(expected.keys()):

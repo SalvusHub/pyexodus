@@ -40,7 +40,8 @@ class exodus(object):
         # XXX: These should come from some header variable.
         self._f.dimensions["len_string"] = 33
         self._f.dimensions["len_line"] = 81
-        self._f.dimensions["four"] = 4  # No clue what this is...
+        # No clue what this is for...
+        self._f.dimensions["four"] = 4
         self._f.dimensions["len_name"] = 33
 
         # XXX: Currently must be set to one as h5netcdf does currently
@@ -101,6 +102,8 @@ class exodus(object):
             var_name, (num_el_name, num_node_per_el_name),
             dtype=np.int32)
         self._f.variables[var_name].attrs['elem_type'] = np.string_(elemType)
+
+        self._f.variables['eb_status'][:] += 1
 
     def put_elem_connectivity(self, id, connectivity):
         """
