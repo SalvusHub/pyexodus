@@ -28,7 +28,7 @@ before_install:
 install:
   - git version
   - git fetch origin --tags
-  - git remote add pyexodus git://github.com/krischer/pyexodus.git
+  - git remote add pyexodus git://github.com/SalvusHub/pyexodus.git
   - git fetch pyexodus --tags
   - git status
   - pip install --no-deps -v -e .
