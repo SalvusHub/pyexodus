@@ -233,3 +233,55 @@ def test_put_coords(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_put_elem_blk_info(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename,
+               mode="w",
+               title="Example",
+               array_type="numpy",
+               numDims=3,
+               numNodes=5,
+               numElems=6,
+               numBlocks=1,
+               numNodeSets=0,
+               numSideSets=1)
+    e.put_info_records(strings=[])
+
+    # Use different dtypes on purpose to test the type conversions.
+    e.put_coords(
+        xCoords=np.arange(5, dtype=np.float32),
+        yCoords=np.arange(5, dtype=np.int32) * 2,
+        zCoords=np.arange(5, dtype=np.int64) * 3
+    )
+
+    e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        # Two new dimensions.
+        assert f.dimensions["num_el_in_blk1"] == 6
+        assert f.dimensions["num_nod_per_el1"] == 3
+
+        # One new variable.
+        expected = {
+            "connect1": {"attrs": {"elem_type": "HEX"},
+                         "data": np.zeros((6, 3), dtype=np.int32),
+                         "dimensions": ("num_el_in_blk_1",
+                                        "num_node_per_el1"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
