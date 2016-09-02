@@ -92,8 +92,28 @@ class exodus(object):
         :type strings: list of str
         :param strings: The strings to save.
         """
-        # XXX: Currently a no-op as our examples don't really use it.
-        assert not strings, "Not yet implemented."
+        if not strings:
+            return
+
+        for _i, value in enumerate(strings):
+            assert len(value) < self._f.dimensions["len_line"], \
+                "Records '%s' is longer then %i letters." % (
+                    value, self._f.dimensions["len_line"])
+
+        self._f.dimensions["num_info"] = len(strings)
+
+        self._f.create_variable(
+            "info_records", ("num_info", "len_line"),
+            dtype="|S1")
+
+        ir = self._f.variables["info_records"]
+        for idx, value in enumerate(strings):
+            # Clear just to be safe.
+            ir[idx] = b""
+            if not value:
+                continue
+            ir[idx, :len(value)] = [_i.encode() if hasattr(_i, "encode")
+                                    else _i for _i in value]
 
     def put_coords(self, xCoords, yCoords, zCoords):
         """
@@ -433,7 +453,7 @@ class exodus(object):
         side set).
 
         :type id: int
-        :param id:
+        :param id: The id of the side set.
         :type sideSetElements: :class:`numpy.ndarray`
         :param sideSetElements: The side set elements.
         :type sideSetSides: :class:`numpy.ndarray`

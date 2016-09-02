@@ -158,26 +158,6 @@ def test_initialization(tmpdir):
             assert a.shape == e["shape"], key
 
 
-def test_put_info_records(tmpdir):
-    """
-    Does currently not do anything.
-    """
-    filename = os.path.join(tmpdir.strpath, "example.e")
-
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1)
-    e.put_info_records(strings=[])
-    e.close()
-
-
 def test_put_coords(tmpdir):
     """
     Tests the put_coords() method.
@@ -982,6 +962,66 @@ def test_filling_two_side_sets(tmpdir):
                 "dtype": np.int32,
                 "shape": (2,)}
         }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
+
+
+def test_put_info_records(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2) as e:
+        e.put_info_records(["", "how", "are", "you"])
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            'info_records': {
+                'attrs': {},
+                'data': np.array([
+                    ['', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', ''],
+                    ['h', 'o', 'w', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', ''],
+                    ['a', 'r', 'e', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', ''],
+                    ['y', 'o', 'u', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '']], dtype='|S1'),
+                'dimensions': ('num_info', 'len_line'),
+                'dtype': np.dtype('S1'),
+                'shape': (4, 81)}}
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
