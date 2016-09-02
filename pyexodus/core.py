@@ -404,17 +404,15 @@ class exodus(object):
         """
         assert numSetDistFacts == 0, "Only 0 is currently supported."
 
-        max_ss = self._f.dimensions["num_side_sets"]
+        assert id not in self._f.variables["ss_prop1"][:], \
+            "Side set id %i already exists." % id
 
-        cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
-        ss_ids = [self._f.variables[_i][0] for _i in cur_ss]
-        # -1 stands for now side set id.
-        ss_ids = [_i for _i in ss_ids if _i >= 0]
+        _t = self._f.variables["ss_status"][:]
+        count = len(_t[_t > 0])
+        assert count < self._f.dimensions["num_side_sets"],  \
+            "Maximum number of side sets reached."
 
-        assert id not in ss_ids, "Side set id %i already exists." % id
-        assert len(ss_ids) < max_ss, "Maximum number of side sets reached."
-
-        idx = len(ss_ids) + 1
+        idx = count + 1
         dim_name = "num_side_ss%i" % idx
         elem_ss_name = "elem_ss%i" % idx
         side_ss_name = "side_ss%i" % idx
