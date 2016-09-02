@@ -375,7 +375,8 @@ class exodus(object):
         :type index: int
         :param index: The index of the element variable. Starts with 1!
         """
-        assert index < self._f.dimensions["num_nod_var"]
+        # 1 - based indexing!
+        assert index <= self._f.dimensions["num_nod_var"]
 
         self._f.variables["name_nod_var"][index - 1] = b""
         self._f.variables["name_nod_var"][index - 1, :len(name)] = \
