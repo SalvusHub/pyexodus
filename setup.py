@@ -10,8 +10,16 @@ Setup script for the pyexodus module.
 """
 import inspect
 import os
+import sys
 
 from setuptools import setup, find_packages
+
+
+# Import the version string.
+path = os.path.join(os.path.abspath(os.path.dirname(inspect.getfile(
+    inspect.currentframe()))), "pyexodus")
+sys.path.insert(0, path)
+from version import get_git_version  # NOQA
 
 
 def get_package_data():
@@ -39,7 +47,7 @@ def get_package_data():
 
 setup_config = dict(
     name="pyexodus",
-    version="0.0.1a",
+    version=get_git_version(),
     description="Module for creating Exodus files",
     author="Lion Krischer",
     author_email="lionkrischer@gmail.com",
