@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &mdash; pyexodus 0.0.0-g0b13 documentation</title>
+    <title>pyexodus.core &mdash; pyexodus 0.0.0-g4293 documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-g0b13',
+        VERSION:     '0.0.0-g4293',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-g0b13 documentation" href="../../index.html" />
+    <link rel="top" title="pyexodus 0.0.0-g4293 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -554,10 +554,9 @@
                                 <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
 
         <span class="c1"># Coordinates.</span>
-        <span class="n">_coords</span> <span class="o">=</span> <span class="s2">&quot;xyz&quot;</span>
-        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="s2">&quot;xyz&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
-                <span class="s1">&#39;/coord&#39;</span> <span class="o">+</span> <span class="n">_coords</span><span class="p">[</span><span class="n">_i</span><span class="p">],</span> <span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="s1">&#39;/coord&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
         <span class="c1"># Element block stuff.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span>
