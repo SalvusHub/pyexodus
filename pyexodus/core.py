@@ -512,10 +512,9 @@ class exodus(object):
                                 dtype='|S1')
 
         # Coordinates.
-        _coords = "xyz"
-        for _i in range(self._f.dimensions["num_dim"]):
+        for i in "xyz":
             self._f.create_variable(
-                '/coord' + _coords[_i], ('num_nodes',), dtype=np.float64)
+                '/coord' + i, ('num_nodes',), dtype=np.float64)
 
         # Element block stuff.
         self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
