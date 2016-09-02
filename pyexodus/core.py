@@ -416,6 +416,7 @@ class exodus(object):
         dim_name = "num_side_ss%i" % idx
         elem_ss_name = "elem_ss%i" % idx
         side_ss_name = "side_ss%i" % idx
+        print(idx, side_ss_name)
 
         # Create the dimension and variables.
         self._f.dimensions[dim_name] = numSetSides
@@ -424,7 +425,8 @@ class exodus(object):
 
         # Set meta-data.
         self._f.variables["ss_status"][idx - 1] = 1
-        self._f.variables["ss_prop%i" % idx][idx - 1] = id
+        # For reasons I don't understand, this is ALWAYS ss_prop1.
+        self._f.variables["ss_prop1"][idx - 1] = id
 
     def put_side_set(self, id, sideSetElements, sideSetSides):
         """
