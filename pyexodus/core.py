@@ -423,8 +423,8 @@ class exodus(object):
         self._f.create_variable(side_ss_name, (dim_name,), dtype=np.int32)
 
         # Set meta-data.
-        self._f.variables["ss_status"][:] += 1
-        self._f.variables["ss_prop%i" % idx][:] = id
+        self._f.variables["ss_status"][idx - 1] = 1
+        self._f.variables["ss_prop%i" % idx][idx - 1] = id
 
     def put_side_set(self, id, sideSetElements, sideSetSides):
         """
@@ -513,7 +513,8 @@ class exodus(object):
             self._f.create_variable(
                 '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1')
             self._f.create_variable(
-                '/ss_prop1', ('num_side_sets',), dtype=np.int32, data=[-1])
+                '/ss_prop1', ('num_side_sets',), dtype=np.int32,
+                data=[-1] * self._f.dimensions["num_side_sets"])
             self._f.variables["ss_prop1"].attrs['name'] = np.string_('ID')
             self._f.create_variable('/ss_status', ('num_side_sets',),
                                     dtype=np.int32)

@@ -833,3 +833,36 @@ def test_usage_as_context_manager(tmpdir):
 
     with h5netcdf.File(filename, mode="r") as f:
         np.testing.assert_allclose(f.variables["time_whole"], [1.1])
+
+
+def test_status_in_file_with_two_side_sets_only_one_set(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2) as e:
+        e.put_side_set_params(4, 5, 0)
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            'ss_prop1': {'attrs': {'name': b'ID'},
+                         'data': np.array([4, -1], dtype=np.int32),
+                         'dimensions': ('num_side_sets',),
+                         'dtype': np.dtype('int32'),
+                         'shape': (2,)},
+            'ss_status': {'attrs': {},
+                          'data': np.array([1, 0], dtype=np.int32),
+                          'dimensions': ('num_side_sets',),
+                          'dtype': np.dtype('int32'),
+                          'shape': (2,)}
+            }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
