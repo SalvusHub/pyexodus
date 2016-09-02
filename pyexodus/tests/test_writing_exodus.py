@@ -453,6 +453,10 @@ def test_set_element_variables(tmpdir):
     e = exodus(filename, mode="w", title="Example", array_type="numpy",
                numDims=3, numNodes=5, numElems=6, numBlocks=1,
                numNodeSets=0, numSideSets=1)
+    # This call does nothing.
+    e.set_element_variable_number(0)
+
+    # This does something.
     e.set_element_variable_number(5)
     e.close()
 
