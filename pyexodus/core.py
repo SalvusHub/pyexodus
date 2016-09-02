@@ -260,6 +260,9 @@ class exodus(object):
         :type number: int
         :param number: The number of variables per element.
         """
+        if not number:
+            return
+
         self._f.dimensions["num_elem_var"] = number
 
         self._f.create_variable(
@@ -416,7 +419,6 @@ class exodus(object):
         dim_name = "num_side_ss%i" % idx
         elem_ss_name = "elem_ss%i" % idx
         side_ss_name = "side_ss%i" % idx
-        print(idx, side_ss_name)
 
         # Create the dimension and variables.
         self._f.dimensions[dim_name] = numSetSides
@@ -441,11 +443,11 @@ class exodus(object):
         :param sideSetSides: The side set sides.
         """
         # Find the side set.
-        cur_ss = [_i for _i in self._f.variables if _i.startswith("ss_prop")]
-        ss_ids = [_i for _i in cur_ss if self._f.variables[_i][0] == id]
-        assert len(ss_ids) == 1, "Could not find side set with id %i." % id
-        ss = ss_ids[0]
-        idx = int(re.findall(r"\d+", ss)[0])
+        _idx = self._f.variables["ss_prop1"][:]
+        assert id in _idx, "Could not find side set with id %i." % id
+        # 1-based indexing!
+        idx = np.argwhere(_idx == id)[0][0] + 1
+
         elem_ss_name = "elem_ss%i" % idx
         side_ss_name = "side_ss%i" % idx
 

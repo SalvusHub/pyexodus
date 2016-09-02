@@ -900,3 +900,55 @@ def test_status_in_file_with_two_side_sets_wiht_two_set(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_filling_two_side_sets(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2) as e:
+        e.put_side_set_params(4, 5, 0)
+        e.put_side_set_params(7, 2, 0)
+        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
+                       np.ones(5, dtype=np.int32) * 3)
+        e.put_side_set(7, np.ones(2, dtype=np.int32) * 7,
+                       np.ones(2, dtype=np.int32) * 8)
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            "elem_ss1": {
+                "attrs": {},
+                "data": [2, 2, 2, 2, 2],
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)},
+            "side_ss1": {
+                "attrs": {},
+                "data": [3, 3, 3, 3, 3],
+                "dimensions": ("num_side_ss1",),
+                "dtype": np.int32,
+                "shape": (5,)},
+            "elem_ss2": {
+                "attrs": {},
+                "data": [7, 7],
+                "dimensions": ("num_side_ss2",),
+                "dtype": np.int32,
+                "shape": (2,)},
+            "side_ss2": {
+                "attrs": {},
+                "data": [8, 8],
+                "dimensions": ("num_side_ss2",),
+                "dtype": np.int32,
+                "shape": (2,)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
