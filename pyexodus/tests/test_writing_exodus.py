@@ -823,6 +823,46 @@ def test_put_side_set_name(tmpdir):
             assert a.shape == e["shape"], key
 
 
+def test_put_multiple_side_set_names(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=2)
+    e.put_side_set_params(4, 5, 0)
+    e.put_side_set_params(7, 2, 0)
+    e.put_side_set_name(4, "edge of the world")
+    e.put_side_set_name(7, "a new beginning")
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            'ss_names': {'attrs': {},
+                         'data': np.array([
+                             ['e', 'd', 'g', 'e', ' ', 'o', 'f', ' ',
+                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', ''],
+                             ['a', ' ', 'n', 'e', 'w', ' ', 'b', 'e',
+                              'g', 'i', 'n', 'n', 'i', 'n', 'g', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '']],
+                             dtype='|S1'),
+                         'dimensions': ('num_side_sets', 'len_name'),
+                         'dtype': np.dtype('S1'),
+                         'shape': (2, 33)}}
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
+
+
 def test_usage_as_context_manager(tmpdir):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
