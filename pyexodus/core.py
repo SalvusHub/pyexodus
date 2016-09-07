@@ -164,7 +164,8 @@ class exodus(object):
 
         self._f.variables['eb_status'][:] += 1
 
-    def put_elem_connectivity(self, id, connectivity):
+    def put_elem_connectivity(self, id, connectivity, shift_indices=0,
+                              chunk_size_in_mb=128):
         """
         Set the element connectivity array for all elements in a block.
 
@@ -187,13 +188,29 @@ class exodus(object):
         assert num_node_per_el_name in self._f.dimensions, \
             "Block id %i does not exist" % id
 
-        assert connectivity.shape == (
+        assert connectivity.size == (
             self._f.dimensions[num_el_name] *
-            self._f.dimensions[num_node_per_el_name],)
+            self._f.dimensions[num_node_per_el_name])
 
-        self._f.variables[var_name][:] = \
-            connectivity.reshape((self._f.dimensions[num_el_name],
-                                  self._f.dimensions[num_node_per_el_name]))
+        if shift_indices:
+            ne = self._f.dimensions[num_el_name]
+            nn = self._f.dimensions[num_node_per_el_name]
+
+            chunk_size = int(chunk_size_in_mb * 1024 ** 2 /
+                             connectivity.dtype.itemsize / nn)
+
+            _t = connectivity.reshape((ne, nn))
+
+            idx = 0
+            while idx < ne:
+                self._f.variables[var_name][idx: idx+chunk_size] = \
+                    _t[idx: idx+chunk_size] + shift_indices
+                idx += chunk_size
+        else:
+            self._f.variables[var_name][:] = \
+                connectivity.reshape((
+                    self._f.dimensions[num_el_name],
+                    self._f.dimensions[num_node_per_el_name]))
 
     def put_time(self, step, value):
         """
