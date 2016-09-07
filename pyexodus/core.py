@@ -41,10 +41,24 @@ class exodus(object):
     :param numSideSets: The number of element side sets.
     :type io_size: int
     :param io_size: No clue - must be zero for now.
+    :type compression: tuple
+    :param compression: Turn on compression. Pass a tuple of
+        ``(method, option)``, e.g. ``("gzip", 2)``. Slows down writing a lot
+        but the resulting files are potentially much smaller.
     """
     def __init__(self, file, mode="r", array_type="numpy", title=None,
                  numDims=None, numNodes=None, numElems=None, numBlocks=None,
-                 numNodeSets=None, numSideSets=None, io_size=0):
+                 numNodeSets=None, numSideSets=None, io_size=0,
+                 compression=None):
+
+        if compression:
+            self._comp_opts = {
+                "chunks": True,
+                "compression": compression[0],
+                "compression_opts": compression[1]}
+        else:
+            self._comp_opts = {}
+
         # API is currently quite limited...mainly because nothing else is
         # implemented.
         assert mode == "w", "Currently only writing is supported."
@@ -104,7 +118,7 @@ class exodus(object):
 
         self._f.create_variable(
             "info_records", ("num_info", "len_line"),
-            dtype="|S1")
+            dtype="|S1", **self._comp_opts)
 
         ir = self._f.variables["info_records"]
         for idx, value in enumerate(strings):
@@ -159,7 +173,7 @@ class exodus(object):
 
         self._f.create_variable(
             var_name, (num_el_name, num_node_per_el_name),
-            dtype=np.int32)
+            dtype=np.int32, **self._comp_opts)
         self._f.variables[var_name].attrs['elem_type'] = np.string_(elemType)
 
         self._f.variables['eb_status'][:] += 1
@@ -243,10 +257,10 @@ class exodus(object):
 
         self._f.create_variable(
             "name_glo_var", ("num_glo_var", "len_name"),
-            dtype="|S1")
+            dtype="|S1", **self._comp_opts)
         self._f.create_variable(
             "vals_glo_var", ("time_step", "num_glo_var"),
-            dtype=np.float64)
+            dtype=np.float64, **self._comp_opts)
 
     def put_global_variable_name(self, name, index):
         """
@@ -303,7 +317,7 @@ class exodus(object):
 
         self._f.create_variable(
             "name_elem_var", ("num_elem_var", "len_name"),
-            dtype="|S1")
+            dtype="|S1", **self._comp_opts)
 
     def put_element_variable_name(self, name, index):
         """
@@ -357,7 +371,7 @@ class exodus(object):
         if variable_name not in self._f.variables:
             self._f.create_variable(
                 variable_name, ("time_step", num_elem_name),
-                dtype=np.float64)
+                dtype=np.float64, **self._comp_opts)
 
         self._f.variables[variable_name][step - 1] = values
 
@@ -375,13 +389,13 @@ class exodus(object):
 
         self._f.create_variable(
             "name_nod_var", ("num_nod_var", "len_name"),
-            dtype="|S1")
+            dtype="|S1", **self._comp_opts)
 
         for _i in range(number):
             name = "vals_nod_var%i" % (_i + 1)
             self._f.create_variable(
                 name, ("time_step", "num_nodes"),
-                dtype=np.float64)
+                dtype=np.float64, **self._comp_opts)
 
     def put_node_variable_name(self, name, index):
         """
@@ -457,8 +471,10 @@ class exodus(object):
 
         # Create the dimension and variables.
         self._f.dimensions[dim_name] = numSetSides
-        self._f.create_variable(elem_ss_name, (dim_name,), dtype=np.int32)
-        self._f.create_variable(side_ss_name, (dim_name,), dtype=np.int32)
+        self._f.create_variable(elem_ss_name, (dim_name,), dtype=np.int32,
+                                **self._comp_opts)
+        self._f.create_variable(side_ss_name, (dim_name,), dtype=np.int32,
+                                **self._comp_opts)
 
         # Set meta-data.
         self._f.variables["ss_status"][idx - 1] = 1
@@ -526,37 +542,41 @@ class exodus(object):
     def _create_variables(self):
         # Coordinate names.
         self._f.create_variable('/coor_names', ('num_dim', 'len_name'),
-                                dtype='|S1')
+                                dtype='|S1', **self._comp_opts)
 
         # Coordinates.
         for i in "xyz":
             self._f.create_variable(
-                '/coord' + i, ('num_nodes',), dtype=np.float64)
+                '/coord' + i, ('num_nodes',), dtype=np.float64,
+                **self._comp_opts)
 
         # Element block stuff.
         self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
-                                dtype='|S1')
+                                dtype='|S1', **self._comp_opts)
         # I don't really understand the number here yet...
         self._f.create_variable('/eb_prop1', ('num_el_blk',),
-                                dtype=np.int32, data=[-1])
+                                dtype=np.int32, data=[-1],
+                                **self._comp_opts)
         self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
         self._f.create_variable('/eb_status', ('num_el_blk',),
-                                dtype=np.int32)
+                                dtype=np.int32, **self._comp_opts)
 
         # Side sets.
         if "num_side_sets" in self._f.dimensions:
             self._f.create_variable(
-                '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1')
+                '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1',
+                **self._comp_opts)
             self._f.create_variable(
                 '/ss_prop1', ('num_side_sets',), dtype=np.int32,
-                data=[-1] * self._f.dimensions["num_side_sets"])
+                data=[-1] * self._f.dimensions["num_side_sets"],
+                **self._comp_opts)
             self._f.variables["ss_prop1"].attrs['name'] = np.string_('ID')
             self._f.create_variable('/ss_status', ('num_side_sets',),
-                                    dtype=np.int32)
+                                    dtype=np.int32, **self._comp_opts)
 
         # Time steps.
         self._f.create_variable('/time_whole', ('time_step',),
-                                dtype=np.float64)
+                                dtype=np.float64, **self._comp_opts)
 
     def __del__(self):
         try:
