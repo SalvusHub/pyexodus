@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &mdash; pyexodus 0.0.0-g7389 documentation</title>
+    <title>pyexodus.core &mdash; pyexodus 0.0.0-gfbe9 documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-g7389',
+        VERSION:     '0.0.0-gfbe9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-g7389 documentation" href="../../index.html" />
+    <link rel="top" title="pyexodus 0.0.0-gfbe9 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -83,10 +83,24 @@
 <span class="sd">    :param numSideSets: The number of element side sets.</span>
 <span class="sd">    :type io_size: int</span>
 <span class="sd">    :param io_size: No clue - must be zero for now.</span>
+<span class="sd">    :type compression: tuple</span>
+<span class="sd">    :param compression: Turn on compression. Pass a tuple of</span>
+<span class="sd">        ``(method, option)``, e.g. ``(&quot;gzip&quot;, 2)``. Slows down writing a lot</span>
+<span class="sd">        but the resulting files are potentially much smaller.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">array_type</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">numDims</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numNodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numElems</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numBlocks</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">numNodeSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numSideSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">io_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                 <span class="n">numNodeSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numSideSets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">io_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">compression</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">compression</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;chunks&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;compression&quot;</span><span class="p">:</span> <span class="n">compression</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;compression_opts&quot;</span><span class="p">:</span> <span class="n">compression</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="c1"># API is currently quite limited...mainly because nothing else is</span>
         <span class="c1"># implemented.</span>
         <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;Currently only writing is supported.&quot;</span>
@@ -146,7 +160,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;info_records&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_info&quot;</span><span class="p">,</span> <span class="s2">&quot;len_line&quot;</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="n">ir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;info_records&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
@@ -201,7 +215,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="n">var_name</span><span class="p">,</span> <span class="p">(</span><span class="n">num_el_name</span><span class="p">,</span> <span class="n">num_node_per_el_name</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;elem_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">elemType</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;eb_status&#39;</span><span class="p">][:]</span> <span class="o">+=</span> <span class="mi">1</span></div>
@@ -285,10 +299,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;name_glo_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_glo_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;vals_glo_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="s2">&quot;num_glo_var&quot;</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="exodus.put_global_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_global_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_global_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -345,7 +359,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;name_elem_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_elem_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span></div>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="exodus.put_element_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_element_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_element_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -399,7 +413,7 @@
         <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
                 <span class="n">variable_name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="n">num_elem_name</span><span class="p">),</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">variable_name</span><span class="p">][</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span></div>
 
@@ -417,13 +431,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;name_nod_var&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_nod_var&quot;</span><span class="p">,</span> <span class="s2">&quot;len_name&quot;</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">)</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;vals_nod_var</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
                 <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="s2">&quot;num_nodes&quot;</span><span class="p">),</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="exodus.put_node_variable_name"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_node_variable_name">[docs]</a>    <span class="k">def</span> <span class="nf">put_node_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -499,8 +513,10 @@
 
         <span class="c1"># Create the dimension and variables.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numSetSides</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">elem_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">side_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">elem_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="n">side_ss_name</span><span class="p">,</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="c1"># Set meta-data.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_status&quot;</span><span class="p">][</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -568,37 +584,41 @@
     <span class="k">def</span> <span class="nf">_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Coordinate names.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/coor_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_dim&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="c1"># Coordinates.</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="s2">&quot;xyz&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
-                <span class="s1">&#39;/coord&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="s1">&#39;/coord&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="c1"># Element block stuff.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="c1"># I don&#39;t really understand the number here yet...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_prop1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;eb_prop1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_status&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="c1"># Side sets.</span>
         <span class="k">if</span> <span class="s2">&quot;num_side_sets&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
-                <span class="s1">&#39;/ss_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">)</span>
+                <span class="s1">&#39;/ss_names&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,</span> <span class="s1">&#39;len_name&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
                 <span class="s1">&#39;/ss_prop1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_side_sets&quot;</span><span class="p">])</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_side_sets&quot;</span><span class="p">],</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;ss_prop1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/ss_status&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_side_sets&#39;</span><span class="p">,),</span>
-                                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="c1"># Time steps.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/time_whole&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;time_step&#39;</span><span class="p">,),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>

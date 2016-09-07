@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus &mdash; pyexodus 0.0.0-g7389 documentation</title>
+    <title>pyexodus &mdash; pyexodus 0.0.0-gfbe9 documentation</title>
     
     <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.0.0-g7389',
+        VERSION:     '0.0.0-gfbe9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-g7389 documentation" href="#" />
+    <link rel="top" title="pyexodus 0.0.0-gfbe9 documentation" href="#" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
         
@@ -64,7 +64,7 @@ $ py.test
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyexodus.exodus">
-<em class="property">class </em><code class="descclassname">pyexodus.</code><code class="descname">exodus</code><span class="sig-paren">(</span><em>file</em>, <em>mode='r'</em>, <em>array_type='numpy'</em>, <em>title=None</em>, <em>numDims=None</em>, <em>numNodes=None</em>, <em>numElems=None</em>, <em>numBlocks=None</em>, <em>numNodeSets=None</em>, <em>numSideSets=None</em>, <em>io_size=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyexodus.</code><code class="descname">exodus</code><span class="sig-paren">(</span><em>file</em>, <em>mode='r'</em>, <em>array_type='numpy'</em>, <em>title=None</em>, <em>numDims=None</em>, <em>numNodes=None</em>, <em>numElems=None</em>, <em>numBlocks=None</em>, <em>numNodeSets=None</em>, <em>numSideSets=None</em>, <em>io_size=0</em>, <em>compression=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Exodus file. Can also be used as a context manager.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -82,6 +82,9 @@ $ py.test
 <li><strong>numNodeSets</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of node side sets.</li>
 <li><strong>numSideSets</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of element side sets.</li>
 <li><strong>io_size</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; No clue - must be zero for now.</li>
+<li><strong>compression</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; Turn on compression. Pass a tuple of
+<code class="docutils literal"><span class="pre">(method,</span> <span class="pre">option)</span></code>, e.g. <code class="docutils literal"><span class="pre">(&quot;gzip&quot;,</span> <span class="pre">2)</span></code>. Slows down writing a lot
+but the resulting files are potentially much smaller.</li>
 </ul>
 </td>
 </tr>
