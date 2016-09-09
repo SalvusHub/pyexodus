@@ -174,7 +174,7 @@ def test_put_coords(tmpdir):
                numBlocks=1,
                numNodeSets=0,
                numSideSets=1)
-    e.put_info_records(strings=[])
+    e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
@@ -228,7 +228,7 @@ def test_put_elem_blk_info(tmpdir):
                numBlocks=1,
                numNodeSets=0,
                numSideSets=1)
-    e.put_info_records(strings=[])
+    e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
@@ -285,7 +285,7 @@ def test_put_elem_connectivity(tmpdir):
                numBlocks=1,
                numNodeSets=0,
                numSideSets=1)
-    e.put_info_records(strings=[])
+    e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
@@ -334,7 +334,7 @@ def test_put_elem_connectivity_indices_shift(tmpdir):
                numBlocks=1,
                numNodeSets=0,
                numSideSets=1)
-    e.put_info_records(strings=[])
+    e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(

@@ -97,31 +97,31 @@ class exodus(object):
 
         self._create_variables()
 
-    def put_info_records(self, strings):
+    def put_info_records(self, info):
         """
         Puts the info records into the exodus file.
 
         Does currently not do anything.
 
-        :type strings: list of str
-        :param strings: The strings to save.
+        :type info: list of str
+        :param info: The strings to save.
         """
-        if not strings:
+        if not info:
             return
 
-        for _i, value in enumerate(strings):
+        for _i, value in enumerate(info):
             assert len(value) < self._f.dimensions["len_line"], \
                 "Records '%s' is longer then %i letters." % (
                     value, self._f.dimensions["len_line"])
 
-        self._f.dimensions["num_info"] = len(strings)
+        self._f.dimensions["num_info"] = len(info)
 
         self._f.create_variable(
             "info_records", ("num_info", "len_line"),
             dtype="|S1", **self._comp_opts)
 
         ir = self._f.variables["info_records"]
-        for idx, value in enumerate(strings):
+        for idx, value in enumerate(info):
             # Clear just to be safe.
             ir[idx] = b""
             if not value:
