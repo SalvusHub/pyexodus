@@ -7,6 +7,9 @@ easier to get going. Additionally it manages to avoid the installation of two
 very large C/C++ libraries (netCDF and exodus) that are potentially tricky to
 install, and is also easy to install on Windows.
 
+Additionally it is quite a bit faster (I guess due to more direct memory to
+file paths) and uses less memory.
+
 Don't expect this to be complete anytime soon - we will add stuff as soon as we
 need it. Currently it does exactly what we need it to do and nothing else. As
 of now it can write some kinds of exodus files that can then be opened by
@@ -27,6 +30,18 @@ Installation
 
 API
 ---
+
+Deviations from the official API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By and large ``pyexodus`` aims to be fully compatible with the official Python exodus API.
+Deviations are listed here.
+
+* It supports optional compression. This is quite a bit slower to write but can have a very
+  big impact on file size. See the ``compression`` argument of :class:`pyexodus.exodus`.
+* :meth:`pyexodus.exodus.put_elem_connectivity` has two additional optional
+  arguments: ``shift_indices`` and ``chunk_size_in_mb``.
+
 
 .. autoclass:: pyexodus.exodus
     :members:

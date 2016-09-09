@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &mdash; pyexodus 0.0.0-gfbe9 documentation</title>
+    <title>pyexodus.core &mdash; pyexodus 0.0.0-g04ee documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-gfbe9',
+        VERSION:     '0.0.0-g04ee',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-gfbe9 documentation" href="../../index.html" />
+    <link rel="top" title="pyexodus 0.0.0-g04ee documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -105,8 +105,7 @@
         <span class="c1"># implemented.</span>
         <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;Currently only writing is supported.&quot;</span>
         <span class="k">assert</span> <span class="n">array_type</span> <span class="o">==</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;array_type must be &#39;numpy&#39;.&quot;</span>
-        <span class="k">assert</span> <span class="n">numBlocks</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;numBlocks must be 1 for now.&quot;</span>
-        <span class="k">assert</span> <span class="n">numNodeSets</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;numNodeSets must be 1 for now.&quot;</span>
+        <span class="k">assert</span> <span class="n">numNodeSets</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;numNodeSets must be 0 for now.&quot;</span>
         <span class="k">assert</span> <span class="n">io_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;io_size must be 0 for now.&quot;</span>
         <span class="k">assert</span> <span class="n">numDims</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Only 2 or 3 dimensions are supported.&quot;</span>
 
@@ -139,31 +138,31 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_variables</span><span class="p">()</span>
 
-<div class="viewcode-block" id="exodus.put_info_records"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_info_records">[docs]</a>    <span class="k">def</span> <span class="nf">put_info_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strings</span><span class="p">):</span>
+<div class="viewcode-block" id="exodus.put_info_records"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_info_records">[docs]</a>    <span class="k">def</span> <span class="nf">put_info_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Puts the info records into the exodus file.</span>
 
 <span class="sd">        Does currently not do anything.</span>
 
-<span class="sd">        :type strings: list of str</span>
-<span class="sd">        :param strings: The strings to save.</span>
+<span class="sd">        :type info: list of str</span>
+<span class="sd">        :param info: The strings to save.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">strings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;len_line&quot;</span><span class="p">],</span> \
                 <span class="s2">&quot;Records &#39;</span><span class="si">%s</span><span class="s2">&#39; is longer then </span><span class="si">%i</span><span class="s2"> letters.&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;len_line&quot;</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span>
             <span class="s2">&quot;info_records&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;num_info&quot;</span><span class="p">,</span> <span class="s2">&quot;len_line&quot;</span><span class="p">),</span>
             <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;|S1&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
 
         <span class="n">ir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;info_records&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
             <span class="c1"># Clear just to be safe.</span>
             <span class="n">ir</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="s2">&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
@@ -206,9 +205,16 @@
             <span class="s2">&quot;Canont have more elements in the block then globally set.&quot;</span>
         <span class="k">assert</span> <span class="n">numAttrsPerElem</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Must be 0 for now.&quot;</span>
 
-        <span class="n">num_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
-        <span class="n">num_node_per_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_nod_per_el</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
-        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="c1"># So the logic is as follows. `eb_status` keeps track of which</span>
+        <span class="c1"># element ids have already been assigned. We find the first that is</span>
+        <span class="c1"># not zero and that is the actual index of the the element block.</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="s2">&quot;eb_status&quot;</span><span class="p">][:]</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">status</span><span class="p">,</span> <span class="s2">&quot;All element blocks already set.&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">num_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="n">num_node_per_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_nod_per_el</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_el_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numElems</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">num_node_per_el_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">numNodesPerElem</span>
@@ -218,7 +224,10 @@
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;elem_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">elemType</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;eb_status&#39;</span><span class="p">][:]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+        <span class="c1"># Set the status and thus &quot;claim&quot; the element block id.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;eb_status&#39;</span><span class="p">][</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># For some reason this is always eb_prop1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;eb_prop1&#39;</span><span class="p">][</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span></div>
 
 <div class="viewcode-block" id="exodus.put_elem_connectivity"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_elem_connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">put_elem_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">,</span> <span class="n">shift_indices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                               <span class="n">chunk_size_in_mb</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
@@ -234,6 +243,18 @@
 <span class="sd">        :param connectivity: The connectivity. Must be equal to the number</span>
 <span class="sd">            of of elements times the number of nodes per element for any</span>
 <span class="sd">            given block.</span>
+<span class="sd">        :type shift_indices: int</span>
+<span class="sd">        :param shift_indices: **Not available in the official exodus Python</span>
+<span class="sd">            API!** This value will be added to all indices before they are</span>
+<span class="sd">            written to the file. This is useful if you for example</span>
+<span class="sd">            internally work with a 0-based indexing scheme but exodus</span>
+<span class="sd">            requires a 1-based indexing scheme.</span>
+<span class="sd">        :type chunk_size_in_mb: int</span>
+<span class="sd">        :param chunk_size_in_mb: If ``shift_indices`` != 0 values will be</span>
+<span class="sd">            written in chunks of this size. This is also the maximum memory</span>
+<span class="sd">            usage of this method. If ``shift_indices`` == 0, all indices</span>
+<span class="sd">            will be written directly from memory and no additional memory is</span>
+<span class="sd">            required.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">num_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_el_in_blk</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
         <span class="n">num_node_per_el_name</span> <span class="o">=</span> <span class="s2">&quot;num_nod_per_el</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
@@ -597,7 +618,8 @@
                                 <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;|S1&#39;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="c1"># I don&#39;t really understand the number here yet...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_prop1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>
-                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                                <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">],</span>
                                 <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_comp_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;eb_prop1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">create_variable</span><span class="p">(</span><span class="s1">&#39;/eb_status&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;num_el_blk&#39;</span><span class="p">,),</span>

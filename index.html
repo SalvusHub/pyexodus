@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus &mdash; pyexodus 0.0.0-gfbe9 documentation</title>
+    <title>pyexodus &mdash; pyexodus 0.0.0-g04ee documentation</title>
     
     <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.0.0-gfbe9',
+        VERSION:     '0.0.0-g04ee',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-gfbe9 documentation" href="#" />
+    <link rel="top" title="pyexodus 0.0.0-g04ee documentation" href="#" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
         
@@ -45,6 +45,8 @@ emulates the Python API of the official Python exodus wrapper but is much much
 easier to get going. Additionally it manages to avoid the installation of two
 very large C/C++ libraries (netCDF and exodus) that are potentially tricky to
 install, and is also easy to install on Windows.</p>
+<p>Additionally it is quite a bit faster (I guess due to more direct memory to
+file paths) and uses less memory.</p>
 <p>Don&#8217;t expect this to be complete anytime soon - we will add stuff as soon as we
 need it. Currently it does exactly what we need it to do and nothing else. As
 of now it can write some kinds of exodus files that can then be opened by
@@ -62,6 +64,16 @@ $ py.test
 </div>
 <div class="section" id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="deviations-from-the-official-api">
+<h3>Deviations from the official API<a class="headerlink" href="#deviations-from-the-official-api" title="Permalink to this headline">¶</a></h3>
+<p>By and large <code class="docutils literal"><span class="pre">pyexodus</span></code> aims to be fully compatible with the official Python exodus API.
+Deviations are listed here.</p>
+<ul class="simple">
+<li>It supports optional compression. This is quite a bit slower to write but can have a very
+big impact on file size. See the <code class="docutils literal"><span class="pre">compression</span></code> argument of <a class="reference internal" href="#pyexodus.exodus" title="pyexodus.exodus"><code class="xref py py-class docutils literal"><span class="pre">pyexodus.exodus</span></code></a>.</li>
+<li><a class="reference internal" href="#pyexodus.exodus.put_elem_connectivity" title="pyexodus.exodus.put_elem_connectivity"><code class="xref py py-meth docutils literal"><span class="pre">pyexodus.exodus.put_elem_connectivity()</span></code></a> has two additional optional
+arguments: <code class="docutils literal"><span class="pre">shift_indices</span></code> and <code class="docutils literal"><span class="pre">chunk_size_in_mb</span></code>.</li>
+</ul>
 <dl class="class">
 <dt id="pyexodus.exodus">
 <em class="property">class </em><code class="descclassname">pyexodus.</code><code class="descname">exodus</code><span class="sig-paren">(</span><em>file</em>, <em>mode='r'</em>, <em>array_type='numpy'</em>, <em>title=None</em>, <em>numDims=None</em>, <em>numNodes=None</em>, <em>numElems=None</em>, <em>numBlocks=None</em>, <em>numNodeSets=None</em>, <em>numSideSets=None</em>, <em>io_size=0</em>, <em>compression=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus" title="Permalink to this definition">¶</a></dt>
@@ -163,6 +175,16 @@ e.put_elem_blk_info() on this block.</p>
 <li><strong>connectivity</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; The connectivity. Must be equal to the number
 of of elements times the number of nodes per element for any
 given block.</li>
+<li><strong>shift_indices</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <strong>Not available in the official exodus Python
+API!</strong> This value will be added to all indices before they are
+written to the file. This is useful if you for example
+internally work with a 0-based indexing scheme but exodus
+requires a 1-based indexing scheme.</li>
+<li><strong>chunk_size_in_mb</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; If <code class="docutils literal"><span class="pre">shift_indices</span></code> != 0 values will be
+written in chunks of this size. This is also the maximum memory
+usage of this method. If <code class="docutils literal"><span class="pre">shift_indices</span></code> == 0, all indices
+will be written directly from memory and no additional memory is
+required.</li>
 </ul>
 </td>
 </tr>
@@ -248,14 +270,14 @@ file.</p>
 
 <dl class="method">
 <dt id="pyexodus.exodus.put_info_records">
-<code class="descname">put_info_records</code><span class="sig-paren">(</span><em>strings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_info_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_info_records" title="Permalink to this definition">¶</a></dt>
+<code class="descname">put_info_records</code><span class="sig-paren">(</span><em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.put_info_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.put_info_records" title="Permalink to this definition">¶</a></dt>
 <dd><p>Puts the info records into the exodus file.</p>
 <p>Does currently not do anything.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strings</strong> (<em>list of str</em>) &#8211; The strings to save.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>info</strong> (<em>list of str</em>) &#8211; The strings to save.</td>
 </tr>
 </tbody>
 </table>
@@ -424,6 +446,7 @@ side set).</p>
 <li>The offical Python API can be here: <a class="reference external" href="https://github.com/gsjaardema/seacas">https://github.com/gsjaardema/seacas</a></li>
 <li>Logo made by Roundicons from <a class="reference external" href="http://www.flaticon.com">http://www.flaticon.com</a> (Creative Commons BY 3.0 License)</li>
 </ul>
+</div>
 </div>
 </div>
 </div>
