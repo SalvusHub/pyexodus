@@ -1072,3 +1072,38 @@ def test_put_info_records(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_compression(tmpdir):
+    """
+    Test to make sure compressions does something.
+    """
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    # No compression at first.
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2):
+        pass
+
+    with h5netcdf.File(filename) as f:
+        for var in f._variables:
+            ds = f._variables[var]._h5ds
+            assert ds.compression is None, ds
+            assert ds.compression_opts is None, ds
+            assert ds.chunks is None, ds
+
+    os.remove(filename)
+
+    # No turn on compression.
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2, compression=("gzip", 2)):
+        pass
+
+    with h5netcdf.File(filename) as f:
+        for var in f._variables:
+            ds = f._variables[var]._h5ds
+            assert ds.compression == "gzip", ds
+            assert ds.compression_opts == 2, ds
+            assert ds.chunks is not None, ds
