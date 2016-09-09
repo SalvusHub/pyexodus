@@ -63,8 +63,7 @@ class exodus(object):
         # implemented.
         assert mode == "w", "Currently only writing is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
-        assert numBlocks == 1, "numBlocks must be 1 for now."
-        assert numNodeSets == 0, "numNodeSets must be 1 for now."
+        assert numNodeSets == 0, "numNodeSets must be 0 for now."
         assert io_size == 0, "io_size must be 0 for now."
         assert numDims in [2, 3], "Only 2 or 3 dimensions are supported."
 
@@ -567,7 +566,8 @@ class exodus(object):
                                 dtype='|S1', **self._comp_opts)
         # I don't really understand the number here yet...
         self._f.create_variable('/eb_prop1', ('num_el_blk',),
-                                dtype=np.int32, data=[-1],
+                                dtype=np.int32,
+                                data=[-1] * self._f.dimensions['num_el_blk'],
                                 **self._comp_opts)
         self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
         self._f.create_variable('/eb_status', ('num_el_blk',),
