@@ -192,6 +192,18 @@ class exodus(object):
         :param connectivity: The connectivity. Must be equal to the number
             of of elements times the number of nodes per element for any
             given block.
+        :type shift_indices: int
+        :param shift_indices: **Not available in the official exodus Python
+            API!** This value will be added to all indices before they are
+            written to the file. This is useful if you for example
+            internally work with a 0-based indexing scheme but exodus
+            requires a 1-based indexing scheme.
+        :type chunk_size_in_mb: int
+        :param chunk_size_in_mb: If ``shift_indices`` != 0 values will be
+            written in chunks of this size. This is also the maximum memory
+            usage of this method. If ``shift_indices`` == 0, all indices
+            will be written directly from memory and no additional memory is
+            required.
         """
         num_el_name = "num_el_in_blk%i" % id
         num_node_per_el_name = "num_nod_per_el%i" % id
