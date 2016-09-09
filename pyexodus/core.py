@@ -163,9 +163,16 @@ class exodus(object):
             "Canont have more elements in the block then globally set."
         assert numAttrsPerElem == 0, "Must be 0 for now."
 
-        num_el_name = "num_el_in_blk%i" % id
-        num_node_per_el_name = "num_nod_per_el%i" % id
-        var_name = "connect%i" % id
+        # So the logic is as follows. `eb_status` keeps track of which
+        # element ids have already been assigned. We find the first that is
+        # not zero and that is the actual index of the the element block.
+        status = self._f._variables["eb_status"][:]
+        assert 0 in status, "All element blocks already set."
+        idx = np.argwhere(status == 0)[0][0] + 1
+
+        num_el_name = "num_el_in_blk%i" % idx
+        num_node_per_el_name = "num_nod_per_el%i" % idx
+        var_name = "connect%i" % idx
 
         self._f.dimensions[num_el_name] = numElems
         self._f.dimensions[num_node_per_el_name] = numNodesPerElem
@@ -175,7 +182,10 @@ class exodus(object):
             dtype=np.int32, **self._comp_opts)
         self._f.variables[var_name].attrs['elem_type'] = np.string_(elemType)
 
-        self._f.variables['eb_status'][:] += 1
+        # Set the status and thus "claim" the element block id.
+        self._f.variables['eb_status'][idx - 1] = 1
+        # For some reason this is always eb_prop1.
+        self._f.variables['eb_prop1'][idx - 1] = id
 
     def put_elem_connectivity(self, id, connectivity, shift_indices=0,
                               chunk_size_in_mb=128):

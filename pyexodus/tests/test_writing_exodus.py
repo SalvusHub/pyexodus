@@ -1211,3 +1211,141 @@ def test_init_multiple_element_blocks(tmpdir):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_init_multiple_element_blocks_and_set_first_one(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename,
+               mode="w",
+               title="Example",
+               array_type="numpy",
+               numDims=3,
+               numNodes=5,
+               numElems=6,
+               numBlocks=3,
+               numNodeSets=0,
+               numSideSets=1)
+    e.put_elem_blk_info(7, "SEVEN", 6, 3, 0)
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            'eb_names': {'attrs': {},
+                         'data': np.array([
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', ''],
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', ''],
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '']],
+                             dtype='|S1'),
+                         'dimensions': ('num_el_blk', 'len_name'),
+                         'dtype': np.dtype('S1'),
+                         'shape': (3, 33)},
+            "connect1": {"attrs": {"elem_type": b"SEVEN"},
+                         "data": np.zeros((6, 3), dtype=np.int32),
+                         "dimensions": ("num_el_in_blk1",
+                                        "num_nod_per_el1"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)},
+            'eb_prop1': {'attrs': {'name': b'ID'},
+                         'data': np.array([7, -1, -1], dtype=np.int32),
+                         'dimensions': ('num_el_blk',),
+                         'dtype': np.dtype('int32'),
+                         'shape': (3,)},
+            'eb_status': {'attrs': {},
+                          'data': np.array([1, 0, 0], dtype=np.int32),
+                          'dimensions': ('num_el_blk',),
+                          'dtype': np.dtype('int32'),
+                          'shape': (3,)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
+
+
+def test_init_multiple_element_blocks_and_set_all(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename,
+               mode="w",
+               title="Example",
+               array_type="numpy",
+               numDims=3,
+               numNodes=5,
+               numElems=6,
+               numBlocks=3,
+               numNodeSets=0,
+               numSideSets=1)
+    e.put_elem_blk_info(7, "SEVEN", 6, 3, 0)
+    e.put_elem_blk_info(1, "ONE", 6, 3, 0)
+    e.put_elem_blk_info(3, "THREE", 6, 3, 0)
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        expected = {
+            'eb_names': {'attrs': {},
+                         'data': np.array([
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', ''],
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', ''],
+                             ['', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '',
+                              '', '', '', '', '', '', '', '', '', '', '']],
+                             dtype='|S1'),
+                         'dimensions': ('num_el_blk', 'len_name'),
+                         'dtype': np.dtype('S1'),
+                         'shape': (3, 33)},
+            "connect1": {"attrs": {"elem_type": b"SEVEN"},
+                         "data": np.zeros((6, 3), dtype=np.int32),
+                         "dimensions": ("num_el_in_blk1",
+                                        "num_nod_per_el1"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)},
+            "connect2": {"attrs": {"elem_type": b"ONE"},
+                         "data": np.zeros((6, 3), dtype=np.int32),
+                         "dimensions": ("num_el_in_blk2",
+                                        "num_nod_per_el2"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)},
+            "connect3": {"attrs": {"elem_type": b"THREE"},
+                         "data": np.zeros((6, 3), dtype=np.int32),
+                         "dimensions": ("num_el_in_blk3",
+                                        "num_nod_per_el3"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)},
+            'eb_prop1': {'attrs': {'name': b'ID'},
+                         'data': np.array([7, 1, 3], dtype=np.int32),
+                         'dimensions': ('num_el_blk',),
+                         'dtype': np.dtype('int32'),
+                         'shape': (3,)},
+            'eb_status': {'attrs': {},
+                          'data': np.array([1, 1, 1], dtype=np.int32),
+                          'dimensions': ('num_el_blk',),
+                          'dtype': np.dtype('int32'),
+                          'shape': (3,)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
