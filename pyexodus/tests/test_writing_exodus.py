@@ -321,6 +321,55 @@ def test_put_elem_connectivity(tmpdir):
             assert a.shape == e["shape"], key
 
 
+def test_put_elem_connectivity_indices_shift(tmpdir):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename,
+               mode="w",
+               title="Example",
+               array_type="numpy",
+               numDims=3,
+               numNodes=5,
+               numElems=6,
+               numBlocks=1,
+               numNodeSets=0,
+               numSideSets=1)
+    e.put_info_records(strings=[])
+
+    # Use different dtypes on purpose to test the type conversions.
+    e.put_coords(
+        xCoords=np.arange(5, dtype=np.float32),
+        yCoords=np.arange(5, dtype=np.int32) * 2,
+        zCoords=np.arange(5, dtype=np.int64) * 3
+    )
+
+    e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+    e.put_elem_connectivity(1, np.arange(6 * 3) + 7, shift_indices=3)
+
+    e.close()
+
+    with h5netcdf.File(filename, mode="r") as f:
+        # connect1 should now be filled.
+        expected = {
+            "connect1": {"attrs": {"elem_type": b"HEX"},
+                         "data": (np.arange(6 * 3) + 7).reshape((6, 3)) + 3,
+                         "dimensions": ("num_el_in_blk1",
+                                        "num_nod_per_el1"),
+                         "dtype": np.int32,
+                         "shape": (6, 3)}
+        }
+
+        for key in sorted(expected.keys()):
+            a = f.variables[key]
+            e = expected[key]
+
+            assert dict(a.attrs) == e["attrs"], key
+            np.testing.assert_equal(a[:], e["data"], err_msg=key)
+            assert a.dimensions == e["dimensions"], key
+            assert a.dtype == e["dtype"], key
+            assert a.shape == e["shape"], key
+
+
 def test_put_time(tmpdir):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
