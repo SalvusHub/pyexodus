@@ -55,7 +55,7 @@ setup_config = dict(
     packages=find_packages(),
     license="MIT",
     platforms="OS Independent",
-    install_requires=["numpy", "h5py"],
+    install_requires=["numpy", "h5netcdf"],
     package_data={
         "pyexodus": get_package_data()},
 )
