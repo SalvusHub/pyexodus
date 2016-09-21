@@ -9,6 +9,7 @@
 from __future__ import absolute_import
 
 import os
+import platform
 
 import numpy as np
 
@@ -40,7 +41,11 @@ class exodus(object):
     :type numSideSets: int
     :param numSideSets: The number of element side sets.
     :type io_size: int
-    :param io_size: No clue - must be zero for now.
+    :param io_size: Determines how floating point variables are stored in
+        the file.  Inputs will be converted if required.
+        * ``0``: machine precision
+        * ``4``: single precision
+        * ``8``: double precision
     :type compression: tuple
     :param compression: Turn on compression. Pass a tuple of
         ``(method, option)``, e.g. ``("gzip", 2)``. Slows down writing a lot
@@ -64,8 +69,25 @@ class exodus(object):
         assert mode == "w", "Currently only writing is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
         assert numNodeSets == 0, "numNodeSets must be 0 for now."
-        assert io_size == 0, "io_size must be 0 for now."
         assert numDims in [2, 3], "Only 2 or 3 dimensions are supported."
+
+        # Determines the precision with which floating point variables are
+        # written.
+        if io_size == 0:
+            if platform.architecture()[0] == "64bit":
+                self.__f_dtype = np.float64
+                self.__f_word_size = 8
+            else:
+                self.__f_dtype = np.float32
+                self.__f_word_size = 4
+        elif io_size == 4:
+            self.__f_dtype = np.float32
+            self.__f_word_size = 4
+        elif io_size == 8:
+            self.__f_dtype = np.float64
+            self.__f_word_size = 8
+        else:  # pragma: no cover
+            raise NotImplementedError
 
         assert not os.path.exists(file), "File '%s' already exists." % file
 
@@ -281,7 +303,7 @@ class exodus(object):
             dtype="|S1", **self._comp_opts)
         self._f.create_variable(
             "vals_glo_var", ("time_step", "num_glo_var"),
-            dtype=np.float64, **self._comp_opts)
+            dtype=self.__f_dtype, **self._comp_opts)
 
     def put_global_variable_name(self, name, index):
         """
@@ -392,7 +414,7 @@ class exodus(object):
         if variable_name not in self._f.variables:
             self._f.create_variable(
                 variable_name, ("time_step", num_elem_name),
-                dtype=np.float64, **self._comp_opts)
+                dtype=self.__f_dtype, **self._comp_opts)
 
         self._f.variables[variable_name][step - 1] = values
 
@@ -416,7 +438,7 @@ class exodus(object):
             name = "vals_nod_var%i" % (_i + 1)
             self._f.create_variable(
                 name, ("time_step", "num_nodes"),
-                dtype=np.float64, **self._comp_opts)
+                dtype=self.__f_dtype, **self._comp_opts)
 
     def put_node_variable_name(self, name, index):
         """
@@ -553,7 +575,7 @@ class exodus(object):
         self._f.attrs['api_version'] = np.float32([6.30000019])
         self._f.attrs['version'] = np.float32([6.30000019])
         self._f.attrs['floating_point_word_size'] = \
-            np.array([8], dtype=np.int32)
+            np.array([self.__f_word_size], dtype=np.int32)
         self._f.attrs['file_size'] = np.array([1], dtype=np.int32)
         self._f.attrs['maximum_name_length'] = np.array([32],
                                                         dtype=np.int32)
@@ -568,7 +590,7 @@ class exodus(object):
         # Coordinates.
         for i in "xyz":
             self._f.create_variable(
-                '/coord' + i, ('num_nodes',), dtype=np.float64,
+                '/coord' + i, ('num_nodes',), dtype=self.__f_dtype,
                 **self._comp_opts)
 
         # Element block stuff.
@@ -598,7 +620,7 @@ class exodus(object):
 
         # Time steps.
         self._f.create_variable('/time_whole', ('time_step',),
-                                dtype=np.float64, **self._comp_opts)
+                                dtype=self.__f_dtype, **self._comp_opts)
 
     def __del__(self):
         try:
