@@ -43,6 +43,7 @@ class exodus(object):
     :type io_size: int
     :param io_size: Determines how floating point variables are stored in
         the file.  Inputs will be converted if required.
+
         * ``0``: machine precision
         * ``4``: single precision
         * ``8``: double precision
