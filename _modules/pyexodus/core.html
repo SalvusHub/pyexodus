@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &#8212; pyexodus 0.0.0-gf434 documentation</title>
+    <title>pyexodus.core &#8212; pyexodus 0.0.0-g223b documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-gf434',
+        VERSION:     '0.0.0-g223b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pyexodus 0.0.0-gf434 documentation" href="../../index.html" />
+    <link rel="top" title="pyexodus 0.0.0-g223b documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -117,10 +117,10 @@
         <span class="c1"># Determines the precision with which floating point variables are</span>
         <span class="c1"># written.</span>
         <span class="k">if</span> <span class="n">io_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">architecture</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;64bit&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">architecture</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;64bit&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__f_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__f_word_size</span> <span class="o">=</span> <span class="mi">8</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__f_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__f_word_size</span> <span class="o">=</span> <span class="mi">4</span>
         <span class="k">elif</span> <span class="n">io_size</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
