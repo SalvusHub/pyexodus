@@ -22,9 +22,9 @@ _p = [
     {"io_size": 8, "word_size": 8, "f_dtype": np.float64},
 ]
 
-if platform.architecture()[0] == "64bit":
+if platform.architecture()[0] == "64bit":  # pragma: no cover
     _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
-else:
+else:  # pragma: no cover
     _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
 
 

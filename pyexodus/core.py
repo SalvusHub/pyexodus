@@ -75,10 +75,10 @@ class exodus(object):
         # Determines the precision with which floating point variables are
         # written.
         if io_size == 0:
-            if platform.architecture()[0] == "64bit":
+            if platform.architecture()[0] == "64bit":  # pragma: no cover
                 self.__f_dtype = np.float64
                 self.__f_word_size = 8
-            else:
+            else:  # pragma: no cover
                 self.__f_dtype = np.float32
                 self.__f_word_size = 4
         elif io_size == 4:
