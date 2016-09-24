@@ -165,6 +165,23 @@ class exodus(object):
         self._f.variables["coordx"][:] = xCoords
         self._f.variables["coordy"][:] = yCoords
         self._f.variables["coordz"][:] = zCoords
+        
+    def put_global_array(self, name, data):
+        """
+        Put a global array in the exodus file.
+
+        :type name: string
+        :param name: The name of the array.
+        :type data: :class:`numpy.ndarray`
+        :param data:  The data to be put.
+        """
+        if name not in self._f.variables:
+            name_dim = name + '_dim'
+            self._f.dimensions[name_dim] = len(data)
+            self._f.create_variable(
+                name, (name_dim,),
+                dtype=self.__f_dtype, **self._comp_opts)
+        self._f.variables[name][:] = data
 
     def put_elem_blk_info(self, id, elemType, numElems, numNodesPerElem,
                           numAttrsPerElem):
