@@ -340,6 +340,37 @@ class exodus(object):
         idx = self.get_global_variable_names().index(name)
         self._f.variables["vals_glo_var"][step - 1, idx] = value
 
+    def put_global_array(self, var_name, var_data):
+        """
+        Put an 1D or 2D global array in the exodus file.
+
+        :type var_name: string
+        :param var_name: The name of the array.
+        :type var_data: :class:`numpy.ndarray`
+        :param var_data:  The data to be put.
+        """
+        # for safety, do not allow a dual name
+        assert var_name not in self._f.variables, \
+            "Global array named %s already exists." % var_name
+        # only allow 1D or 2D arrays
+        assert var_data.ndim in (1, 2), \
+            "A global array can only be 1D or 2D."
+        # write data
+        var_dim_0 = "dim0_of_global_array_" + var_name
+        self._f.dimensions[var_dim_0] = var_data.shape[0]
+        if var_data.ndim == 1:
+            self._f.create_variable(
+                var_name, (var_dim_0,),
+                dtype=self.__f_dtype, **self._comp_opts)
+            self._f.variables[var_name][:] = var_data
+        else:
+            var_dim_1 = "dim1_of_global_array_" + var_name
+            self._f.dimensions[var_dim_1] = var_data.shape[1]
+            self._f.create_variable(
+                var_name, (var_dim_0, var_dim_1),
+                dtype=self.__f_dtype, **self._comp_opts)
+            self._f.variables[var_name][:, :] = var_data
+
     def get_global_variable_names(self):
         """
         Get list of global variable names in exodus file.
