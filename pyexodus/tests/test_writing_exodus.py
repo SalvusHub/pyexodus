@@ -668,7 +668,7 @@ def test_set_node_variable_number(tmpdir, io_size):
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
                 "shape": (1, 5)},
-            "vals_nod_var1": {
+            "vals_nod_var2": {
                 "attrs": {},
                 "data": np.zeros((1, 5)),
                 "dimensions": ("time_step", "num_nodes"),
