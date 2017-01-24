@@ -8,7 +8,7 @@ very large C/C++ libraries (netCDF and exodus) that are potentially tricky to
 install, and is also easy to install on Windows.
 
 Additionally it is quite a bit faster (I guess due to more direct memory to
-file paths), uses less memory, and supports Python 2.7, 3.3, 3.4, 3.5, and 3.6.
+file paths), uses less memory, and supports Python 2.7, 3.4, 3.5, and 3.6.
 
 Don't expect this to be complete anytime soon - we will add stuff as soon as we
 need it. Currently it does exactly what we need it to do and nothing else. As
