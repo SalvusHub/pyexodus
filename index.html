@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus &#8212; pyexodus 0.0.0-g2cd0 documentation</title>
+    <title>pyexodus &#8212; pyexodus 0.0.0-gebc8 documentation</title>
     
     <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.0.0-g2cd0',
+        VERSION:     '0.0.0-gebc8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -112,6 +112,26 @@ but the resulting files are potentially much smaller.</li>
 </tbody>
 </table>
 <dl class="method">
+<dt id="pyexodus.exodus.get_coord">
+<code class="descname">get_coord</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get x, y, z of i-th node in the exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> &#8211; Node index. 1-based.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_coords">
+<code class="descname">get_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all nodes in x, y, z.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyexodus.exodus.get_element_variable_names">
 <code class="descname">get_element_variable_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_element_variable_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_element_variable_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of element variable names in exodus file.</p>
@@ -127,6 +147,51 @@ but the resulting files are potentially much smaller.</li>
 <dt id="pyexodus.exodus.get_node_variable_names">
 <code class="descname">get_node_variable_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_node_variable_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_node_variable_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of node variable names in exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_side_set">
+<code class="descname">get_side_set</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_side_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_side_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element and side ids for a certain side set.</p>
+<p>Returns a tuple of two arrays. The first are the element indices,
+the second the side ids in these elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the side set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_side_set_ids">
+<code class="descname">get_side_set_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_side_set_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_side_set_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of side set ids in the exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_side_set_names">
+<code class="descname">get_side_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_side_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_side_set_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of the side set names in the exodus file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_side_set_node_list">
+<code class="descname">get_side_set_node_list</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_side_set_node_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_side_set_node_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes for a certain side set.</p>
+<p>Returns a tuple of two arrays. The first contains the number of
+nodes on each face the the seconds are the local node ids for the
+side set in the exodus file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The id of the side set.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
