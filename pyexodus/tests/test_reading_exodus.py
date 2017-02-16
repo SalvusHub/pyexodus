@@ -154,7 +154,7 @@ def test_get_side_set_invalid_id(tmpdir, io_size):
         "No side set with id 7 in file. Available ids: 4, 2."
 
 
-def test_get_side_set_node_list(tmpdir, io_size):
+def test_get_side_set_node_list_hex(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Hex elements.
@@ -180,3 +180,27 @@ def test_get_side_set_node_list(tmpdir, io_size):
         local_node_ids,
         [15, 16, 20, 19, 24, 25, 29, 28, 33, 34, 38, 37, 39, 43, 46, 42, 47,
          50, 49, 48])
+
+
+def test_get_side_set_node_list_quad(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=2, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5)
+        )
+        e.put_elem_blk_info(1, b"QUAD", 6, 4, 0)
+        e.put_elem_connectivity(1, np.arange(6 * 4) + 7)
+        e.put_side_set_params(4, 4, 0)
+        e.put_side_set(4, np.arange(4, dtype=np.int32) + 2,
+                       np.arange(4, dtype=np.int32) + 1)
+
+    with exodus(filename, mode="r") as e:
+        num_nodes, local_node_ids = e.get_side_set_node_list(id=4)
+
+    np.testing.assert_equal(num_nodes, [2, 2, 2, 2])
+    np.testing.assert_equal(local_node_ids, [11, 12, 16, 17, 21, 22, 26, 23])
