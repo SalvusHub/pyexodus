@@ -579,7 +579,7 @@ class exodus(object):
 
     def get_side_set_names(self):
         """
-        Get a list of the side set names in the exodus files.
+        Get a list of the side set names in the exodus file.
         """
         _side_sets = self._f.variables["ss_names"][:]
         side_sets = []
@@ -587,6 +587,12 @@ class exodus(object):
             side_sets.append("".join(
                 _j.decode() if hasattr(_j, "decode") else _j for _j in _i))
         return side_sets
+
+    def get_side_set_ids(self):
+        """
+        Get a list of side set ids in the exodus file.
+        """
+        return [int(_i) for _i in self._f.variables["ss_prop1"][:]]
 
     def _write_attrs(self, title):
         """
