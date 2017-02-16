@@ -677,6 +677,21 @@ class exodus(object):
 
         return num_nodes, local_node_ids
 
+    def get_coord(self, i):
+        """
+        Get x, y, z of i-th node in the exodus file.
+
+        :param i: Node index. 1-based.
+        """
+        if not 1 <= i <= self._f.dimensions["num_nodes"]:
+            raise ValueError("Invalid index. Coordinate bounds: [1, %i]." %
+                             self._f.dimensions["num_nodes"])
+        x = self._f.variables["coordx"][i - 1]
+        y = self._f.variables["coordy"][i - 1]
+        if self._f.dimensions["num_dim"] == 2:
+            return x, y, 0.0
+        return x, y, self._f.variables["coordz"][i - 1]
+
     def _write_attrs(self, title):
         """
         Write all the attributes.
