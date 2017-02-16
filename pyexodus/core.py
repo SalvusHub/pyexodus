@@ -692,6 +692,16 @@ class exodus(object):
             return x, y, 0.0
         return x, y, self._f.variables["coordz"][i - 1]
 
+    def get_coords(self):
+        """
+        Returns all nodes in x, y, z.
+        """
+        x = self._f.variables["coordx"][:]
+        y = self._f.variables["coordy"][:]
+        if self._f.dimensions["num_dim"] == 2:
+            return x, y, np.zeros_like(x)
+        return x, y, self._f.variables["coordz"][:]
+
     def _write_attrs(self, title):
         """
         Write all the attributes.

@@ -252,3 +252,35 @@ def test_get_coord_2d(tmpdir, io_size):
         np.testing.assert_allclose(e.get_coord(1), [0.0, 0.0, 0.0])
         np.testing.assert_allclose(e.get_coord(2), [1.0, 2.0, 0.0])
         np.testing.assert_allclose(e.get_coord(3), [2.0, 4.0, 0.0])
+
+
+def test_get_coords_3d(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.arange(5, dtype=np.float64) * 3)
+
+    with exodus(filename, mode="r") as e:
+        np.testing.assert_allclose(
+            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.arange(5) * 3])
+
+
+def test_get_coords_2d(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=2, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5))
+
+    with exodus(filename, mode="r") as e:
+        np.testing.assert_allclose(
+            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.zeros(5)])
