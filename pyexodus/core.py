@@ -17,6 +17,23 @@ import numpy as np
 import h5netcdf
 
 
+# This uses zero based indexing to be compatible with numpy. The variables
+# in the exodus files themselves are one based so keep that in mind!
+# The values are from the exodus manual.
+_SIDE_SET_NUMBERING = {
+    "QUAD": np.array([[0, 1],
+                      [1, 2],
+                      [2, 3],
+                      [3, 0]], dtype=np.int32),
+    "HEX": np.array([[0, 1, 5, 4],
+                     [1, 2, 6, 5],
+                     [2, 3, 7, 6],
+                     [0, 4, 7, 3],
+                     [0, 3, 2, 1],
+                     [4, 5, 6, 7]], dtype=np.int32)
+}
+
+
 class exodus(object):
     """
     Create a new Exodus file. Can also be used as a context manager.
@@ -600,6 +617,65 @@ class exodus(object):
         Get a list of side set ids in the exodus file.
         """
         return [int(_i) for _i in self._f.variables["ss_prop1"][:]]
+
+    def get_side_set(self, id):
+        """
+        Get element and side ids for a certain side set.
+
+        Returns a tuple of two arrays. The first are the element indices,
+        the second the side ids in these elements.
+
+        :type id: int
+        :param id: The id of the side set.
+        """
+        ids = self.get_side_set_ids()
+        if id not in ids:
+            raise ValueError("No side set with id '%i' in file. Available "
+                             "ids: %s" % (
+                              id, ', '.join(["'%i'" % _i for _i in ids])))
+        id = ids.index(id) + 1
+        side_name = "side_ss%i" % id
+        elem_name = "elem_ss%i" % id
+
+        return self._f.variables[elem_name][:], self._f.variables[side_name][:]
+
+    def get_side_set_node_list(self, id):
+        """
+        Get the nodes for a certain side set.
+
+        Returns a tuple of two arrays. The first contains the number of
+        nodes on each face the the seconds are the local node ids for the
+        side set in the exodus file.
+
+        :type id: int
+        :param id: The id of the side set.
+        """
+        # XXX: Currently only works for files with a single element block.
+        conn = self._f.variables["connect1"]
+
+        elem_type = conn.attrs["elem_type"]
+        try:
+            elem_type = elem_type.decode()
+        except AttributeError:
+            pass
+
+        elem_idx, side_idx = self.get_side_set(id=id)
+        _sin = _SIDE_SET_NUMBERING[elem_type]
+
+        num_nodes = np.ones_like(elem_idx) * _sin.shape[1]
+        # This one is a bit tricky. Not sure if the current solution is
+        # optimal but it gets the trick done and does avoid a bunch of copies.
+        # Step 1: Get all elements in the side set. Account for 1-based
+        # indexing
+        _e = conn[:][elem_idx - 1]
+        # Step 2: From each element we have to pick these sides.
+        _s = _sin[side_idx - 1]
+        # This still has some additional allocations but otherwise indexes
+        # pretty directly.
+        local_node_ids = _e.ravel()[
+            (_s + np.arange(_e.shape[0])[:, np.newaxis] * _e.shape[1]).ravel()]
+
+        return num_nodes, local_node_ids
 
     def _write_attrs(self, title):
         """

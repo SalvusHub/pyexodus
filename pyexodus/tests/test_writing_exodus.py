@@ -25,7 +25,7 @@ _p = [
 if platform.architecture()[0] == "64bit":  # pragma: no cover
     _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
 else:  # pragma: no cover
-    _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
+    _p.append({"io_size": 0, "word_size": 4, "f_dtype": np.float32},)
 
 
 @pytest.fixture(params=_p, ids=["io_size_%i" % _i["io_size"] for _i in _p])
@@ -1007,7 +1007,7 @@ def test_status_in_file_with_two_side_sets_only_one_set(tmpdir, io_size):
             assert a.shape == e["shape"], key
 
 
-def test_status_in_file_with_two_side_sets_wiht_two_set(tmpdir, io_size):
+def test_status_in_file_with_two_side_sets_with_two_set(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     with exodus(filename, mode="w", title="Example", array_type="numpy",
