@@ -104,6 +104,32 @@ def test_get_side_set(tmpdir, io_size):
     np.testing.assert_equal(side_ids, [1, 2, 3, 4, 5])
 
 
+def test_get_side_set_invalid_id(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    # Put two side sets. Note that the ids of the side sets have little to
+    # do with their naming inside the file...
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+        e.put_side_set_params(4, 5, 0)
+        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
+                       np.ones(5, dtype=np.int32) * 3)
+        e.put_side_set_name(4, "edge of the world")
+
+        e.put_side_set_params(2, 5, 0)
+        e.put_side_set(2, np.ones(5, dtype=np.int32) * 7,
+                       np.ones(5, dtype=np.int32) * 8)
+        e.put_side_set_name(2, "hallo")
+
+    with exodus(filename, mode="r") as e:
+        with pytest.raises(ValueError) as f:
+            e.get_side_set(id=7)
+
+    assert f.value.args[0] == \
+        "No side set with id 7 in file. Available ids: 4, 2."
+
+
 def test_get_side_set_node_list(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 

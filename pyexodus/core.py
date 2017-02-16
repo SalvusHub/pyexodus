@@ -630,9 +630,9 @@ class exodus(object):
         """
         ids = self.get_side_set_ids()
         if id not in ids:
-            raise ValueError("No side set with id '%i' in file. Available "
-                             "ids: %s" % (
-                              id, ', '.join(["'%i'" % _i for _i in ids])))
+            raise ValueError("No side set with id %i in file. Available "
+                             "ids: %s." % (
+                              id, ', '.join(["%i" % _i for _i in ids])))
         id = ids.index(id) + 1
         side_name = "side_ss%i" % id
         elem_name = "elem_ss%i" % id
