@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 import os
 import platform
+import warnings
 
 import numpy as np
 
@@ -124,7 +125,13 @@ class exodus(object):
         elif mode == "r":
             assert os.path.exists(file), "File '%s' does not exist." % file
             self._f = h5netcdf.File(file, mode="r")
-
+            # Currently no logic for this.
+            if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
+                msg = ("The file has more than one element block. pyexodus "
+                       "currently contains no logic to deal with that. "
+                       "Proceed at your own risk and best contact the "
+                       "developers.")
+                warnings.warn(msg)
         else:  # pragma: no cover
             raise NotImplementedError
 
