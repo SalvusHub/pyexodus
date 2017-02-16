@@ -67,57 +67,66 @@ class exodus(object):
 
         # API is currently quite limited...mainly because nothing else is
         # implemented.
-        assert mode == "w", "Currently only writing is supported."
+        assert mode in ["r", "w"], "Only 'r' or 'w' is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
-        assert numNodeSets == 0, "numNodeSets must be 0 for now."
-        assert numDims in [2, 3], "Only 2 or 3 dimensions are supported."
 
-        # Determines the precision with which floating point variables are
-        # written.
-        if io_size == 0:
-            if platform.architecture()[0] == "64bit":  # pragma: no cover
+        if mode == "w":
+            assert numNodeSets == 0, "numNodeSets must be 0 for now."
+            assert numDims in [2, 3], "Only 2 or 3 dimensions are supported."
+
+            # Determines the precision with which floating point variables are
+            # written.
+            if io_size == 0:
+                if platform.architecture()[0] == "64bit":  # pragma: no cover
+                    self.__f_dtype = np.float64
+                    self.__f_word_size = 8
+                else:  # pragma: no cover
+                    self.__f_dtype = np.float32
+                    self.__f_word_size = 4
+            elif io_size == 4:
+                self.__f_dtype = np.float32
+                self.__f_word_size = 4
+            elif io_size == 8:
                 self.__f_dtype = np.float64
                 self.__f_word_size = 8
             else:  # pragma: no cover
-                self.__f_dtype = np.float32
-                self.__f_word_size = 4
-        elif io_size == 4:
-            self.__f_dtype = np.float32
-            self.__f_word_size = 4
-        elif io_size == 8:
-            self.__f_dtype = np.float64
-            self.__f_word_size = 8
+                raise NotImplementedError
+
+            assert not os.path.exists(file), "File '%s' already exists." % file
+
+            self._f = h5netcdf.File(file, mode="w")
+
+            self._write_attrs(title=title)
+
+            # Set the dimensions - very straightforward.
+            # XXX: These should come from some header variable.
+            self._f.dimensions["len_string"] = 33
+            self._f.dimensions["len_line"] = 81
+            # No clue what this is for...
+            self._f.dimensions["four"] = 4
+            self._f.dimensions["len_name"] = 33
+
+            # XXX: Currently must be set to one as h5netcdf does currently
+            # not support unlimited dimensions altough this should be easy
+            # to add.
+            self._f.dimensions["time_step"] = 1
+
+            # These are dynamic.
+            self._f.dimensions["num_dim"] = numDims
+            self._f.dimensions["num_nodes"] = numNodes
+            self._f.dimensions["num_elem"] = numElems
+            self._f.dimensions["num_el_blk"] = numBlocks
+            if numSideSets:
+                self._f.dimensions["num_side_sets"] = numSideSets
+
+            self._create_variables()
+
+        elif mode == "r":
+            assert os.path.exists(file), "File '%s' does not exist." % file
+            self._f = h5netcdf.File(file, mode="r")
+
         else:  # pragma: no cover
             raise NotImplementedError
-
-        assert not os.path.exists(file), "File '%s' already exists." % file
-
-        self._f = h5netcdf.File(file)
-
-        self._write_attrs(title=title)
-
-        # Set the dimensions - very straightforward.
-        # XXX: These should come from some header variable.
-        self._f.dimensions["len_string"] = 33
-        self._f.dimensions["len_line"] = 81
-        # No clue what this is for...
-        self._f.dimensions["four"] = 4
-        self._f.dimensions["len_name"] = 33
-
-        # XXX: Currently must be set to one as h5netcdf does currently
-        # not support unlimited dimensions altough this should be easy
-        # to add.
-        self._f.dimensions["time_step"] = 1
-
-        # These are dynamic.
-        self._f.dimensions["num_dim"] = numDims
-        self._f.dimensions["num_nodes"] = numNodes
-        self._f.dimensions["num_elem"] = numElems
-        self._f.dimensions["num_el_blk"] = numBlocks
-        if numSideSets:
-            self._f.dimensions["num_side_sets"] = numSideSets
-
-        self._create_variables()
 
     def put_info_records(self, info):
         """
@@ -567,6 +576,17 @@ class exodus(object):
         self._f.variables["ss_names"][idx - 1] = b""
         self._f.variables["ss_names"][idx - 1, :len(name)] = \
             [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
+
+    def get_side_set_names(self):
+        """
+        Get a list of the side set names in the exodus files.
+        """
+        _side_sets = self._f.variables["ss_names"][:]
+        side_sets = []
+        for _i in _side_sets:
+            side_sets.append("".join(
+                _j.decode() if hasattr(_j, "decode") else _j for _j in _i))
+        return side_sets
 
     def _write_attrs(self, title):
         """
