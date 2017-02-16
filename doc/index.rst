@@ -11,9 +11,7 @@ Additionally it is quite a bit faster (I guess due to more direct memory to
 file paths), uses less memory, and supports Python 2.7, 3.4, 3.5, and 3.6.
 
 Don't expect this to be complete anytime soon - we will add stuff as soon as we
-need it. Currently it does exactly what we need it to do and nothing else. As
-of now it can write some kinds of exodus files that can then be opened by
-Paraview.
+need it.
 
 Installation
 ------------

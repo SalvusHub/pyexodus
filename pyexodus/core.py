@@ -41,7 +41,7 @@ class exodus(object):
     :type file: str
     :param file: Filename
     :type mode: str
-    :param mode: File mode. Must currently be ``"w"``.
+    :param mode: File mode. Must currently be ``"r"`` or ``"w"``.
     :type array_type: str
     :param array_type: Must be ``"numpy"``.
     :type title: str
