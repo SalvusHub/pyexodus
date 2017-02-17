@@ -733,7 +733,8 @@ class exodus(object):
             element indices relative to the element block. These are 1-based
             indices in accordance with the exodus convention! Note that the
             second and third returned item are always stats for the whole
-            connectivity array regardless of this argument.
+            connectivity array regardless of this argument. This parameter
+            is not part of the official exodus Python API.
         """
         var_name = "connect%i" % id
         conn = self._f.variables[var_name]

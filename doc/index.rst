@@ -39,6 +39,8 @@ Deviations are listed here.
   big impact on file size. See the ``compression`` argument of :class:`pyexodus.exodus`.
 * :meth:`pyexodus.exodus.put_elem_connectivity` has two additional optional
   arguments: ``shift_indices`` and ``chunk_size_in_mb``.
+* :meth:`pyexodus.exodus.get_elem_connectivity` has an additional optional
+  argument: ``indices``.
 * New methods:
   - :meth:`pyexodus.exodus.get_elem_type_for_block`
 
