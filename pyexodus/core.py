@@ -742,7 +742,8 @@ class exodus(object):
         if indices is None:
             indices = slice(None)
         else:
-            indices = indices - 1
+            indices = np.array(indices)
+            indices = list(indices - 1)
 
         return conn[indices], conn.shape[0], conn.shape[1]
 
