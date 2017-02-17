@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &#8212; pyexodus 0.0.0-g9a7f documentation</title>
+    <title>pyexodus.core &#8212; pyexodus 0.0.0-g19e4 documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-g9a7f',
+        VERSION:     '0.0.0-g19e4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -682,6 +682,28 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">elem_name</span><span class="p">][:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">side_name</span><span class="p">][:]</span></div>
 
+<div class="viewcode-block" id="exodus.get_elem_type_for_block"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_elem_type_for_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_elem_type_for_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the element type for an element block as a string.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            This method does not have a counter part in the official exodus</span>
+<span class="sd">            Python API.</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: The element block id.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No element block with id </span><span class="si">%i</span><span class="s2"> in file.&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="n">elem_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;elem_type&quot;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">elem_type</span> <span class="o">=</span> <span class="n">elem_type</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">elem_type</span></div>
+
 <div class="viewcode-block" id="exodus.get_side_set_node_list"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_side_set_node_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_side_set_node_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the nodes for a certain side set.</span>
@@ -694,13 +716,7 @@
 <span class="sd">        :param id: The id of the side set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># XXX: Currently only works for files with a single element block.</span>
-        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;connect1&quot;</span><span class="p">]</span>
-
-        <span class="n">elem_type</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;elem_type&quot;</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">elem_type</span> <span class="o">=</span> <span class="n">elem_type</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">pass</span>
+        <span class="n">elem_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elem_type_for_block</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="n">elem_idx</span><span class="p">,</span> <span class="n">side_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_side_set</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
         <span class="n">_sin</span> <span class="o">=</span> <span class="n">_SIDE_SET_NUMBERING</span><span class="p">[</span><span class="n">elem_type</span><span class="p">]</span>
@@ -710,7 +726,7 @@
         <span class="c1"># optimal but it gets the trick done and does avoid a bunch of copies.</span>
         <span class="c1"># Step 1: Get all elements in the side set. Account for 1-based</span>
         <span class="c1"># indexing</span>
-        <span class="n">_e</span> <span class="o">=</span> <span class="n">conn</span><span class="p">[:][</span><span class="n">elem_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;connect1&quot;</span><span class="p">][:][</span><span class="n">elem_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="c1"># Step 2: From each element we have to pick these sides.</span>
         <span class="n">_s</span> <span class="o">=</span> <span class="n">_sin</span><span class="p">[</span><span class="n">side_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="c1"># This still has some additional allocations but otherwise indexes</span>
@@ -724,16 +740,25 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get x, y, z of i-th node in the exodus file.</span>
 
-<span class="sd">        :param i: Node index. 1-based.</span>
+<span class="sd">        :type i: int or array/list of ints</span>
+<span class="sd">        :param i: Node index or indices. 1-based. The official exodus API</span>
+<span class="sd">            can only take single indices - pyexodus can take a list of indices.</span>
+<span class="sd">            In that case it will still return a three-tuple, but each now</span>
+<span class="sd">            contains multiple variables.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid index. Coordinate bounds: [1, </span><span class="si">%i</span><span class="s2">].&quot;</span> <span class="o">%</span>
-                             <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">])</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordx&quot;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordy&quot;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Make it work with single indices and arrays.</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid index. Coordinate bounds: [1, </span><span class="si">%i</span><span class="s2">].&quot;</span> <span class="o">%</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">])</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordx&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordy&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span>
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordz&quot;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordz&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="exodus.get_coords"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -744,6 +769,36 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;coordz&quot;</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="exodus.get_elem_connectivity"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.get_elem_connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">get_elem_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the connectivity for a certain element block.</span>
+
+<span class="sd">        Returns a tuple with three things: The actual connectivity as an</span>
+<span class="sd">        array of node indices, the number of elements in this block, and the</span>
+<span class="sd">        number of nodes per elements in this block.</span>
+
+<span class="sd">        :type id: int</span>
+<span class="sd">        :param id: Id of the element block.</span>
+<span class="sd">        :type indices: :class:`numpy.ndarray`</span>
+<span class="sd">        :param indices: If given, only get the connectivity of the specified</span>
+<span class="sd">            element indices relative to the element block. These are 1-based</span>
+<span class="sd">            indices in accordance with the exodus convention! Note that the</span>
+<span class="sd">            second and third returned item are always stats for the whole</span>
+<span class="sd">            connectivity array regardless of this argument. This parameter</span>
+<span class="sd">            is not part of the official exodus Python API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;connect</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+
+        <span class="c1"># Read everything if indices is not given.</span>
+        <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">indices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">conn</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">conn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">conn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">_write_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

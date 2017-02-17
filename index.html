@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus &#8212; pyexodus 0.0.0-g9a7f documentation</title>
+    <title>pyexodus &#8212; pyexodus 0.0.0-g19e4 documentation</title>
     
     <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.0.0-g9a7f',
+        VERSION:     '0.0.0-g19e4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -73,6 +73,11 @@ Deviations are listed here.</p>
 big impact on file size. See the <code class="docutils literal"><span class="pre">compression</span></code> argument of <a class="reference internal" href="#pyexodus.exodus" title="pyexodus.exodus"><code class="xref py py-class docutils literal"><span class="pre">pyexodus.exodus</span></code></a>.</li>
 <li><a class="reference internal" href="#pyexodus.exodus.put_elem_connectivity" title="pyexodus.exodus.put_elem_connectivity"><code class="xref py py-meth docutils literal"><span class="pre">pyexodus.exodus.put_elem_connectivity()</span></code></a> has two additional optional
 arguments: <code class="docutils literal"><span class="pre">shift_indices</span></code> and <code class="docutils literal"><span class="pre">chunk_size_in_mb</span></code>.</li>
+<li><a class="reference internal" href="#pyexodus.exodus.get_elem_connectivity" title="pyexodus.exodus.get_elem_connectivity"><code class="xref py py-meth docutils literal"><span class="pre">pyexodus.exodus.get_elem_connectivity()</span></code></a> has an additional optional
+argument: <code class="docutils literal"><span class="pre">indices</span></code>.</li>
+<li><a class="reference internal" href="#pyexodus.exodus.get_coord" title="pyexodus.exodus.get_coord"><code class="xref py py-meth docutils literal"><span class="pre">pyexodus.exodus.get_coord()</span></code></a> can also take a list of indices.</li>
+<li>New methods:
+- <a class="reference internal" href="#pyexodus.exodus.get_elem_type_for_block" title="pyexodus.exodus.get_elem_type_for_block"><code class="xref py py-meth docutils literal"><span class="pre">pyexodus.exodus.get_elem_type_for_block()</span></code></a></li>
 </ul>
 <dl class="class">
 <dt id="pyexodus.exodus">
@@ -117,7 +122,10 @@ but the resulting files are potentially much smaller.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> &#8211; Node index. 1-based.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em> or </em><em>array/list of ints</em>) &#8211; Node index or indices. 1-based. The official exodus API
+can only take single indices - pyexodus can take a list of indices.
+In that case it will still return a three-tuple, but each now
+contains multiple variables.</td>
 </tr>
 </tbody>
 </table>
@@ -127,6 +135,51 @@ but the resulting files are potentially much smaller.</li>
 <dt id="pyexodus.exodus.get_coords">
 <code class="descname">get_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all nodes in x, y, z.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_elem_connectivity">
+<code class="descname">get_elem_connectivity</code><span class="sig-paren">(</span><em>id</em>, <em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_elem_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_elem_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the connectivity for a certain element block.</p>
+<p>Returns a tuple with three things: The actual connectivity as an
+array of node indices, the number of elements in this block, and the
+number of nodes per elements in this block.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Id of the element block.</li>
+<li><strong>indices</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; If given, only get the connectivity of the specified
+element indices relative to the element block. These are 1-based
+indices in accordance with the exodus convention! Note that the
+second and third returned item are always stats for the whole
+connectivity array regardless of this argument. This parameter
+is not part of the official exodus Python API.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyexodus.exodus.get_elem_type_for_block">
+<code class="descname">get_elem_type_for_block</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyexodus/core.html#exodus.get_elem_type_for_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyexodus.exodus.get_elem_type_for_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the element type for an element block as a string.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method does not have a counter part in the official exodus
+Python API.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The element block id.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
