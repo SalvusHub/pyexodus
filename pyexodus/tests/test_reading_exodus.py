@@ -284,3 +284,49 @@ def test_get_coords_2d(tmpdir, io_size):
     with exodus(filename, mode="r") as e:
         np.testing.assert_allclose(
             e.get_coords(), [np.arange(5), np.arange(5) * 2, np.zeros(5)])
+
+
+def test_get_elem_connectivity_quad(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    # Generate test file.
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=2, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5)
+        )
+        e.put_elem_blk_info(1, "QUAD", 6, 4, 0)
+        e.put_elem_connectivity(1, np.arange(6 * 4) + 7)
+
+    with exodus(filename, mode="r") as e:
+        conn, num_elem, num_nodes_per_elem = e.get_elem_connectivity(id=1)
+
+    np.testing.assert_equal(conn, (np.arange(6 * 4) + 7).reshape((6, 4)))
+    assert num_elem == 6
+    assert num_nodes_per_elem == 4
+
+
+def test_get_elem_connectivity_hex(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    # Generate test file.
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=2, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5)
+        )
+        e.put_elem_blk_info(1, "HEX", 3, 8, 0)
+        e.put_elem_connectivity(1, np.arange(3 * 8) + 7)
+
+    with exodus(filename, mode="r") as e:
+        conn, num_elem, num_nodes_per_elem = e.get_elem_connectivity(id=1)
+
+    np.testing.assert_equal(conn, (np.arange(3 * 8) + 7).reshape((3, 8)))
+    assert num_elem == 3
+    assert num_nodes_per_elem == 8

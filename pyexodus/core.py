@@ -639,6 +639,28 @@ class exodus(object):
 
         return self._f.variables[elem_name][:], self._f.variables[side_name][:]
 
+    def get_elem_type_for_block(self, id):
+        """
+        Return the element type for an element block as a string.
+
+        .. note::
+
+            This method does not have a counter part in the official exodus
+            Python API.
+
+        :type id: int
+        :param id: The element block id.
+        """
+        var_name = "connect%i" % id
+        if var_name not in self._f.variables:
+            raise ValueError("No element block with id %i in file." % id)
+        elem_type = self._f[var_name].attrs["elem_type"]
+        try:
+            elem_type = elem_type.decode()
+        except AttributeError:
+            pass
+        return elem_type
+
     def get_side_set_node_list(self, id):
         """
         Get the nodes for a certain side set.
@@ -651,13 +673,7 @@ class exodus(object):
         :param id: The id of the side set.
         """
         # XXX: Currently only works for files with a single element block.
-        conn = self._f.variables["connect1"]
-
-        elem_type = conn.attrs["elem_type"]
-        try:
-            elem_type = elem_type.decode()
-        except AttributeError:
-            pass
+        elem_type = self.get_elem_type_for_block(id=1)
 
         elem_idx, side_idx = self.get_side_set(id=id)
         _sin = _SIDE_SET_NUMBERING[elem_type]
@@ -667,7 +683,7 @@ class exodus(object):
         # optimal but it gets the trick done and does avoid a bunch of copies.
         # Step 1: Get all elements in the side set. Account for 1-based
         # indexing
-        _e = conn[:][elem_idx - 1]
+        _e = self._f.variables["connect1"][:][elem_idx - 1]
         # Step 2: From each element we have to pick these sides.
         _s = _sin[side_idx - 1]
         # This still has some additional allocations but otherwise indexes
@@ -701,6 +717,34 @@ class exodus(object):
         if self._f.dimensions["num_dim"] == 2:
             return x, y, np.zeros_like(x)
         return x, y, self._f.variables["coordz"][:]
+
+    def get_elem_connectivity(self, id, indices=None):
+        """
+        Get the connectivity for a certain element block.
+
+        Returns a tuple with three things: The actual connectivity as an
+        array of node indices, the number of elements in this block, and the
+        number of nodes per elements in this block.
+
+        :type id: int
+        :param id: Id of the element block.
+        :type indices: :class:`numpy.ndarray`
+        :param indices: If given, only get the connectivity of the specified
+            element indices relative to the element block. These are 1-based
+            indices in accordance with the exodus convention! Note that the
+            second and third returned item are always stats for the whole
+            connectivity array regardless of this argument.
+        """
+        var_name = "connect%i" % id
+        conn = self._f.variables[var_name]
+
+        # Read everything if indices is not given.
+        if indices is None:
+            indices = slice(None)
+        else:
+            indices = indices - 1
+
+        return conn[indices], conn.shape[0], conn.shape[1]
 
     def _write_attrs(self, title):
         """

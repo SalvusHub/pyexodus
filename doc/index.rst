@@ -39,6 +39,8 @@ Deviations are listed here.
   big impact on file size. See the ``compression`` argument of :class:`pyexodus.exodus`.
 * :meth:`pyexodus.exodus.put_elem_connectivity` has two additional optional
   arguments: ``shift_indices`` and ``chunk_size_in_mb``.
+* New methods:
+  - :meth:`pyexodus.exodus.get_elem_type_for_block`
 
 
 .. autoclass:: pyexodus.exodus
@@ -49,4 +51,3 @@ Deviations are listed here.
 
     * The offical Python API can be here: https://github.com/gsjaardema/seacas
     * Logo made by Roundicons from http://www.flaticon.com (Creative Commons BY 3.0 License)
-
