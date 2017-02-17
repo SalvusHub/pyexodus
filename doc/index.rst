@@ -41,6 +41,7 @@ Deviations are listed here.
   arguments: ``shift_indices`` and ``chunk_size_in_mb``.
 * :meth:`pyexodus.exodus.get_elem_connectivity` has an additional optional
   argument: ``indices``.
+* :meth:`pyexodus.exodus.get_coord` can also take a list of indices.
 * New methods:
   - :meth:`pyexodus.exodus.get_elem_type_for_block`
 

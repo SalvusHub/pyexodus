@@ -229,6 +229,11 @@ def test_get_coord_3d(tmpdir, io_size):
         np.testing.assert_allclose(e.get_coord(2), [1.0, 2.0, 3.0])
         np.testing.assert_allclose(e.get_coord(3), [2.0, 4.0, 6.0])
 
+        # Now all at once.
+        np.testing.assert_allclose(
+            e.get_coord([1, 2, 3]),
+            [[0.0, 1.0, 2.0], [0.0, 2.0, 4.0], [0.0, 3.0, 6.0]])
+
 
 def test_get_coord_2d(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")

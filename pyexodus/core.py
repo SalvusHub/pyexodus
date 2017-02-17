@@ -697,16 +697,25 @@ class exodus(object):
         """
         Get x, y, z of i-th node in the exodus file.
 
-        :param i: Node index. 1-based.
+        :type i: int or array/list of ints
+        :param i: Node index or indices. 1-based. The official exodus API
+            can only take single indices - pyexodus can take a list of indices.
+            In that case it will still return a three-tuple, but each now
+            contains multiple variables.
         """
-        if not 1 <= i <= self._f.dimensions["num_nodes"]:
-            raise ValueError("Invalid index. Coordinate bounds: [1, %i]." %
-                             self._f.dimensions["num_nodes"])
-        x = self._f.variables["coordx"][i - 1]
-        y = self._f.variables["coordy"][i - 1]
+        # Make it work with single indices and arrays.
+        i = list(np.atleast_1d(i) - 1)
+        if len(i) == 1:
+            i = i[0]
+            if not 1 <= i + 1 <= self._f.dimensions["num_nodes"]:
+                raise ValueError("Invalid index. Coordinate bounds: [1, %i]." %
+                                 self._f.dimensions["num_nodes"])
+
+        x = self._f.variables["coordx"][i]
+        y = self._f.variables["coordy"][i]
         if self._f.dimensions["num_dim"] == 2:
             return x, y, 0.0
-        return x, y, self._f.variables["coordz"][i - 1]
+        return x, y, self._f.variables["coordz"][i]
 
     def get_coords(self):
         """
