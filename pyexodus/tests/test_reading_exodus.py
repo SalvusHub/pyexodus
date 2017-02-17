@@ -331,6 +331,7 @@ def test_get_elem_connectivity_hex(tmpdir, io_size):
     assert num_elem == 3
     assert num_nodes_per_elem == 8
 
+
 def test_get_elem_connectivity_only_some_indices(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
@@ -350,6 +351,7 @@ def test_get_elem_connectivity_only_some_indices(tmpdir, io_size):
         conn, num_elem, num_nodes_per_elem = e.get_elem_connectivity(
             id=1, indices=[1, 3])
 
-    np.testing.assert_equal(conn, (np.arange(3 * 8) + 7).reshape((3, 8))[0, 2])
+    np.testing.assert_equal(
+        conn, (np.arange(3 * 8) + 7).reshape((3, 8))[[0, 2]])
     assert num_elem == 3
     assert num_nodes_per_elem == 8
