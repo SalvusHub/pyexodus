@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyexodus.core &#8212; pyexodus 0.0.0-g19e4 documentation</title>
+    <title>pyexodus.core &#8212; pyexodus 0.0.0-gd162 documentation</title>
     
     <link rel="stylesheet" href="../../_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.0-g19e4',
+        VERSION:     '0.0.0-gd162',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -194,6 +194,13 @@
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of dimensions in the exodus file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="exodus.put_info_records"><a class="viewcode-back" href="../../index.html#pyexodus.exodus.put_info_records">[docs]</a>    <span class="k">def</span> <span class="nf">put_info_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
