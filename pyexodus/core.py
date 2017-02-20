@@ -721,7 +721,7 @@ class exodus(object):
         x = self._f.variables["coordx"][i]
         y = self._f.variables["coordy"][i]
         if self._f.dimensions["num_dim"] == 2:
-            return x, y, 0.0
+            return x, y, np.zeros_like(x)
         return x, y, self._f.variables["coordz"][i]
 
     def get_coords(self):
