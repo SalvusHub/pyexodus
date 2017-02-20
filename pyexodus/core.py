@@ -152,6 +152,10 @@ class exodus(object):
         else:  # pragma: no cover
             raise NotImplementedError
 
+    @property
+    def num_dims(self):
+        return int(self._f.dimensions["num_dim"])
+
     def put_info_records(self, info):
         """
         Puts the info records into the exodus file.

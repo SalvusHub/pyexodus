@@ -360,3 +360,31 @@ def test_get_elem_connectivity_only_some_indices(tmpdir, io_size):
         conn, (np.arange(3 * 8) + 7).reshape((3, 8))[[0, 2]])
     assert num_elem == 3
     assert num_nodes_per_elem == 8
+
+
+def test_num_dims_accessor(tmpdir, io_size):
+    # 2D
+    filename = os.path.join(tmpdir.strpath, "example_2d.e")
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=2, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5)
+        )
+    with exodus(filename, mode="r") as e:
+        assert e.num_dims == 2
+
+    # 3D
+    filename = os.path.join(tmpdir.strpath, "example_3d.e")
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(
+            xCoords=np.arange(5, dtype=np.float64),
+            yCoords=np.arange(5, dtype=np.float64) * 2,
+            zCoords=np.zeros(5)
+        )
+    with exodus(filename, mode="r") as e:
+        assert e.num_dims == 3
