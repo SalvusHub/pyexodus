@@ -44,6 +44,8 @@ Deviations are listed here.
 * :meth:`pyexodus.exodus.get_coord` can also take a list of indices.
 * New methods:
   - :meth:`pyexodus.exodus.get_elem_type_for_block`
+* Convenient properites on the :class:`pyexodus.exodus` object:
+  - :py:attr:`pyexodus.exodus.num_dims`
 
 
 .. autoclass:: pyexodus.exodus

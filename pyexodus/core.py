@@ -154,6 +154,9 @@ class exodus(object):
 
     @property
     def num_dims(self):
+        """
+        Number of dimensions in the exodus file.
+        """
         return int(self._f.dimensions["num_dim"])
 
     def put_info_records(self, info):
