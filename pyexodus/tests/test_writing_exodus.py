@@ -643,6 +643,24 @@ def test_put_element_variable_values(tmpdir, io_size):
             assert a.shape == e["shape"], key
 
 
+def test_get_element_variable_values(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e.set_element_variable_number(5)
+    e.put_element_variable_name("random", 3)
+    # requires an actual element block.
+    e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+    e.put_element_variable_values(1, "random", 1, np.arange(6))
+    e.close()
+
+    with exodus(filename, mode="a") as e:
+        values = e.get_element_variable_values(1, "random", 1)
+        np.testing.assert_equal(values, np.arange(6), err_msg="random")
+
+
 def test_set_node_variable_number(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
