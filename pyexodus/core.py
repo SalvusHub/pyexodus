@@ -41,7 +41,7 @@ class exodus(object):
     :type file: str
     :param file: Filename
     :type mode: str
-    :param mode: File mode. Must currently be ``"r"`` or ``"w"``.
+    :param mode: File mode. Must currently be ``"r"``, ``"a"``, ``"w"``.
     :type array_type: str
     :param array_type: Must be ``"numpy"``.
     :type title: str
@@ -85,7 +85,7 @@ class exodus(object):
 
         # API is currently quite limited...mainly because nothing else is
         # implemented.
-        assert mode in ["r", "a", "w"], "Only 'r', 'a' and 'w' is supported."
+        assert mode in ["r", "a", "w"], "Only 'r', 'a', 'w' is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
 
         if mode == "w":
@@ -139,20 +139,9 @@ class exodus(object):
 
             self._create_variables()
 
-        elif mode == "r":
+        elif mode in ["r", "a"]:
             assert os.path.exists(file), "File '%s' does not exist." % file
-            self._f = h5netcdf.File(file, mode="r")
-            # Currently no logic for this.
-            if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
-                msg = ("The file has more than one element block. pyexodus "
-                       "currently contains no logic to deal with that. "
-                       "Proceed at your own risk and best contact the "
-                       "developers.")
-                warnings.warn(msg)
-
-        elif mode == "a":
-            assert os.path.exists(file), "File '%s' does not exist." % file
-            self._f = h5netcdf.File(file, mode="a")
+            self._f = h5netcdf.File(file, mode=mode)
             # Currently no logic for this.
             if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
                 msg = ("The file has more than one element block. pyexodus "
@@ -498,11 +487,9 @@ class exodus(object):
 
         variable_name = "vals_elem_var%ieb%i" % (idx, blockId)
 
-        # If it does not exist, create it.
-        if variable_name not in self._f.variables:
-            self._f.create_variable(
-                variable_name, ("time_step", num_elem_name),
-                dtype=self.__f_dtype, **self._comp_opts)
+        # If it does not exist, raise exception
+        assert variable_name in self._f.variables, \
+            "Variable %s not found" % variable_name
 
         return self._f.variables[variable_name][step - 1][:]
 

@@ -658,7 +658,10 @@ def test_get_element_variable_values(tmpdir, io_size):
 
     with exodus(filename, mode="a") as e:
         values = e.get_element_variable_values(1, "random", 1)
-        np.testing.assert_equal(values, np.arange(6), err_msg="random")
+        np.testing.assert_equal(values, np.arange(6))
+
+        with pytest.raises(ValueError):
+            e.get_element_variable_values(1, "rando", 1)
 
 
 def test_set_node_variable_number(tmpdir, io_size):
