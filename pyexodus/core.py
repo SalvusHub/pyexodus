@@ -41,7 +41,7 @@ class exodus(object):
     :type file: str
     :param file: Filename
     :type mode: str
-    :param mode: File mode. Must currently be ``"r"`` or ``"w"``.
+    :param mode: File mode. Must currently be ``"r"``, ``"a"``, or ``"w"``.
     :type array_type: str
     :param array_type: Must be ``"numpy"``.
     :type title: str
@@ -85,7 +85,7 @@ class exodus(object):
 
         # API is currently quite limited...mainly because nothing else is
         # implemented.
-        assert mode in ["r", "w"], "Only 'r' or 'w' is supported."
+        assert mode in ["r", "a", "w"], "Only 'r', 'a', or 'w' is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
 
         if mode == "w":
@@ -139,9 +139,10 @@ class exodus(object):
 
             self._create_variables()
 
-        elif mode == "r":
-            assert os.path.exists(file), "File '%s' does not exist." % file
-            self._f = h5netcdf.File(file, mode="r")
+        elif mode in ["r", "a"]:
+            if mode == "r":
+                assert os.path.exists(file), "File '%s' does not exist." % file
+            self._f = h5netcdf.File(file, mode=mode)
             # Currently no logic for this.
             if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
                 msg = ("The file has more than one element block. pyexodus "
@@ -149,6 +150,7 @@ class exodus(object):
                        "Proceed at your own risk and best contact the "
                        "developers.")
                 warnings.warn(msg)
+
         else:  # pragma: no cover
             raise NotImplementedError
 
@@ -458,6 +460,39 @@ class exodus(object):
                 dtype=self.__f_dtype, **self._comp_opts)
 
         self._f.variables[variable_name][step - 1] = values
+
+    def get_element_variable_values(self, blockId, name, step):
+        """
+        Get values from element block id and variable name at step.
+
+        :type blockId: int
+        :param blockId: The block id.
+        :type name: str
+        :param name: The name of the variable.
+        :type step: int
+        :param step: The time step at which to put the values.
+        Return values: The actual values.
+        """
+        assert step > 0, "Step must be larger than 0."
+        # XXX: Currently the time axis is not unlimited due to a limitation
+        # in h5netcdf - thus no new time steps can be created after the
+        # initialization.
+        assert step <= self._f.dimensions["time_step"]
+
+        num_elem_name = "num_el_in_blk%i" % blockId
+        assert num_elem_name in self._f.dimensions, \
+            "Block id %i not found." % blockId
+
+        # 1-based indexing!
+        idx = self.get_element_variable_names().index(name) + 1
+
+        variable_name = "vals_elem_var%ieb%i" % (idx, blockId)
+
+        # If it does not exist, raise exception
+        assert variable_name in self._f.variables, \
+            "Variable %s not found" % variable_name
+
+        return self._f.variables[variable_name][step - 1][:]
 
     def set_node_variable_number(self, number):
         """

@@ -13,9 +13,7 @@ import h5netcdf
 import numpy as np
 import pytest
 
-
 from pyexodus import exodus
-
 
 _p = [
     {"io_size": 4, "word_size": 4, "f_dtype": np.float32},
