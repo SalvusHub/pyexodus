@@ -41,7 +41,7 @@ class exodus(object):
     :type file: str
     :param file: Filename
     :type mode: str
-    :param mode: File mode. Must currently be ``"r"``, ``"a"``, ``"w"``.
+    :param mode: File mode. Must currently be ``"r"``, ``"a"``, or ``"w"``.
     :type array_type: str
     :param array_type: Must be ``"numpy"``.
     :type title: str
@@ -85,7 +85,7 @@ class exodus(object):
 
         # API is currently quite limited...mainly because nothing else is
         # implemented.
-        assert mode in ["r", "a", "w"], "Only 'r', 'a', 'w' is supported."
+        assert mode in ["r", "a", "w"], "Only 'r', 'a', or 'w' is supported."
         assert array_type == "numpy", "array_type must be 'numpy'."
 
         if mode == "w":
@@ -140,7 +140,8 @@ class exodus(object):
             self._create_variables()
 
         elif mode in ["r", "a"]:
-            assert os.path.exists(file), "File '%s' does not exist." % file
+            if mode == "r":
+                assert os.path.exists(file), "File '%s' does not exist." % file
             self._f = h5netcdf.File(file, mode=mode)
             # Currently no logic for this.
             if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
