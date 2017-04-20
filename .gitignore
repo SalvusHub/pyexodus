@@ -2,3 +2,4 @@
 .cache
 pyexodus/RELEASE-VERSION
 doc/_build/
+*.pyc
