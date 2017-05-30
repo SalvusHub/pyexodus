@@ -410,3 +410,44 @@ def test_get_element_variable_values(tmpdir, io_size):
         # Raises a value error if the variable does not exist.
         with pytest.raises(ValueError):
             e.get_element_variable_values(1, "rando", 1)
+
+
+def test_get_node_variable_values(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e.set_node_variable_number(2)
+    e.put_node_variable_name("good friend", 1)
+    e.put_node_variable_values("good friend", 1, np.arange(5))
+
+    np.testing.assert_equal(
+        actual=e.get_node_variable_values(name="good friend", step=1),
+        desired=np.arange(5))
+
+    # Invalid step.
+    with pytest.raises(ValueError) as err:
+        e.get_node_variable_values(name="good friend", step=0)
+    assert err.value.args[0] == "Step must be 0 < step < 1."
+
+    with pytest.raises(ValueError) as err:
+        e.get_node_variable_values(name="good friend", step=10)
+    assert err.value.args[0] == "Step must be 0 < step < 1."
+
+    # Invalid name.
+    with pytest.raises(ValueError) as err:
+        e.get_node_variable_values(name="random", step=1)
+    assert err.value.args[0] == "'random' is not in list"
+
+
+def test_get_node_variable_names(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e.set_node_variable_number(2)
+    e.put_node_variable_name("good friend", 1)
+
+    assert e.get_node_variable_names() == ["good friend", ""]
