@@ -539,6 +539,14 @@ class exodus(object):
         return [b"".join(_i).strip().decode()
                 for _i in self._f.variables["name_nod_var"][:]]
 
+    def get_node_variable_number(self):
+        """
+        Get number of node variables in the file.
+        """
+        if "num_nod_var" not in self._f.dimensions:
+            return 0
+        return int(self._f.dimensions["num_nod_var"])
+
     def put_node_variable_values(self, name, step, values):
         """
         Put node values into variable name at step into exodus file

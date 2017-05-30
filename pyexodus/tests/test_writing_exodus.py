@@ -685,6 +685,22 @@ def test_set_node_variable_number(tmpdir, io_size):
             assert a.shape == e["shape"], key
 
 
+def test_get_node_variable_number(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+
+    e = exodus(filename, mode="w", title="Example", array_type="numpy",
+               numDims=3, numNodes=5, numElems=6, numBlocks=1,
+               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    assert e.get_node_variable_number() == 0
+    e.set_node_variable_number(2)
+    assert e.get_node_variable_number() == 2
+    e.close()
+
+    e = exodus(filename, mode="r")
+    assert e.get_node_variable_number() == 2
+    e.close()
+
+
 def test_put_node_variable_name(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
