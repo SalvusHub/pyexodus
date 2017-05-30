@@ -570,6 +570,28 @@ class exodus(object):
         d_name = "vals_nod_var%i" % idx
         self._f.variables[d_name][step - 1] = values
 
+    def get_node_variable_values(self, name, step):
+        """
+        Get the node variable values for a a certain step.
+
+        :type name: str
+        :param name: The name of the variable.
+        :type step: int
+        :param step: The time step at which to get the values.
+        """
+        # Make sure the step is valid.
+        if not (0 < step <= self._f.dimensions["time_step"]):
+            msg = "Step must be 0 < step < %i." % \
+                self._f.dimensions["time_step"]
+            raise ValueError(msg)
+
+        # Will raise with a reasonable error message if name is not correct.
+        # 1-based indexing!
+        idx = self.get_node_variable_names().index(name) + 1
+
+        d_name = "vals_nod_var%i" % idx
+        return self._f.variables[d_name][step - 1][:]
+
     def put_side_set_params(self, id, numSetSides, numSetDistFacts):
         """
         Set ID, num elements, and num nodes of a sideset
