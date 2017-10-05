@@ -569,8 +569,14 @@ class exodus(object):
         # Make sure the step is valid.
         if step <= 0:
             raise ValueError("Step must be larger than zero.")
+        # This cannot really happen anymore with newer pyexodus versions, as
+        # the time_step is always an unlimited dimension so there is not easy
+        # way to test this. But it might still happen if somebody reads a file
+        # created with an older pyexodus version so I'll leave the block in
+        # but mark it as uncovered by the tests.
         if self._f.dimensions["time_step"] is not None and \
-                not (0 < step <= self._f.dimensions["time_step"]):
+                not (0 < step <=
+                     self._f.dimensions["time_step"]):  # pragma: no cover
             msg = "Step must be 0 < step < %i." % \
                 self._f.dimensions["time_step"]
             raise ValueError(msg)
