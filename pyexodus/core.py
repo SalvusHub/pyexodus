@@ -731,7 +731,8 @@ class exodus(object):
         elem_type = self._f[var_name].attrs["elem_type"]
         try:
             elem_type = elem_type.decode()
-        except AttributeError:
+        # Not triggered on all Python versions.
+        except AttributeError:  # pragma: no cover
             pass
         return elem_type
 

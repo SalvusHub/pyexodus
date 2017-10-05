@@ -1358,3 +1358,19 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_get_elem_type_for_block(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1, numNodeSets=0,
+                numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(xCoords=np.arange(5), yCoords=np.arange(5),
+                     zCoords=np.arange(5))
+        e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+
+        assert e.get_elem_type_for_block(1) == "HEX"
+
+        with pytest.raises(ValueError) as err:
+            e.get_elem_type_for_block(2)
+        assert err.value.args[0] == "No element block with id 2 in file."
