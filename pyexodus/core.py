@@ -318,10 +318,7 @@ class exodus(object):
         :type value: float
         :param value: The actual time at that index.
         """
-        assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
-
+        self.__resize_time_if_necessary(step)
         self._f.variables["time_whole"][step - 1] = value
 
     def set_global_variable_number(self, number):
@@ -368,10 +365,7 @@ class exodus(object):
         :type value: float
         :param value: The actual time at that index.
         """
-        assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
-
+        self.__resize_time_if_necessary(step)
         idx = self.get_global_variable_names().index(name)
         self._f.variables["vals_glo_var"][step - 1, idx] = value
 
@@ -431,9 +425,7 @@ class exodus(object):
         :type values: :class:`numpy.ndarray`
         :param values: The actual values.
         """
-        assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
+        self.__resize_time_if_necessary(step)
 
         num_elem_name = "num_el_in_blk%i" % blockId
         assert num_elem_name in self._f.dimensions, \
@@ -536,6 +528,13 @@ class exodus(object):
             return 0
         return int(self._f.dimensions["num_nod_var"])
 
+    def __resize_time_if_necessary(self, step):
+        assert step > 0, "Step must be larger than 0."
+        assert self._f.dimensions["time_step"] is None or \
+            step <= self._f.dimensions["time_step"]
+        if step > self._f._current_dim_sizes["time_step"]:
+            self._f.resize_dimension("time_step", step)
+
     def put_node_variable_values(self, name, step, values):
         """
         Put node values into variable name at step into exodus file
@@ -547,9 +546,7 @@ class exodus(object):
         :type values: :class:`numpy.ndarray`
         :param values: The actual values.
         """
-        assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
+        self.__resize_time_if_necessary(step)
 
         # 1-based indexing!
         idx = self.get_node_variable_names().index(name) + 1
