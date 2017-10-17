@@ -72,7 +72,7 @@ setup_config = dict(
         'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Physics'],
-    install_requires=["numpy", "h5netcdf"],
+    install_requires=["numpy", "h5netcdf >= 0.5.0"],
     package_data={
         "pyexodus": get_package_data()},
 )
