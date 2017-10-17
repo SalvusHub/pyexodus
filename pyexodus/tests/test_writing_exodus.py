@@ -58,27 +58,26 @@ def test_initialization(tmpdir, io_size):
     # Just manually test everything.
     with h5netcdf.File(filename, mode="r") as f:
         assert dict(f.attrs) == {
-            'api_version': np.array([6.30000019], dtype=np.float32),
+            'api_version': np.array([7.05], dtype=np.float32),
             'file_size': np.array([1], dtype=np.int32),
             'floating_point_word_size': np.array(
                 [io_size["word_size"]], dtype=np.int32),
             'int64_status': np.array([0], dtype=np.int32),
             'maximum_name_length': np.array([32], dtype=np.int32),
             'title': b'Example',
-            'version': np.array([6.30000019], dtype=np.float32)}
+            'version': np.array([7.05], dtype=np.float32)}
 
         assert dict(f.dimensions) == {
             'four': 4,
             'len_line': 81,
-            'len_name': 33,
+            'len_name': 256,
             'len_string': 33,
             'num_dim': 3,
             'num_el_blk': 1,
             'num_elem': 6,
             'num_nodes': 5,
             'num_side_sets': 1,
-            # XXX: This is different from the original file!
-            'time_step': 1}
+            'time_step': None}
 
         assert list(f.groups) == []
 
@@ -96,18 +95,12 @@ def test_initialization(tmpdir, io_size):
             'coor_names': {
                 'attrs': {},
                 'data': np.array([
-                    ['', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', ''],
-                    ['', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', ''],
-                    ['', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '']], dtype='|S1'),
+                    [''] * 256,
+                    [''] * 256,
+                    [''] * 256], dtype='|S1'),
                 'dimensions': ('num_dim', 'len_name'),
                 'dtype': np.dtype('S1'),
-                'shape': (3, 33)},
+                'shape': (3, 256)},
             'coordx': {'attrs': {},
                        'data': np.array([0., 0., 0., 0., 0.]),
                        'dimensions': ('num_nodes',),
@@ -124,14 +117,10 @@ def test_initialization(tmpdir, io_size):
                        'dtype': io_size["f_dtype"],
                        'shape': (5,)},
             'eb_names': {'attrs': {},
-                         'data': np.array([
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '']],
-                             dtype='|S1'),
+                         'data': np.array([[''] * 256], dtype='|S1'),
                          'dimensions': ('num_el_blk', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (1, 33)},
+                         'shape': (1, 256)},
             'eb_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([-1], dtype=np.int32),
                          'dimensions': ('num_el_blk',),
@@ -144,13 +133,11 @@ def test_initialization(tmpdir, io_size):
                           'shape': (1,)},
             'ss_names': {'attrs': {},
                          'data': np.array([
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '']],
+                             [''] * 256],
                              dtype='|S1'),
                          'dimensions': ('num_side_sets', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (1, 33)},
+                         'shape': (1, 256)},
             'ss_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([-1], dtype=np.int32),
                          'dimensions': ('num_side_sets',),
@@ -162,12 +149,10 @@ def test_initialization(tmpdir, io_size):
                           'dtype': np.dtype('int32'),
                           'shape': (1,)},
             'time_whole': {'attrs': {},
-                           # XXX: Empty array in original file.
-                           'data': np.array([0.], dtype=io_size["f_dtype"]),
+                           'data': np.array([], dtype=io_size["f_dtype"]),
                            'dimensions': ('time_step',),
                            'dtype': io_size["f_dtype"],
-                           # XXX: Shape = (0,) in original file.
-                           'shape': (1,)}}
+                           'shape': (0,)}}
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -417,7 +402,7 @@ def test_set_global_variable_number(tmpdir, io_size):
     e.set_global_variable_number(3)
 
     with h5netcdf.File(filename, mode="r") as f:
-        _d = np.empty((3, 33), dtype="|S1")
+        _d = np.empty((3, 256), dtype="|S1")
         _d.fill("")
 
         expected = {
@@ -426,13 +411,13 @@ def test_set_global_variable_number(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_glo_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (3, 33)},
+                "shape": (3, 256)},
             "vals_glo_var": {
                 "attrs": {},
-                "data": np.zeros((1, 3)),
+                "data": np.zeros((0, 3)),
                 "dimensions": ("time_step", "num_glo_var"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 3)}
+                "shape": (0, 3)}
             }
 
         for key in sorted(expected.keys()):
@@ -455,7 +440,7 @@ def test_put_global_variable_name(tmpdir, io_size):
     e.set_global_variable_number(3)
     e.put_global_variable_name(name="hello", index=2)
 
-    _d = np.empty((3, 33), dtype="|S1")
+    _d = np.empty((3, 256), dtype="|S1")
     _d.fill("")
     _d[1][:5] = list("hello")
 
@@ -466,7 +451,7 @@ def test_put_global_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_glo_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (3, 33)}
+                "shape": (3, 256)}
         }
 
         for key in sorted(expected.keys()):
@@ -535,7 +520,7 @@ def test_set_element_variables(tmpdir, io_size):
     e.set_element_variable_number(5)
     e.close()
 
-    _d = np.empty((5, 33), dtype="|S1")
+    _d = np.empty((5, 256), dtype="|S1")
     _d.fill("")
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -545,7 +530,7 @@ def test_set_element_variables(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_elem_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (5, 33)}
+                "shape": (5, 256)}
         }
 
         for key in sorted(expected.keys()):
@@ -569,7 +554,7 @@ def test_put_element_variable_name(tmpdir, io_size):
     e.put_element_variable_name("random", 3)
     e.close()
 
-    _d = np.empty((5, 33), dtype="|S1")
+    _d = np.empty((5, 256), dtype="|S1")
     _d.fill("")
     _d[2][:6] = list("random")
 
@@ -580,7 +565,7 @@ def test_put_element_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_elem_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (5, 33)}
+                "shape": (5, 256)}
         }
 
         for key in sorted(expected.keys()):
@@ -649,7 +634,7 @@ def test_set_node_variable_number(tmpdir, io_size):
                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
     e.set_node_variable_number(2)
 
-    _d = np.empty((2, 33), dtype="|S1")
+    _d = np.empty((2, 256), dtype="|S1")
     _d.fill("")
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -659,19 +644,19 @@ def test_set_node_variable_number(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 33)},
+                "shape": (2, 256)},
             "vals_nod_var1": {
                 "attrs": {},
-                "data": np.zeros((1, 5)),
+                "data": np.zeros((0, 5)),
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 5)},
+                "shape": (0, 5)},
             "vals_nod_var2": {
                 "attrs": {},
-                "data": np.zeros((1, 5)),
+                "data": np.zeros((0, 5)),
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 5)}
+                "shape": (0, 5)}
         }
 
         for key in sorted(expected.keys()):
@@ -710,7 +695,7 @@ def test_put_node_variable_name(tmpdir, io_size):
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
 
-    _d = np.empty((2, 33), dtype="|S1")
+    _d = np.empty((2, 256), dtype="|S1")
     _d.fill("")
     _d[0][:11] = list("good friend")
 
@@ -721,7 +706,7 @@ def test_put_node_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 33)}
+                "shape": (2, 256)}
         }
 
         for key in sorted(expected.keys()):
@@ -745,7 +730,7 @@ def test_put_multiple_node_variable_names(tmpdir, io_size):
     e.put_node_variable_name("good friend", 1)
     e.put_node_variable_name("how are you?", 2)
 
-    _d = np.empty((2, 33), dtype="|S1")
+    _d = np.empty((2, 256), dtype="|S1")
     _d.fill("")
     _d[0][:11] = list("good friend")
     _d[1][:12] = list("how are you?")
@@ -757,7 +742,7 @@ def test_put_multiple_node_variable_names(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 33)}
+                "shape": (2, 256)}
         }
 
         for key in sorted(expected.keys()):
@@ -903,13 +888,12 @@ def test_put_side_set_name(tmpdir, io_size):
             'ss_names': {'attrs': {},
                          'data': np.array([
                              ['e', 'd', 'g', 'e', ' ', 'o', 'f', ' ',
-                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '']],
+                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd'] +
+                             [''] * 239],
                              dtype='|S1'),
                          'dimensions': ('num_side_sets', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (1, 33)}}
+                         'shape': (1, 256)}}
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -939,17 +923,15 @@ def test_put_multiple_side_set_names(tmpdir, io_size):
             'ss_names': {'attrs': {},
                          'data': np.array([
                              ['e', 'd', 'g', 'e', ' ', 'o', 'f', ' ',
-                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', ''],
+                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd'] +
+                             [''] * 239,
                              ['a', ' ', 'n', 'e', 'w', ' ', 'b', 'e',
-                              'g', 'i', 'n', 'n', 'i', 'n', 'g', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '']],
+                              'g', 'i', 'n', 'n', 'i', 'n', 'g'] +
+                             [''] * 241],
                              dtype='|S1'),
                          'dimensions': ('num_side_sets', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (2, 33)}}
+                         'shape': (2, 256)}}
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -1176,7 +1158,11 @@ def test_compression(tmpdir, io_size):
             ds = f._variables[var]._h5ds
             assert ds.compression is None, ds
             assert ds.compression_opts is None, ds
-            assert ds.chunks is None, ds
+            # Time arrays are resizeable so they must be chunked.
+            if ds.name == "/time_whole":
+                assert ds.chunks, ds
+            else:
+                assert ds.chunks is None, ds
 
     os.remove(filename)
 
@@ -1192,7 +1178,8 @@ def test_compression(tmpdir, io_size):
             ds = f._variables[var]._h5ds
             assert ds.compression == "gzip", ds
             assert ds.compression_opts == 2, ds
-            assert ds.chunks is not None, ds
+            # Compression forces chunking.
+            assert ds.chunks, ds
 
 
 def test_init_multiple_element_blocks(tmpdir, io_size):
@@ -1215,19 +1202,13 @@ def test_init_multiple_element_blocks(tmpdir, io_size):
         expected = {
             'eb_names': {'attrs': {},
                          'data': np.array([
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '']],
+                             [''] * 256,
+                             [''] * 256,
+                             [''] * 256],
                              dtype='|S1'),
                          'dimensions': ('num_el_blk', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (3, 33)},
+                         'shape': (3, 256)},
             'eb_prop1': {'attrs': {'name': b'ID'},
                          'data': np.array([-1, -1, -1], dtype=np.int32),
                          'dimensions': ('num_el_blk',),
@@ -1272,19 +1253,13 @@ def test_init_multiple_element_blocks_and_set_first_one(tmpdir, io_size):
         expected = {
             'eb_names': {'attrs': {},
                          'data': np.array([
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '']],
+                             [''] * 256,
+                             [''] * 256,
+                             [''] * 256],
                              dtype='|S1'),
                          'dimensions': ('num_el_blk', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (3, 33)},
+                         'shape': (3, 256)},
             "connect1": {"attrs": {"elem_type": b"SEVEN"},
                          "data": np.zeros((6, 3), dtype=np.int32),
                          "dimensions": ("num_el_in_blk1",
@@ -1337,19 +1312,13 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
         expected = {
             'eb_names': {'attrs': {},
                          'data': np.array([
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', ''],
-                             ['', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '',
-                              '', '', '', '', '', '', '', '', '', '', '']],
+                             [''] * 256,
+                             [''] * 256,
+                             [''] * 256],
                              dtype='|S1'),
                          'dimensions': ('num_el_blk', 'len_name'),
                          'dtype': np.dtype('S1'),
-                         'shape': (3, 33)},
+                         'shape': (3, 256)},
             "connect1": {"attrs": {"elem_type": b"SEVEN"},
                          "data": np.zeros((6, 3), dtype=np.int32),
                          "dimensions": ("num_el_in_blk1",
@@ -1389,3 +1358,19 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
             assert a.shape == e["shape"], key
+
+
+def test_get_elem_type_for_block(tmpdir, io_size):
+    filename = os.path.join(tmpdir.strpath, "example.e")
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1, numNodeSets=0,
+                numSideSets=1, io_size=io_size["io_size"]) as e:
+        e.put_coords(xCoords=np.arange(5), yCoords=np.arange(5),
+                     zCoords=np.arange(5))
+        e.put_elem_blk_info(1, "HEX", 6, 3, 0)
+
+        assert e.get_elem_type_for_block(1) == "HEX"
+
+        with pytest.raises(ValueError) as err:
+            e.get_elem_type_for_block(2)
+        assert err.value.args[0] == "No element block with id 2 in file."

@@ -122,12 +122,8 @@ class exodus(object):
             self._f.dimensions["len_line"] = 81
             # No clue what this is for...
             self._f.dimensions["four"] = 4
-            self._f.dimensions["len_name"] = 33
-
-            # XXX: Currently must be set to one as h5netcdf does currently
-            # not support unlimited dimensions altough this should be easy
-            # to add.
-            self._f.dimensions["time_step"] = 1
+            self._f.dimensions["len_name"] = 256
+            self._f.dimensions["time_step"] = None
 
             # These are dynamic.
             self._f.dimensions["num_dim"] = numDims
@@ -143,6 +139,7 @@ class exodus(object):
             if mode == "r":
                 assert os.path.exists(file), "File '%s' does not exist." % file
             self._f = h5netcdf.File(file, mode=mode)
+
             # Currently no logic for this.
             if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
                 msg = ("The file has more than one element block. pyexodus "
@@ -321,12 +318,7 @@ class exodus(object):
         :type value: float
         :param value: The actual time at that index.
         """
-        assert step > 0, "Step must be larger than 0."
-        # XXX: Currently the time axis is not unlimited due to a limitation
-        # in h5netcdf - thus no new time steps can be created after the
-        # initialization.
-        assert step <= self._f.dimensions["time_step"]
-
+        self.__resize_time_if_necessary(step)
         self._f.variables["time_whole"][step - 1] = value
 
     def set_global_variable_number(self, number):
@@ -373,12 +365,7 @@ class exodus(object):
         :type value: float
         :param value: The actual time at that index.
         """
-        assert step > 0, "Step must be larger than 0."
-        # XXX: Currently the time axis is not unlimited due to a limitation
-        # in h5netcdf - thus no new time steps can be created after the
-        # initialization.
-        assert step <= self._f.dimensions["time_step"]
-
+        self.__resize_time_if_necessary(step)
         idx = self.get_global_variable_names().index(name)
         self._f.variables["vals_glo_var"][step - 1, idx] = value
 
@@ -438,11 +425,7 @@ class exodus(object):
         :type values: :class:`numpy.ndarray`
         :param values: The actual values.
         """
-        assert step > 0, "Step must be larger than 0."
-        # XXX: Currently the time axis is not unlimited due to a limitation
-        # in h5netcdf - thus no new time steps can be created after the
-        # initialization.
-        assert step <= self._f.dimensions["time_step"]
+        self.__resize_time_if_necessary(step)
 
         num_elem_name = "num_el_in_blk%i" % blockId
         assert num_elem_name in self._f.dimensions, \
@@ -474,10 +457,8 @@ class exodus(object):
         Return values: The actual values.
         """
         assert step > 0, "Step must be larger than 0."
-        # XXX: Currently the time axis is not unlimited due to a limitation
-        # in h5netcdf - thus no new time steps can be created after the
-        # initialization.
-        assert step <= self._f.dimensions["time_step"]
+        assert self._f.dimensions["time_step"] is None or \
+            step <= self._f.dimensions["time_step"]
 
         num_elem_name = "num_el_in_blk%i" % blockId
         assert num_elem_name in self._f.dimensions, \
@@ -547,6 +528,13 @@ class exodus(object):
             return 0
         return int(self._f.dimensions["num_nod_var"])
 
+    def __resize_time_if_necessary(self, step):
+        assert step > 0, "Step must be larger than 0."
+        assert self._f.dimensions["time_step"] is None or \
+            step <= self._f.dimensions["time_step"]
+        if step > self._f._current_dim_sizes["time_step"]:
+            self._f.resize_dimension("time_step", step)
+
     def put_node_variable_values(self, name, step, values):
         """
         Put node values into variable name at step into exodus file
@@ -558,11 +546,7 @@ class exodus(object):
         :type values: :class:`numpy.ndarray`
         :param values: The actual values.
         """
-        assert step > 0, "Step must be larger than 0."
-        # XXX: Currently the time axis is not unlimited due to a limitation
-        # in h5netcdf - thus no new time steps can be created after the
-        # initialization.
-        assert step <= self._f.dimensions["time_step"]
+        self.__resize_time_if_necessary(step)
 
         # 1-based indexing!
         idx = self.get_node_variable_names().index(name) + 1
@@ -580,16 +564,31 @@ class exodus(object):
         :param step: The time step at which to get the values.
         """
         # Make sure the step is valid.
-        if not (0 < step <= self._f.dimensions["time_step"]):
+        if step <= 0:
+            raise ValueError("Step must be larger than zero.")
+        # This cannot really happen anymore with newer pyexodus versions, as
+        # the time_step is always an unlimited dimension so there is not easy
+        # way to test this. But it might still happen if somebody reads a file
+        # created with an older pyexodus version so I'll leave the block in
+        # but mark it as uncovered by the tests.
+        if self._f.dimensions["time_step"] is not None and \
+                not (0 < step <=
+                     self._f.dimensions["time_step"]):  # pragma: no cover
             msg = "Step must be 0 < step < %i." % \
                 self._f.dimensions["time_step"]
             raise ValueError(msg)
-
         # Will raise with a reasonable error message if name is not correct.
         # 1-based indexing!
         idx = self.get_node_variable_names().index(name) + 1
 
         d_name = "vals_nod_var%i" % idx
+        # If it is resizeable, check the actual size.
+        if self._f.dimensions["time_step"] is None:
+            available_steps = self._f.variables[d_name].shape[0]
+            if not (0 < step <= available_steps):
+                msg = "Step must be 0 < step <= %i." % available_steps
+                raise ValueError(msg)
+
         return self._f.variables[d_name][step - 1][:]
 
     def put_side_set_params(self, id, numSetSides, numSetDistFacts):
@@ -729,7 +728,8 @@ class exodus(object):
         elem_type = self._f[var_name].attrs["elem_type"]
         try:
             elem_type = elem_type.decode()
-        except AttributeError:
+        # Not triggered on all Python versions.
+        except AttributeError:  # pragma: no cover
             pass
         return elem_type
 
@@ -833,9 +833,8 @@ class exodus(object):
         """
         Write all the attributes.
         """
-        # XXX: Should probably all be defined in some header file.
-        self._f.attrs['api_version'] = np.float32([6.30000019])
-        self._f.attrs['version'] = np.float32([6.30000019])
+        self._f.attrs['api_version'] = np.float32([7.05])
+        self._f.attrs['version'] = np.float32([7.05])
         self._f.attrs['floating_point_word_size'] = \
             np.array([self.__f_word_size], dtype=np.int32)
         self._f.attrs['file_size'] = np.array([1], dtype=np.int32)
@@ -845,6 +844,22 @@ class exodus(object):
         self._f.attrs['title'] = np.string_(title)
 
     def _create_variables(self):
+        # Time steps.
+        self._f.create_variable('/time_whole', ('time_step',),
+                                dtype=self.__f_dtype, **self._comp_opts)
+
+        # Element block stuff.
+        self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
+                                dtype='|S1', **self._comp_opts)
+        self._f.create_variable('/eb_status', ('num_el_blk',),
+                                dtype=np.int32, **self._comp_opts)
+        # I don't really understand the number here yet...
+        self._f.create_variable('/eb_prop1', ('num_el_blk',),
+                                dtype=np.int32,
+                                data=[-1] * self._f.dimensions['num_el_blk'],
+                                **self._comp_opts)
+        self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
+
         # Coordinate names.
         self._f.create_variable('/coor_names', ('num_dim', 'len_name'),
                                 dtype='|S1', **self._comp_opts)
@@ -854,18 +869,6 @@ class exodus(object):
             self._f.create_variable(
                 '/coord' + i, ('num_nodes',), dtype=self.__f_dtype,
                 **self._comp_opts)
-
-        # Element block stuff.
-        self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
-                                dtype='|S1', **self._comp_opts)
-        # I don't really understand the number here yet...
-        self._f.create_variable('/eb_prop1', ('num_el_blk',),
-                                dtype=np.int32,
-                                data=[-1] * self._f.dimensions['num_el_blk'],
-                                **self._comp_opts)
-        self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
-        self._f.create_variable('/eb_status', ('num_el_blk',),
-                                dtype=np.int32, **self._comp_opts)
 
         # Side sets.
         if "num_side_sets" in self._f.dimensions:
@@ -879,10 +882,6 @@ class exodus(object):
             self._f.variables["ss_prop1"].attrs['name'] = np.string_('ID')
             self._f.create_variable('/ss_status', ('num_side_sets',),
                                     dtype=np.int32, **self._comp_opts)
-
-        # Time steps.
-        self._f.create_variable('/time_whole', ('time_step',),
-                                dtype=self.__f_dtype, **self._comp_opts)
 
     def __del__(self):
         try:

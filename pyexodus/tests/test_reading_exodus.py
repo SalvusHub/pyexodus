@@ -429,11 +429,11 @@ def test_get_node_variable_values(tmpdir, io_size):
     # Invalid step.
     with pytest.raises(ValueError) as err:
         e.get_node_variable_values(name="good friend", step=0)
-    assert err.value.args[0] == "Step must be 0 < step < 1."
+    assert err.value.args[0] == "Step must be larger than zero."
 
     with pytest.raises(ValueError) as err:
         e.get_node_variable_values(name="good friend", step=10)
-    assert err.value.args[0] == "Step must be 0 < step < 1."
+    assert err.value.args[0] == "Step must be 0 < step <= 1."
 
     # Invalid name.
     with pytest.raises(ValueError) as err:
