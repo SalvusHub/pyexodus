@@ -23,7 +23,7 @@ import pyexodus
 
 try:
     import flake8
-except:  # pragma: no cover
+except Exception:  # pragma: no cover
     HAS_FLAKE8_AT_LEAST_VERSION_3 = False
 else:
     if int(flake8.__version__.split(".")[0]) >= 3:
