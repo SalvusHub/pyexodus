@@ -886,13 +886,13 @@ class exodus(object):
     def __del__(self):
         try:
             self._f.close()
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             pass
 
     def close(self):
         try:
             self._f.close()
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             pass
 
     def __enter__(self):
