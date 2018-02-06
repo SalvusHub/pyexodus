@@ -49,6 +49,8 @@ setup_config = dict(
     name="pyexodus",
     version=get_git_version(),
     description="Module for creating Exodus files",
+    long_description=("Create Exodus files with Python "
+                      "(https://salvushub.github.io/pyexodus/)"),
     author="Lion Krischer",
     author_email="lionkrischer@gmail.com",
     url="https://github.com/SalvusHub/pyexodus",
