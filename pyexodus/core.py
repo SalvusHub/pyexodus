@@ -376,6 +376,13 @@ class exodus(object):
         return [b"".join(_i).strip().decode()
                 for _i in self._f.variables["name_glo_var"][:]]
 
+    def get_global_variable_values(self, name):
+        """
+        Get global variables values within an exodus file.
+        """
+        idx = self.get_global_variable_names().index(name)
+        return self._f.variables["vals_glo_var"][0, idx]
+
     def set_element_variable_number(self, number):
         """
         Set number of element variables in exodus file.
