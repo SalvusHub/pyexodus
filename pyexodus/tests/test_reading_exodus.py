@@ -57,6 +57,23 @@ def test_get_side_set_names(tmpdir, io_size):
         assert e.get_side_set_names() == ["edge of the world", "hallo"]
 
 
+def test_read_global_variables(tmpdir, io_size):
+
+    filename = os.path.join(tmpdir.strpath, "example.e")
+    with exodus(filename, mode="w", title="Example", array_type="numpy",
+                numDims=3, numNodes=5, numElems=6, numBlocks=1,
+                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+
+        e.set_global_variable_number(1)
+        e.put_global_variable_name("Test", 1)
+        e.put_global_variable_value("Test", 1, 1.1)
+
+    with (exodus(filename, mode="r")) as e:
+        assert e.get_global_variable_names() == ["Test"]
+        value = e.get_global_variable_values("Test")
+        np.testing.assert_almost_equal(value, 1.1)
+
+
 def test_get_side_set_ids(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
