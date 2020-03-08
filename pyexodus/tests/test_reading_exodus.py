@@ -40,17 +40,29 @@ def test_get_side_set_names(tmpdir, io_size):
 
     # Put two side sets. Note that the ids of the side sets have little to
     # do with their naming inside the file...
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
-        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                       np.ones(5, dtype=np.int32) * 3)
+        e.put_side_set(
+            4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+        )
         e.put_side_set_name(4, "edge of the world")
 
         e.put_side_set_params(2, 5, 0)
-        e.put_side_set(2, np.ones(5, dtype=np.int32) * 7,
-                       np.ones(5, dtype=np.int32) * 8)
+        e.put_side_set(
+            2, np.ones(5, dtype=np.int32) * 7, np.ones(5, dtype=np.int32) * 8
+        )
         e.put_side_set_name(2, "hallo")
 
     with exodus(filename, mode="r") as e:
@@ -60,9 +72,19 @@ def test_get_side_set_names(tmpdir, io_size):
 def test_read_global_variables(tmpdir, io_size):
 
     filename = os.path.join(tmpdir.strpath, "example.e")
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
 
         e.set_global_variable_number(1)
         e.put_global_variable_name("Test", 1)
@@ -79,17 +101,29 @@ def test_get_side_set_ids(tmpdir, io_size):
 
     # Put two side sets. Note that the ids of the side sets have little to
     # do with their naming inside the file...
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
-        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                       np.ones(5, dtype=np.int32) * 3)
+        e.put_side_set(
+            4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+        )
         e.put_side_set_name(4, "edge of the world")
 
         e.put_side_set_params(2, 5, 0)
-        e.put_side_set(2, np.ones(5, dtype=np.int32) * 7,
-                       np.ones(5, dtype=np.int32) * 8)
+        e.put_side_set(
+            2, np.ones(5, dtype=np.int32) * 7, np.ones(5, dtype=np.int32) * 8
+        )
         e.put_side_set_name(2, "hallo")
 
     with exodus(filename, mode="r") as e:
@@ -100,19 +134,32 @@ def test_get_side_set_hex(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Hex elements.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.arange(5, dtype=np.float64) * 3
+            zCoords=np.arange(5, dtype=np.float64) * 3,
         )
         e.put_elem_blk_info(1, "HEX", 6, 8, 0)
         e.put_elem_connectivity(1, np.arange(6 * 8) + 7)
         e.put_side_set_params(4, 5, 0)
-        e.put_side_set(4, np.arange(5, dtype=np.int32) + 2,
-                       np.arange(5, dtype=np.int32) + 1)
+        e.put_side_set(
+            4,
+            np.arange(5, dtype=np.int32) + 2,
+            np.arange(5, dtype=np.int32) + 1,
+        )
 
     with exodus(filename, mode="r") as e:
         elem_idx, side_ids = e.get_side_set(id=4)
@@ -124,19 +171,32 @@ def test_get_side_set_hex(tmpdir, io_size):
 def test_get_side_set_quad(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
         e.put_elem_blk_info(1, b"QUAD", 6, 4, 0)
         e.put_elem_connectivity(1, np.arange(6 * 4) + 7)
         e.put_side_set_params(4, 4, 0)
-        e.put_side_set(4, np.arange(4, dtype=np.int32) + 2,
-                       np.arange(4, dtype=np.int32) + 1)
+        e.put_side_set(
+            4,
+            np.arange(4, dtype=np.int32) + 2,
+            np.arange(4, dtype=np.int32) + 1,
+        )
 
     with exodus(filename, mode="r") as e:
         elem_idx, side_ids = e.get_side_set(id=4)
@@ -150,44 +210,71 @@ def test_get_side_set_invalid_id(tmpdir, io_size):
 
     # Put two side sets. Note that the ids of the side sets have little to
     # do with their naming inside the file...
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
-        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                       np.ones(5, dtype=np.int32) * 3)
+        e.put_side_set(
+            4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+        )
         e.put_side_set_name(4, "edge of the world")
 
         e.put_side_set_params(2, 5, 0)
-        e.put_side_set(2, np.ones(5, dtype=np.int32) * 7,
-                       np.ones(5, dtype=np.int32) * 8)
+        e.put_side_set(
+            2, np.ones(5, dtype=np.int32) * 7, np.ones(5, dtype=np.int32) * 8
+        )
         e.put_side_set_name(2, "hallo")
 
     with exodus(filename, mode="r") as e:
         with pytest.raises(ValueError) as f:
             e.get_side_set(id=7)
 
-    assert f.value.args[0] == \
-        "No side set with id 7 in file. Available ids: 4, 2."
+    assert (
+        f.value.args[0]
+        == "No side set with id 7 in file. Available ids: 4, 2."
+    )
 
 
 def test_get_side_set_node_list_hex(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Hex elements.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.arange(5, dtype=np.float64) * 3
+            zCoords=np.arange(5, dtype=np.float64) * 3,
         )
         e.put_elem_blk_info(1, "HEX", 6, 8, 0)
         e.put_elem_connectivity(1, np.arange(6 * 8) + 7)
         e.put_side_set_params(4, 5, 0)
-        e.put_side_set(4, np.arange(5, dtype=np.int32) + 2,
-                       np.arange(5, dtype=np.int32) + 1)
+        e.put_side_set(
+            4,
+            np.arange(5, dtype=np.int32) + 2,
+            np.arange(5, dtype=np.int32) + 1,
+        )
 
     with exodus(filename, mode="r") as e:
         num_nodes, local_node_ids = e.get_side_set_node_list(id=4)
@@ -195,26 +282,60 @@ def test_get_side_set_node_list_hex(tmpdir, io_size):
     np.testing.assert_equal(num_nodes, [4, 4, 4, 4, 4])
     np.testing.assert_equal(
         local_node_ids,
-        [15, 16, 20, 19, 24, 25, 29, 28, 33, 34, 38, 37, 39, 43, 46, 42, 47,
-         50, 49, 48])
+        [
+            15,
+            16,
+            20,
+            19,
+            24,
+            25,
+            29,
+            28,
+            33,
+            34,
+            38,
+            37,
+            39,
+            43,
+            46,
+            42,
+            47,
+            50,
+            49,
+            48,
+        ],
+    )
 
 
 def test_get_side_set_node_list_quad(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
         e.put_elem_blk_info(1, b"QUAD", 6, 4, 0)
         e.put_elem_connectivity(1, np.arange(6 * 4) + 7)
         e.put_side_set_params(4, 4, 0)
-        e.put_side_set(4, np.arange(4, dtype=np.int32) + 2,
-                       np.arange(4, dtype=np.int32) + 1)
+        e.put_side_set(
+            4,
+            np.arange(4, dtype=np.int32) + 2,
+            np.arange(4, dtype=np.int32) + 1,
+        )
 
     with exodus(filename, mode="r") as e:
         num_nodes, local_node_ids = e.get_side_set_node_list(id=4)
@@ -226,13 +347,24 @@ def test_get_side_set_node_list_quad(tmpdir, io_size):
 def test_get_coord_3d(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.arange(5, dtype=np.float64) * 3)
+            zCoords=np.arange(5, dtype=np.float64) * 3,
+        )
 
     with exodus(filename, mode="r") as e:
         with pytest.raises(ValueError) as f:
@@ -249,19 +381,31 @@ def test_get_coord_3d(tmpdir, io_size):
         # Now all at once.
         np.testing.assert_allclose(
             e.get_coord([1, 2, 3]),
-            [[0.0, 1.0, 2.0], [0.0, 2.0, 4.0], [0.0, 3.0, 6.0]])
+            [[0.0, 1.0, 2.0], [0.0, 2.0, 4.0], [0.0, 3.0, 6.0]],
+        )
 
 
 def test_get_coord_2d(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5))
+            zCoords=np.zeros(5),
+        )
 
     with exodus(filename, mode="r") as e:
         with pytest.raises(ValueError) as f:
@@ -279,46 +423,80 @@ def test_get_coord_2d(tmpdir, io_size):
 def test_get_coords_3d(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.arange(5, dtype=np.float64) * 3)
+            zCoords=np.arange(5, dtype=np.float64) * 3,
+        )
 
     with exodus(filename, mode="r") as e:
         np.testing.assert_allclose(
-            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.arange(5) * 3])
+            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.arange(5) * 3]
+        )
 
 
 def test_get_coords_2d(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5))
+            zCoords=np.zeros(5),
+        )
 
     with exodus(filename, mode="r") as e:
         np.testing.assert_allclose(
-            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.zeros(5)])
+            e.get_coords(), [np.arange(5), np.arange(5) * 2, np.zeros(5)]
+        )
 
 
 def test_get_elem_connectivity_quad(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Generate test file.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
         e.put_elem_blk_info(1, "QUAD", 6, 4, 0)
         e.put_elem_connectivity(1, np.arange(6 * 4) + 7)
@@ -335,13 +513,23 @@ def test_get_elem_connectivity_hex(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Generate test file.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
         e.put_elem_blk_info(1, "HEX", 3, 8, 0)
         e.put_elem_connectivity(1, np.arange(3 * 8) + 7)
@@ -358,23 +546,35 @@ def test_get_elem_connectivity_only_some_indices(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # Generate test file.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
         e.put_elem_blk_info(1, "HEX", 3, 8, 0)
         e.put_elem_connectivity(1, np.arange(3 * 8) + 7)
 
     with exodus(filename, mode="r") as e:
         conn, num_elem, num_nodes_per_elem = e.get_elem_connectivity(
-            id=1, indices=[1, 3])
+            id=1, indices=[1, 3]
+        )
 
     np.testing.assert_equal(
-        conn, (np.arange(3 * 8) + 7).reshape((3, 8))[[0, 2]])
+        conn, (np.arange(3 * 8) + 7).reshape((3, 8))[[0, 2]]
+    )
     assert num_elem == 3
     assert num_nodes_per_elem == 8
 
@@ -382,26 +582,46 @@ def test_get_elem_connectivity_only_some_indices(tmpdir, io_size):
 def test_num_dims_accessor(tmpdir, io_size):
     # 2D
     filename = os.path.join(tmpdir.strpath, "example_2d.e")
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=2, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=2,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
     with exodus(filename, mode="r") as e:
         assert e.num_dims == 2
 
     # 3D
     filename = os.path.join(tmpdir.strpath, "example_3d.e")
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1, io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_coords(
             xCoords=np.arange(5, dtype=np.float64),
             yCoords=np.arange(5, dtype=np.float64) * 2,
-            zCoords=np.zeros(5)
+            zCoords=np.zeros(5),
         )
     with exodus(filename, mode="r") as e:
         assert e.num_dims == 3
@@ -410,9 +630,19 @@ def test_num_dims_accessor(tmpdir, io_size):
 def test_get_element_variable_values(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_element_variable_number(5)
     e.put_element_variable_name("random", 3)
     # requires an actual element block.
@@ -432,16 +662,27 @@ def test_get_element_variable_values(tmpdir, io_size):
 def test_get_node_variable_values(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
     e.put_node_variable_values("good friend", 1, np.arange(5))
 
     np.testing.assert_equal(
         actual=e.get_node_variable_values(name="good friend", step=1),
-        desired=np.arange(5))
+        desired=np.arange(5),
+    )
 
     # Invalid step.
     with pytest.raises(ValueError) as err:
@@ -461,9 +702,19 @@ def test_get_node_variable_values(tmpdir, io_size):
 def test_get_node_variable_names(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
 

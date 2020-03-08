@@ -21,16 +21,18 @@ import h5netcdf
 # in the exodus files themselves are one based so keep that in mind!
 # The values are from the exodus manual.
 _SIDE_SET_NUMBERING = {
-    "QUAD": np.array([[0, 1],
-                      [1, 2],
-                      [2, 3],
-                      [3, 0]], dtype=np.int32),
-    "HEX": np.array([[0, 1, 5, 4],
-                     [1, 2, 6, 5],
-                     [2, 3, 7, 6],
-                     [0, 4, 7, 3],
-                     [0, 3, 2, 1],
-                     [4, 5, 6, 7]], dtype=np.int32)
+    "QUAD": np.array([[0, 1], [1, 2], [2, 3], [3, 0]], dtype=np.int32),
+    "HEX": np.array(
+        [
+            [0, 1, 5, 4],
+            [1, 2, 6, 5],
+            [2, 3, 7, 6],
+            [0, 4, 7, 3],
+            [0, 3, 2, 1],
+            [4, 5, 6, 7],
+        ],
+        dtype=np.int32,
+    ),
 }
 
 
@@ -70,16 +72,29 @@ class exodus(object):
         ``(method, option)``, e.g. ``("gzip", 2)``. Slows down writing a lot
         but the resulting files are potentially much smaller.
     """
-    def __init__(self, file, mode="r", array_type="numpy", title=None,
-                 numDims=None, numNodes=None, numElems=None, numBlocks=None,
-                 numNodeSets=None, numSideSets=None, io_size=0,
-                 compression=None):
+
+    def __init__(
+        self,
+        file,
+        mode="r",
+        array_type="numpy",
+        title=None,
+        numDims=None,
+        numNodes=None,
+        numElems=None,
+        numBlocks=None,
+        numNodeSets=None,
+        numSideSets=None,
+        io_size=0,
+        compression=None,
+    ):
 
         if compression:
             self._comp_opts = {
                 "chunks": True,
                 "compression": compression[0],
-                "compression_opts": compression[1]}
+                "compression_opts": compression[1],
+            }
         else:
             self._comp_opts = {}
 
@@ -142,10 +157,12 @@ class exodus(object):
 
             # Currently no logic for this.
             if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
-                msg = ("The file has more than one element block. pyexodus "
-                       "currently contains no logic to deal with that. "
-                       "Proceed at your own risk and best contact the "
-                       "developers.")
+                msg = (
+                    "The file has more than one element block. pyexodus "
+                    "currently contains no logic to deal with that. "
+                    "Proceed at your own risk and best contact the "
+                    "developers."
+                )
                 warnings.warn(msg)
 
         else:  # pragma: no cover
@@ -171,15 +188,19 @@ class exodus(object):
             return
 
         for _i, value in enumerate(info):
-            assert len(value) < self._f.dimensions["len_line"], \
-                "Records '%s' is longer then %i letters." % (
-                    value, self._f.dimensions["len_line"])
+            assert len(value) < self._f.dimensions["len_line"], (
+                "Records '%s' is longer then %i letters."
+                % (value, self._f.dimensions["len_line"])
+            )
 
         self._f.dimensions["num_info"] = len(info)
 
         self._f.create_variable(
-            "info_records", ("num_info", "len_line"),
-            dtype="|S1", **self._comp_opts)
+            "info_records",
+            ("num_info", "len_line"),
+            dtype="|S1",
+            **self._comp_opts
+        )
 
         ir = self._f.variables["info_records"]
         for idx, value in enumerate(info):
@@ -187,8 +208,9 @@ class exodus(object):
             ir[idx] = b""
             if not value:
                 continue
-            ir[idx, :len(value)] = [_i.encode() if hasattr(_i, "encode")
-                                    else _i for _i in value]
+            ir[idx, : len(value)] = [
+                _i.encode() if hasattr(_i, "encode") else _i for _i in value
+            ]
 
     def put_coords(self, xCoords, yCoords, zCoords):
         """
@@ -205,8 +227,9 @@ class exodus(object):
         self._f.variables["coordy"][:] = yCoords
         self._f.variables["coordz"][:] = zCoords
 
-    def put_elem_blk_info(self, id, elemType, numElems, numNodesPerElem,
-                          numAttrsPerElem):
+    def put_elem_blk_info(
+        self, id, elemType, numElems, numNodesPerElem, numAttrsPerElem
+    ):
         """
         Set the details of an element block.
 
@@ -221,8 +244,9 @@ class exodus(object):
         :type numAttrsPerElem: int
         :param numAttrsPerElem: The number of attributes per element.
         """
-        assert numElems <= self._f.dimensions["num_elem"], \
-            "Canont have more elements in the block then globally set."
+        assert (
+            numElems <= self._f.dimensions["num_elem"]
+        ), "Canont have more elements in the block then globally set."
         assert numAttrsPerElem == 0, "Must be 0 for now."
 
         # So the logic is as follows. `eb_status` keeps track of which
@@ -240,17 +264,21 @@ class exodus(object):
         self._f.dimensions[num_node_per_el_name] = numNodesPerElem
 
         self._f.create_variable(
-            var_name, (num_el_name, num_node_per_el_name),
-            dtype=np.int32, **self._comp_opts)
-        self._f.variables[var_name].attrs['elem_type'] = np.string_(elemType)
+            var_name,
+            (num_el_name, num_node_per_el_name),
+            dtype=np.int32,
+            **self._comp_opts
+        )
+        self._f.variables[var_name].attrs["elem_type"] = np.string_(elemType)
 
         # Set the status and thus "claim" the element block id.
-        self._f.variables['eb_status'][idx - 1] = 1
+        self._f.variables["eb_status"][idx - 1] = 1
         # For some reason this is always eb_prop1.
-        self._f.variables['eb_prop1'][idx - 1] = id
+        self._f.variables["eb_prop1"][idx - 1] = id
 
-    def put_elem_connectivity(self, id, connectivity, shift_indices=0,
-                              chunk_size_in_mb=128):
+    def put_elem_connectivity(
+        self, id, connectivity, shift_indices=0, chunk_size_in_mb=128
+    ):
         """
         Set the element connectivity array for all elements in a block.
 
@@ -280,34 +308,41 @@ class exodus(object):
         num_node_per_el_name = "num_nod_per_el%i" % id
         var_name = "connect%i" % id
 
-        assert num_el_name in self._f.dimensions, \
+        assert num_el_name in self._f.dimensions, (
             "Block id %i does not exist" % id
-        assert num_node_per_el_name in self._f.dimensions, \
+        )
+        assert num_node_per_el_name in self._f.dimensions, (
             "Block id %i does not exist" % id
+        )
 
         assert connectivity.size == (
-            self._f.dimensions[num_el_name] *
-            self._f.dimensions[num_node_per_el_name])
+            self._f.dimensions[num_el_name]
+            * self._f.dimensions[num_node_per_el_name]
+        )
 
         if shift_indices:
             ne = self._f.dimensions[num_el_name]
             nn = self._f.dimensions[num_node_per_el_name]
 
-            chunk_size = int(chunk_size_in_mb * 1024 ** 2 /
-                             connectivity.dtype.itemsize / nn)
+            chunk_size = int(
+                chunk_size_in_mb * 1024 ** 2 / connectivity.dtype.itemsize / nn
+            )
 
             _t = connectivity.reshape((ne, nn))
 
             idx = 0
             while idx < ne:
-                self._f.variables[var_name][idx: idx+chunk_size] = \
-                    _t[idx: idx+chunk_size] + shift_indices
+                self._f.variables[var_name][idx : idx + chunk_size] = (
+                    _t[idx : idx + chunk_size] + shift_indices
+                )
                 idx += chunk_size
         else:
-            self._f.variables[var_name][:] = \
-                connectivity.reshape((
+            self._f.variables[var_name][:] = connectivity.reshape(
+                (
                     self._f.dimensions[num_el_name],
-                    self._f.dimensions[num_node_per_el_name]))
+                    self._f.dimensions[num_node_per_el_name],
+                )
+            )
 
     def put_time(self, step, value):
         """
@@ -334,11 +369,17 @@ class exodus(object):
         self._f.dimensions["num_glo_var"] = number
 
         self._f.create_variable(
-            "name_glo_var", ("num_glo_var", "len_name"),
-            dtype="|S1", **self._comp_opts)
+            "name_glo_var",
+            ("num_glo_var", "len_name"),
+            dtype="|S1",
+            **self._comp_opts
+        )
         self._f.create_variable(
-            "vals_glo_var", ("time_step", "num_glo_var"),
-            dtype=self.__f_dtype, **self._comp_opts)
+            "vals_glo_var",
+            ("time_step", "num_glo_var"),
+            dtype=self.__f_dtype,
+            **self._comp_opts
+        )
 
     def put_global_variable_name(self, name, index):
         """
@@ -350,8 +391,9 @@ class exodus(object):
         :param index: The index of the global variable. First is 1!
         """
         self._f.variables["name_glo_var"][index - 1] = b""
-        self._f.variables["name_glo_var"][index - 1, :len(name)] = \
-            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
+        self._f.variables["name_glo_var"][index - 1, : len(name)] = [
+            _i.encode() if hasattr(_i, "encode") else _i for _i in name
+        ]
 
     def put_global_variable_value(self, name, step, value):
         """
@@ -373,8 +415,10 @@ class exodus(object):
         """
         Get list of global variable names in exodus file.
         """
-        return [b"".join(_i).strip().decode()
-                for _i in self._f.variables["name_glo_var"][:]]
+        return [
+            b"".join(_i).strip().decode()
+            for _i in self._f.variables["name_glo_var"][:]
+        ]
 
     def get_global_variable_values(self, name):
         """
@@ -396,8 +440,11 @@ class exodus(object):
         self._f.dimensions["num_elem_var"] = number
 
         self._f.create_variable(
-            "name_elem_var", ("num_elem_var", "len_name"),
-            dtype="|S1", **self._comp_opts)
+            "name_elem_var",
+            ("num_elem_var", "len_name"),
+            dtype="|S1",
+            **self._comp_opts
+        )
 
     def put_element_variable_name(self, name, index):
         """
@@ -409,15 +456,18 @@ class exodus(object):
         :param index: The index of the element variable. Starts with 1!
         """
         self._f.variables["name_elem_var"][index - 1] = b""
-        self._f.variables["name_elem_var"][index - 1, :len(name)] = \
-            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
+        self._f.variables["name_elem_var"][index - 1, : len(name)] = [
+            _i.encode() if hasattr(_i, "encode") else _i for _i in name
+        ]
 
     def get_element_variable_names(self):
         """
         Get list of element variable names in exodus file.
         """
-        return [b"".join(_i).strip().decode()
-                for _i in self._f.variables["name_elem_var"][:]]
+        return [
+            b"".join(_i).strip().decode()
+            for _i in self._f.variables["name_elem_var"][:]
+        ]
 
     def put_element_variable_values(self, blockId, name, step, values):
         """
@@ -435,8 +485,9 @@ class exodus(object):
         self.__resize_time_if_necessary(step)
 
         num_elem_name = "num_el_in_blk%i" % blockId
-        assert num_elem_name in self._f.dimensions, \
+        assert num_elem_name in self._f.dimensions, (
             "Block id %i not found." % blockId
+        )
 
         # 1-based indexing!
         idx = self.get_element_variable_names().index(name) + 1
@@ -446,8 +497,11 @@ class exodus(object):
         # If it does not exist, create it.
         if variable_name not in self._f.variables:
             self._f.create_variable(
-                variable_name, ("time_step", num_elem_name),
-                dtype=self.__f_dtype, **self._comp_opts)
+                variable_name,
+                ("time_step", num_elem_name),
+                dtype=self.__f_dtype,
+                **self._comp_opts
+            )
 
         self._f.variables[variable_name][step - 1] = values
 
@@ -464,12 +518,15 @@ class exodus(object):
         Return values: The actual values.
         """
         assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
+        assert (
+            self._f.dimensions["time_step"] is None
+            or step <= self._f.dimensions["time_step"]
+        )
 
         num_elem_name = "num_el_in_blk%i" % blockId
-        assert num_elem_name in self._f.dimensions, \
+        assert num_elem_name in self._f.dimensions, (
             "Block id %i not found." % blockId
+        )
 
         # 1-based indexing!
         idx = self.get_element_variable_names().index(name) + 1
@@ -477,8 +534,9 @@ class exodus(object):
         variable_name = "vals_elem_var%ieb%i" % (idx, blockId)
 
         # If it does not exist, raise exception
-        assert variable_name in self._f.variables, \
+        assert variable_name in self._f.variables, (
             "Variable %s not found" % variable_name
+        )
 
         return self._f.variables[variable_name][step - 1][:]
 
@@ -495,14 +553,20 @@ class exodus(object):
         self._f.dimensions["num_nod_var"] = number
 
         self._f.create_variable(
-            "name_nod_var", ("num_nod_var", "len_name"),
-            dtype="|S1", **self._comp_opts)
+            "name_nod_var",
+            ("num_nod_var", "len_name"),
+            dtype="|S1",
+            **self._comp_opts
+        )
 
         for _i in range(number):
             name = "vals_nod_var%i" % (_i + 1)
             self._f.create_variable(
-                name, ("time_step", "num_nodes"),
-                dtype=self.__f_dtype, **self._comp_opts)
+                name,
+                ("time_step", "num_nodes"),
+                dtype=self.__f_dtype,
+                **self._comp_opts
+            )
 
     def put_node_variable_name(self, name, index):
         """
@@ -517,15 +581,18 @@ class exodus(object):
         assert index <= self._f.dimensions["num_nod_var"]
 
         self._f.variables["name_nod_var"][index - 1] = b""
-        self._f.variables["name_nod_var"][index - 1, :len(name)] = \
-            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
+        self._f.variables["name_nod_var"][index - 1, : len(name)] = [
+            _i.encode() if hasattr(_i, "encode") else _i for _i in name
+        ]
 
     def get_node_variable_names(self):
         """
         Get list of node variable names in exodus file.
         """
-        return [b"".join(_i).strip().decode()
-                for _i in self._f.variables["name_nod_var"][:]]
+        return [
+            b"".join(_i).strip().decode()
+            for _i in self._f.variables["name_nod_var"][:]
+        ]
 
     def get_node_variable_number(self):
         """
@@ -537,8 +604,10 @@ class exodus(object):
 
     def __resize_time_if_necessary(self, step):
         assert step > 0, "Step must be larger than 0."
-        assert self._f.dimensions["time_step"] is None or \
-            step <= self._f.dimensions["time_step"]
+        assert (
+            self._f.dimensions["time_step"] is None
+            or step <= self._f.dimensions["time_step"]
+        )
         if step > self._f._current_dim_sizes["time_step"]:
             self._f.resize_dimension("time_step", step)
 
@@ -578,11 +647,12 @@ class exodus(object):
         # way to test this. But it might still happen if somebody reads a file
         # created with an older pyexodus version so I'll leave the block in
         # but mark it as uncovered by the tests.
-        if self._f.dimensions["time_step"] is not None and \
-                not (0 < step <=
-                     self._f.dimensions["time_step"]):  # pragma: no cover
-            msg = "Step must be 0 < step < %i." % \
-                self._f.dimensions["time_step"]
+        if self._f.dimensions["time_step"] is not None and not (
+            0 < step <= self._f.dimensions["time_step"]
+        ):  # pragma: no cover
+            msg = (
+                "Step must be 0 < step < %i." % self._f.dimensions["time_step"]
+            )
             raise ValueError(msg)
         # Will raise with a reasonable error message if name is not correct.
         # 1-based indexing!
@@ -611,13 +681,15 @@ class exodus(object):
         """
         assert numSetDistFacts == 0, "Only 0 is currently supported."
 
-        assert id not in self._f.variables["ss_prop1"][:], \
+        assert id not in self._f.variables["ss_prop1"][:], (
             "Side set id %i already exists." % id
+        )
 
         _t = self._f.variables["ss_status"][:]
         count = len(_t[_t > 0])
-        assert count < self._f.dimensions["num_side_sets"],  \
-            "Maximum number of side sets reached."
+        assert (
+            count < self._f.dimensions["num_side_sets"]
+        ), "Maximum number of side sets reached."
 
         idx = count + 1
         dim_name = "num_side_ss%i" % idx
@@ -626,10 +698,12 @@ class exodus(object):
 
         # Create the dimension and variables.
         self._f.dimensions[dim_name] = numSetSides
-        self._f.create_variable(elem_ss_name, (dim_name,), dtype=np.int32,
-                                **self._comp_opts)
-        self._f.create_variable(side_ss_name, (dim_name,), dtype=np.int32,
-                                **self._comp_opts)
+        self._f.create_variable(
+            elem_ss_name, (dim_name,), dtype=np.int32, **self._comp_opts
+        )
+        self._f.create_variable(
+            side_ss_name, (dim_name,), dtype=np.int32, **self._comp_opts
+        )
 
         # Set meta-data.
         self._f.variables["ss_status"][idx - 1] = 1
@@ -676,8 +750,9 @@ class exodus(object):
         idx = np.argwhere(_idx == id)[0][0] + 1
 
         self._f.variables["ss_names"][idx - 1] = b""
-        self._f.variables["ss_names"][idx - 1, :len(name)] = \
-            [_i.encode() if hasattr(_i, "encode") else _i for _i in name]
+        self._f.variables["ss_names"][idx - 1, : len(name)] = [
+            _i.encode() if hasattr(_i, "encode") else _i for _i in name
+        ]
 
     def get_side_set_names(self):
         """
@@ -686,8 +761,11 @@ class exodus(object):
         _side_sets = self._f.variables["ss_names"][:]
         side_sets = []
         for _i in _side_sets:
-            side_sets.append("".join(
-                _j.decode() if hasattr(_j, "decode") else _j for _j in _i))
+            side_sets.append(
+                "".join(
+                    _j.decode() if hasattr(_j, "decode") else _j for _j in _i
+                )
+            )
         return side_sets
 
     def get_side_set_ids(self):
@@ -708,9 +786,10 @@ class exodus(object):
         """
         ids = self.get_side_set_ids()
         if id not in ids:
-            raise ValueError("No side set with id %i in file. Available "
-                             "ids: %s." % (
-                              id, ', '.join(["%i" % _i for _i in ids])))
+            raise ValueError(
+                "No side set with id %i in file. Available "
+                "ids: %s." % (id, ", ".join(["%i" % _i for _i in ids]))
+            )
         id = ids.index(id) + 1
         side_name = "side_ss%i" % id
         elem_name = "elem_ss%i" % id
@@ -768,7 +847,8 @@ class exodus(object):
         # This still has some additional allocations but otherwise indexes
         # pretty directly.
         local_node_ids = _e.ravel()[
-            (_s + np.arange(_e.shape[0])[:, np.newaxis] * _e.shape[1]).ravel()]
+            (_s + np.arange(_e.shape[0])[:, np.newaxis] * _e.shape[1]).ravel()
+        ]
 
         return num_nodes, local_node_ids
 
@@ -787,8 +867,10 @@ class exodus(object):
         if len(i) == 1:
             i = i[0]
             if not 1 <= i + 1 <= self._f.dimensions["num_nodes"]:
-                raise ValueError("Invalid index. Coordinate bounds: [1, %i]." %
-                                 self._f.dimensions["num_nodes"])
+                raise ValueError(
+                    "Invalid index. Coordinate bounds: [1, %i]."
+                    % self._f.dimensions["num_nodes"]
+                )
 
         x = self._f.variables["coordx"][i]
         y = self._f.variables["coordy"][i]
@@ -840,55 +922,84 @@ class exodus(object):
         """
         Write all the attributes.
         """
-        self._f.attrs['api_version'] = np.float32([7.05])
-        self._f.attrs['version'] = np.float32([7.05])
-        self._f.attrs['floating_point_word_size'] = \
-            np.array([self.__f_word_size], dtype=np.int32)
-        self._f.attrs['file_size'] = np.array([1], dtype=np.int32)
-        self._f.attrs['maximum_name_length'] = np.array([32],
-                                                        dtype=np.int32)
-        self._f.attrs['int64_status'] = np.array([0], dtype=np.int32)
-        self._f.attrs['title'] = np.string_(title)
+        self._f.attrs["api_version"] = np.float32([7.05])
+        self._f.attrs["version"] = np.float32([7.05])
+        self._f.attrs["floating_point_word_size"] = np.array(
+            [self.__f_word_size], dtype=np.int32
+        )
+        self._f.attrs["file_size"] = np.array([1], dtype=np.int32)
+        self._f.attrs["maximum_name_length"] = np.array([32], dtype=np.int32)
+        self._f.attrs["int64_status"] = np.array([0], dtype=np.int32)
+        self._f.attrs["title"] = np.string_(title)
 
     def _create_variables(self):
         # Time steps.
-        self._f.create_variable('/time_whole', ('time_step',),
-                                dtype=self.__f_dtype, **self._comp_opts)
+        self._f.create_variable(
+            "/time_whole",
+            ("time_step",),
+            dtype=self.__f_dtype,
+            **self._comp_opts
+        )
 
         # Element block stuff.
-        self._f.create_variable('/eb_names', ('num_el_blk', 'len_name'),
-                                dtype='|S1', **self._comp_opts)
-        self._f.create_variable('/eb_status', ('num_el_blk',),
-                                dtype=np.int32, **self._comp_opts)
+        self._f.create_variable(
+            "/eb_names",
+            ("num_el_blk", "len_name"),
+            dtype="|S1",
+            **self._comp_opts
+        )
+        self._f.create_variable(
+            "/eb_status", ("num_el_blk",), dtype=np.int32, **self._comp_opts
+        )
         # I don't really understand the number here yet...
-        self._f.create_variable('/eb_prop1', ('num_el_blk',),
-                                dtype=np.int32,
-                                data=[-1] * self._f.dimensions['num_el_blk'],
-                                **self._comp_opts)
-        self._f.variables["eb_prop1"].attrs['name'] = np.string_('ID')
+        self._f.create_variable(
+            "/eb_prop1",
+            ("num_el_blk",),
+            dtype=np.int32,
+            data=[-1] * self._f.dimensions["num_el_blk"],
+            **self._comp_opts
+        )
+        self._f.variables["eb_prop1"].attrs["name"] = np.string_("ID")
 
         # Coordinate names.
-        self._f.create_variable('/coor_names', ('num_dim', 'len_name'),
-                                dtype='|S1', **self._comp_opts)
+        self._f.create_variable(
+            "/coor_names",
+            ("num_dim", "len_name"),
+            dtype="|S1",
+            **self._comp_opts
+        )
 
         # Coordinates.
         for i in "xyz":
             self._f.create_variable(
-                '/coord' + i, ('num_nodes',), dtype=self.__f_dtype,
-                **self._comp_opts)
+                "/coord" + i,
+                ("num_nodes",),
+                dtype=self.__f_dtype,
+                **self._comp_opts
+            )
 
         # Side sets.
         if "num_side_sets" in self._f.dimensions:
             self._f.create_variable(
-                '/ss_names', ('num_side_sets', 'len_name'), dtype='|S1',
-                **self._comp_opts)
+                "/ss_names",
+                ("num_side_sets", "len_name"),
+                dtype="|S1",
+                **self._comp_opts
+            )
             self._f.create_variable(
-                '/ss_prop1', ('num_side_sets',), dtype=np.int32,
+                "/ss_prop1",
+                ("num_side_sets",),
+                dtype=np.int32,
                 data=[-1] * self._f.dimensions["num_side_sets"],
-                **self._comp_opts)
-            self._f.variables["ss_prop1"].attrs['name'] = np.string_('ID')
-            self._f.create_variable('/ss_status', ('num_side_sets',),
-                                    dtype=np.int32, **self._comp_opts)
+                **self._comp_opts
+            )
+            self._f.variables["ss_prop1"].attrs["name"] = np.string_("ID")
+            self._f.create_variable(
+                "/ss_status",
+                ("num_side_sets",),
+                dtype=np.int32,
+                **self._comp_opts
+            )
 
     def __del__(self):
         try:

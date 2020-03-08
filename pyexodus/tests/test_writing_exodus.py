@@ -42,42 +42,47 @@ def test_initialization(tmpdir, io_size):
     """
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.close()
 
     # Just manually test everything.
     with h5netcdf.File(filename, mode="r") as f:
         assert dict(f.attrs) == {
-            'api_version': np.array([7.05], dtype=np.float32),
-            'file_size': np.array([1], dtype=np.int32),
-            'floating_point_word_size': np.array(
-                [io_size["word_size"]], dtype=np.int32),
-            'int64_status': np.array([0], dtype=np.int32),
-            'maximum_name_length': np.array([32], dtype=np.int32),
-            'title': b'Example',
-            'version': np.array([7.05], dtype=np.float32)}
+            "api_version": np.array([7.05], dtype=np.float32),
+            "file_size": np.array([1], dtype=np.int32),
+            "floating_point_word_size": np.array(
+                [io_size["word_size"]], dtype=np.int32
+            ),
+            "int64_status": np.array([0], dtype=np.int32),
+            "maximum_name_length": np.array([32], dtype=np.int32),
+            "title": b"Example",
+            "version": np.array([7.05], dtype=np.float32),
+        }
 
         assert dict(f.dimensions) == {
-            'four': 4,
-            'len_line': 81,
-            'len_name': 256,
-            'len_string': 33,
-            'num_dim': 3,
-            'num_el_blk': 1,
-            'num_elem': 6,
-            'num_nodes': 5,
-            'num_side_sets': 1,
-            'time_step': None}
+            "four": 4,
+            "len_line": 81,
+            "len_name": 256,
+            "len_string": 33,
+            "num_dim": 3,
+            "num_el_blk": 1,
+            "num_elem": 6,
+            "num_nodes": 5,
+            "num_side_sets": 1,
+            "time_step": None,
+        }
 
         assert list(f.groups) == []
 
@@ -92,67 +97,86 @@ def test_initialization(tmpdir, io_size):
         #      "data": v[k][:]} for k in f.variables.keys()} == \
 
         expected = {
-            'coor_names': {
-                'attrs': {},
-                'data': np.array([
-                    [''] * 256,
-                    [''] * 256,
-                    [''] * 256], dtype='|S1'),
-                'dimensions': ('num_dim', 'len_name'),
-                'dtype': np.dtype('S1'),
-                'shape': (3, 256)},
-            'coordx': {'attrs': {},
-                       'data': np.array([0., 0., 0., 0., 0.]),
-                       'dimensions': ('num_nodes',),
-                       'dtype': io_size["f_dtype"],
-                       'shape': (5,)},
-            'coordy': {'attrs': {},
-                       'data': np.array([0., 0., 0., 0., 0.]),
-                       'dimensions': ('num_nodes',),
-                       'dtype': io_size["f_dtype"],
-                       'shape': (5,)},
-            'coordz': {'attrs': {},
-                       'data': np.array([0., 0., 0., 0., 0.]),
-                       'dimensions': ('num_nodes',),
-                       'dtype': io_size["f_dtype"],
-                       'shape': (5,)},
-            'eb_names': {'attrs': {},
-                         'data': np.array([[''] * 256], dtype='|S1'),
-                         'dimensions': ('num_el_blk', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (1, 256)},
-            'eb_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([-1], dtype=np.int32),
-                         'dimensions': ('num_el_blk',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (1,)},
-            'eb_status': {'attrs': {},
-                          'data': np.array([0], dtype=np.int32),
-                          'dimensions': ('num_el_blk',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (1,)},
-            'ss_names': {'attrs': {},
-                         'data': np.array([
-                             [''] * 256],
-                             dtype='|S1'),
-                         'dimensions': ('num_side_sets', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (1, 256)},
-            'ss_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([-1], dtype=np.int32),
-                         'dimensions': ('num_side_sets',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (1,)},
-            'ss_status': {'attrs': {},
-                          'data': np.array([0], dtype=np.int32),
-                          'dimensions': ('num_side_sets',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (1,)},
-            'time_whole': {'attrs': {},
-                           'data': np.array([], dtype=io_size["f_dtype"]),
-                           'dimensions': ('time_step',),
-                           'dtype': io_size["f_dtype"],
-                           'shape': (0,)}}
+            "coor_names": {
+                "attrs": {},
+                "data": np.array(
+                    [[""] * 256, [""] * 256, [""] * 256], dtype="|S1"
+                ),
+                "dimensions": ("num_dim", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (3, 256),
+            },
+            "coordx": {
+                "attrs": {},
+                "data": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+                "dimensions": ("num_nodes",),
+                "dtype": io_size["f_dtype"],
+                "shape": (5,),
+            },
+            "coordy": {
+                "attrs": {},
+                "data": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+                "dimensions": ("num_nodes",),
+                "dtype": io_size["f_dtype"],
+                "shape": (5,),
+            },
+            "coordz": {
+                "attrs": {},
+                "data": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+                "dimensions": ("num_nodes",),
+                "dtype": io_size["f_dtype"],
+                "shape": (5,),
+            },
+            "eb_names": {
+                "attrs": {},
+                "data": np.array([[""] * 256], dtype="|S1"),
+                "dimensions": ("num_el_blk", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (1, 256),
+            },
+            "eb_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([-1], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
+            "eb_status": {
+                "attrs": {},
+                "data": np.array([0], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
+            "ss_names": {
+                "attrs": {},
+                "data": np.array([[""] * 256], dtype="|S1"),
+                "dimensions": ("num_side_sets", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (1, 256),
+            },
+            "ss_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([-1], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
+            "ss_status": {
+                "attrs": {},
+                "data": np.array([0], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
+            "time_whole": {
+                "attrs": {},
+                "data": np.array([], dtype=io_size["f_dtype"]),
+                "dimensions": ("time_step",),
+                "dtype": io_size["f_dtype"],
+                "shape": (0,),
+            },
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -171,44 +195,52 @@ def test_put_coords(tmpdir, io_size):
     """
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
         xCoords=np.arange(5, dtype=np.float32),
         yCoords=np.arange(5, dtype=np.int32) * 2,
-        zCoords=np.arange(5, dtype=np.int64) * 3
+        zCoords=np.arange(5, dtype=np.int64) * 3,
     )
 
     e.close()
 
     expected = {
-        'coordx': {'attrs': {},
-                   'data': np.array([0., 1., 2., 3., 4.]),
-                   'dimensions': ('num_nodes',),
-                   'dtype': io_size["f_dtype"],
-                   'shape': (5,)},
-        'coordy': {'attrs': {},
-                   'data': np.array([0., 2., 4., 6., 8.]),
-                   'dimensions': ('num_nodes',),
-                   'dtype': io_size["f_dtype"],
-                   'shape': (5,)},
-        'coordz': {'attrs': {},
-                   'data': np.array([0., 3., 6., 9., 12.]),
-                   'dimensions': ('num_nodes',),
-                   'dtype': io_size["f_dtype"],
-                   'shape': (5,)}
+        "coordx": {
+            "attrs": {},
+            "data": np.array([0.0, 1.0, 2.0, 3.0, 4.0]),
+            "dimensions": ("num_nodes",),
+            "dtype": io_size["f_dtype"],
+            "shape": (5,),
+        },
+        "coordy": {
+            "attrs": {},
+            "data": np.array([0.0, 2.0, 4.0, 6.0, 8.0]),
+            "dimensions": ("num_nodes",),
+            "dtype": io_size["f_dtype"],
+            "shape": (5,),
+        },
+        "coordz": {
+            "attrs": {},
+            "data": np.array([0.0, 3.0, 6.0, 9.0, 12.0]),
+            "dimensions": ("num_nodes",),
+            "dtype": io_size["f_dtype"],
+            "shape": (5,),
+        },
     }
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -226,24 +258,26 @@ def test_put_coords(tmpdir, io_size):
 def test_put_elem_blk_info(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
         xCoords=np.arange(5, dtype=np.float32),
         yCoords=np.arange(5, dtype=np.int32) * 2,
-        zCoords=np.arange(5, dtype=np.int64) * 3
+        zCoords=np.arange(5, dtype=np.int64) * 3,
     )
 
     e.put_elem_blk_info(1, "HEX", 6, 3, 0)
@@ -257,17 +291,20 @@ def test_put_elem_blk_info(tmpdir, io_size):
 
         # One new variable.
         expected = {
-            "connect1": {"attrs": {"elem_type": b"HEX"},
-                         "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk1",
-                                        "num_nod_per_el1"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)},
-            "eb_status": {"attrs": {},
-                          "data": np.ones(1),
-                          "dimensions": ("num_el_blk",),
-                          "dtype": np.int32,
-                          "shape": (1,)}
+            "connect1": {
+                "attrs": {"elem_type": b"HEX"},
+                "data": np.zeros((6, 3), dtype=np.int32),
+                "dimensions": ("num_el_in_blk1", "num_nod_per_el1"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            },
+            "eb_status": {
+                "attrs": {},
+                "data": np.ones(1),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.int32,
+                "shape": (1,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -284,24 +321,26 @@ def test_put_elem_blk_info(tmpdir, io_size):
 def test_put_elem_connectivity(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
         xCoords=np.arange(5, dtype=np.float32),
         yCoords=np.arange(5, dtype=np.int32) * 2,
-        zCoords=np.arange(5, dtype=np.int64) * 3
+        zCoords=np.arange(5, dtype=np.int64) * 3,
     )
 
     e.put_elem_blk_info(1, "HEX", 6, 3, 0)
@@ -312,12 +351,13 @@ def test_put_elem_connectivity(tmpdir, io_size):
     with h5netcdf.File(filename, mode="r") as f:
         # connect1 should now be filled.
         expected = {
-            "connect1": {"attrs": {"elem_type": b"HEX"},
-                         "data": (np.arange(6 * 3) + 7).reshape((6, 3)),
-                         "dimensions": ("num_el_in_blk1",
-                                        "num_nod_per_el1"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)}
+            "connect1": {
+                "attrs": {"elem_type": b"HEX"},
+                "data": (np.arange(6 * 3) + 7).reshape((6, 3)),
+                "dimensions": ("num_el_in_blk1", "num_nod_per_el1"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -334,24 +374,26 @@ def test_put_elem_connectivity(tmpdir, io_size):
 def test_put_elem_connectivity_indices_shift(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=1,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_info_records(info=[])
 
     # Use different dtypes on purpose to test the type conversions.
     e.put_coords(
         xCoords=np.arange(5, dtype=np.float32),
         yCoords=np.arange(5, dtype=np.int32) * 2,
-        zCoords=np.arange(5, dtype=np.int64) * 3
+        zCoords=np.arange(5, dtype=np.int64) * 3,
     )
 
     e.put_elem_blk_info(1, "HEX", 6, 3, 0)
@@ -362,12 +404,13 @@ def test_put_elem_connectivity_indices_shift(tmpdir, io_size):
     with h5netcdf.File(filename, mode="r") as f:
         # connect1 should now be filled.
         expected = {
-            "connect1": {"attrs": {"elem_type": b"HEX"},
-                         "data": (np.arange(6 * 3) + 7).reshape((6, 3)) + 3,
-                         "dimensions": ("num_el_in_blk1",
-                                        "num_nod_per_el1"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)}
+            "connect1": {
+                "attrs": {"elem_type": b"HEX"},
+                "data": (np.arange(6 * 3) + 7).reshape((6, 3)) + 3,
+                "dimensions": ("num_el_in_blk1", "num_nod_per_el1"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -384,9 +427,19 @@ def test_put_elem_connectivity_indices_shift(tmpdir, io_size):
 def test_put_time(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_time(1, 1.1)
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -396,9 +449,19 @@ def test_put_time(tmpdir, io_size):
 def test_set_global_variable_number(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_global_variable_number(3)
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -411,14 +474,16 @@ def test_set_global_variable_number(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_glo_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (3, 256)},
+                "shape": (3, 256),
+            },
             "vals_glo_var": {
                 "attrs": {},
                 "data": np.zeros((0, 3)),
                 "dimensions": ("time_step", "num_glo_var"),
                 "dtype": io_size["f_dtype"],
-                "shape": (0, 3)}
-            }
+                "shape": (0, 3),
+            },
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -434,9 +499,19 @@ def test_set_global_variable_number(tmpdir, io_size):
 def test_put_global_variable_name(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_global_variable_number(3)
     e.put_global_variable_name(name="hello", index=2)
 
@@ -451,7 +526,8 @@ def test_put_global_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_glo_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (3, 256)}
+                "shape": (3, 256),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -467,20 +543,40 @@ def test_put_global_variable_name(tmpdir, io_size):
 
 def test_get_global_variable_names(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_global_variable_number(3)
     e.put_global_variable_name(name="hello", index=2)
-    assert e.get_global_variable_names() == ['', 'hello', '']
+    assert e.get_global_variable_names() == ["", "hello", ""]
 
 
 def test_put_global_variable_value(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_global_variable_number(3)
     e.put_global_variable_name(name="hello", index=2)
 
@@ -493,8 +589,9 @@ def test_put_global_variable_value(tmpdir, io_size):
                 "data": np.array([[0, 1.1, 0]], dtype=io_size["f_dtype"]),
                 "dimensions": ("time_step", "num_glo_var"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 3)}
+                "shape": (1, 3),
             }
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -510,9 +607,19 @@ def test_put_global_variable_value(tmpdir, io_size):
 def test_set_element_variables(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     # This call does nothing.
     e.set_element_variable_number(0)
 
@@ -530,7 +637,8 @@ def test_set_element_variables(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_elem_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (5, 256)}
+                "shape": (5, 256),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -547,9 +655,19 @@ def test_set_element_variables(tmpdir, io_size):
 def test_put_element_variable_name(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_element_variable_number(5)
     e.put_element_variable_name("random", 3)
     e.close()
@@ -565,7 +683,8 @@ def test_put_element_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_elem_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (5, 256)}
+                "shape": (5, 256),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -582,9 +701,19 @@ def test_put_element_variable_name(tmpdir, io_size):
 def test_get_element_variable_names(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_element_variable_number(5)
     e.put_element_variable_name("random", 3)
 
@@ -594,9 +723,19 @@ def test_get_element_variable_names(tmpdir, io_size):
 def test_put_element_variable_values(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_element_variable_number(5)
     e.put_element_variable_name("random", 3)
     # requires an actual element block.
@@ -612,7 +751,8 @@ def test_put_element_variable_values(tmpdir, io_size):
                 "data": np.arange(6, dtype=io_size["f_dtype"]).reshape(1, 6),
                 "dimensions": ("time_step", "num_el_in_blk1"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 6)}
+                "shape": (1, 6),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -629,9 +769,19 @@ def test_put_element_variable_values(tmpdir, io_size):
 def test_set_node_variable_number(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
 
     _d = np.empty((2, 256), dtype="|S1")
@@ -644,19 +794,22 @@ def test_set_node_variable_number(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 256)},
+                "shape": (2, 256),
+            },
             "vals_nod_var1": {
                 "attrs": {},
                 "data": np.zeros((0, 5)),
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
-                "shape": (0, 5)},
+                "shape": (0, 5),
+            },
             "vals_nod_var2": {
                 "attrs": {},
                 "data": np.zeros((0, 5)),
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
-                "shape": (0, 5)}
+                "shape": (0, 5),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -673,9 +826,19 @@ def test_set_node_variable_number(tmpdir, io_size):
 def test_get_node_variable_number(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     assert e.get_node_variable_number() == 0
     e.set_node_variable_number(2)
     assert e.get_node_variable_number() == 2
@@ -689,9 +852,19 @@ def test_get_node_variable_number(tmpdir, io_size):
 def test_put_node_variable_name(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
 
@@ -706,7 +879,8 @@ def test_put_node_variable_name(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 256)}
+                "shape": (2, 256),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -723,9 +897,19 @@ def test_put_node_variable_name(tmpdir, io_size):
 def test_put_multiple_node_variable_names(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
     e.put_node_variable_name("how are you?", 2)
@@ -742,7 +926,8 @@ def test_put_multiple_node_variable_names(tmpdir, io_size):
                 "data": _d,
                 "dimensions": ("num_nod_var", "len_name"),
                 "dtype": np.dtype("|S1"),
-                "shape": (2, 256)}
+                "shape": (2, 256),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -759,9 +944,19 @@ def test_put_multiple_node_variable_names(tmpdir, io_size):
 def test_put_node_variable_values(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.set_node_variable_number(2)
     e.put_node_variable_name("good friend", 1)
     e.put_node_variable_values("good friend", 1, np.arange(5))
@@ -773,7 +968,8 @@ def test_put_node_variable_values(tmpdir, io_size):
                 "data": np.arange(5).reshape((1, 5)),
                 "dimensions": ("time_step", "num_nodes"),
                 "dtype": io_size["f_dtype"],
-                "shape": (1, 5)}
+                "shape": (1, 5),
+            }
         }
 
         for key in sorted(expected.keys()):
@@ -790,9 +986,19 @@ def test_put_node_variable_values(tmpdir, io_size):
 def test_put_side_set_params(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_side_set_params(4, 5, 0)
     e.close()
 
@@ -803,23 +1009,29 @@ def test_put_side_set_params(tmpdir, io_size):
                 "data": np.zeros(5),
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)},
+                "shape": (5,),
+            },
             "side_ss1": {
                 "attrs": {},
                 "data": np.zeros(5),
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)},
-            'ss_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([4], dtype=np.int32),
-                         'dimensions': ('num_side_sets',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (1,)},
-            'ss_status': {'attrs': {},
-                          'data': np.array([1], dtype=np.int32),
-                          'dimensions': ('num_side_sets',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (1,)},
+                "shape": (5,),
+            },
+            "ss_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([4], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
+            "ss_status": {
+                "attrs": {},
+                "data": np.array([1], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (1,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -836,12 +1048,23 @@ def test_put_side_set_params(tmpdir, io_size):
 def test_put_side_set(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_side_set_params(4, 5, 0)
-    e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                   np.ones(5, dtype=np.int32) * 3)
+    e.put_side_set(
+        4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+    )
     e.close()
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -851,13 +1074,15 @@ def test_put_side_set(tmpdir, io_size):
                 "data": [2, 2, 2, 2, 2],
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)},
+                "shape": (5,),
+            },
             "side_ss1": {
                 "attrs": {},
                 "data": [3, 3, 3, 3, 3],
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)}
+                "shape": (5,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -874,26 +1099,60 @@ def test_put_side_set(tmpdir, io_size):
 def test_put_side_set_name(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=1, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_side_set_params(4, 5, 0)
-    e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                   np.ones(5, dtype=np.int32) * 3)
+    e.put_side_set(
+        4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+    )
     e.put_side_set_name(4, "edge of the world")
     e.close()
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'ss_names': {'attrs': {},
-                         'data': np.array([
-                             ['e', 'd', 'g', 'e', ' ', 'o', 'f', ' ',
-                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd'] +
-                             [''] * 239],
-                             dtype='|S1'),
-                         'dimensions': ('num_side_sets', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (1, 256)}}
+            "ss_names": {
+                "attrs": {},
+                "data": np.array(
+                    [
+                        [
+                            "e",
+                            "d",
+                            "g",
+                            "e",
+                            " ",
+                            "o",
+                            "f",
+                            " ",
+                            "t",
+                            "h",
+                            "e",
+                            " ",
+                            "w",
+                            "o",
+                            "r",
+                            "l",
+                            "d",
+                        ]
+                        + [""] * 239
+                    ],
+                    dtype="|S1",
+                ),
+                "dimensions": ("num_side_sets", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (1, 256),
+            }
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -909,9 +1168,19 @@ def test_put_side_set_name(tmpdir, io_size):
 def test_put_multiple_side_set_names(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename, mode="w", title="Example", array_type="numpy",
-               numDims=3, numNodes=5, numElems=6, numBlocks=1,
-               numNodeSets=0, numSideSets=2, io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    )
     e.put_side_set_params(4, 5, 0)
     e.put_side_set_params(7, 2, 0)
     e.put_side_set_name(4, "edge of the world")
@@ -920,18 +1189,56 @@ def test_put_multiple_side_set_names(tmpdir, io_size):
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'ss_names': {'attrs': {},
-                         'data': np.array([
-                             ['e', 'd', 'g', 'e', ' ', 'o', 'f', ' ',
-                              't', 'h', 'e', ' ', 'w', 'o', 'r', 'l', 'd'] +
-                             [''] * 239,
-                             ['a', ' ', 'n', 'e', 'w', ' ', 'b', 'e',
-                              'g', 'i', 'n', 'n', 'i', 'n', 'g'] +
-                             [''] * 241],
-                             dtype='|S1'),
-                         'dimensions': ('num_side_sets', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (2, 256)}}
+            "ss_names": {
+                "attrs": {},
+                "data": np.array(
+                    [
+                        [
+                            "e",
+                            "d",
+                            "g",
+                            "e",
+                            " ",
+                            "o",
+                            "f",
+                            " ",
+                            "t",
+                            "h",
+                            "e",
+                            " ",
+                            "w",
+                            "o",
+                            "r",
+                            "l",
+                            "d",
+                        ]
+                        + [""] * 239,
+                        [
+                            "a",
+                            " ",
+                            "n",
+                            "e",
+                            "w",
+                            " ",
+                            "b",
+                            "e",
+                            "g",
+                            "i",
+                            "n",
+                            "n",
+                            "i",
+                            "n",
+                            "g",
+                        ]
+                        + [""] * 241,
+                    ],
+                    dtype="|S1",
+                ),
+                "dimensions": ("num_side_sets", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (2, 256),
+            }
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -947,10 +1254,19 @@ def test_put_multiple_side_set_names(tmpdir, io_size):
 def test_usage_as_context_manager(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=1,
-                io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_time(1, 1.1)
 
     with h5netcdf.File(filename, mode="r") as f:
@@ -960,25 +1276,38 @@ def test_usage_as_context_manager(tmpdir, io_size):
 def test_status_in_file_with_two_side_sets_only_one_set(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2,
-                io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'ss_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([4, -1], dtype=np.int32),
-                         'dimensions': ('num_side_sets',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (2,)},
-            'ss_status': {'attrs': {},
-                          'data': np.array([1, 0], dtype=np.int32),
-                          'dimensions': ('num_side_sets',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (2,)}
-            }
+            "ss_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([4, -1], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (2,),
+            },
+            "ss_status": {
+                "attrs": {},
+                "data": np.array([1, 0], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (2,),
+            },
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -994,25 +1323,38 @@ def test_status_in_file_with_two_side_sets_only_one_set(tmpdir, io_size):
 def test_status_in_file_with_two_side_sets_with_two_set(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2,
-                io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
         e.put_side_set_params(7, 2, 0)
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'ss_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([4, 7], dtype=np.int32),
-                         'dimensions': ('num_side_sets',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (2,)},
-            'ss_status': {'attrs': {},
-                          'data': np.array([1, 1], dtype=np.int32),
-                          'dimensions': ('num_side_sets',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (2,)}
+            "ss_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([4, 7], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (2,),
+            },
+            "ss_status": {
+                "attrs": {},
+                "data": np.array([1, 1], dtype=np.int32),
+                "dimensions": ("num_side_sets",),
+                "dtype": np.dtype("int32"),
+                "shape": (2,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -1029,16 +1371,27 @@ def test_status_in_file_with_two_side_sets_with_two_set(tmpdir, io_size):
 def test_filling_two_side_sets(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2,
-                io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_side_set_params(4, 5, 0)
         e.put_side_set_params(7, 2, 0)
-        e.put_side_set(4, np.ones(5, dtype=np.int32) * 2,
-                       np.ones(5, dtype=np.int32) * 3)
-        e.put_side_set(7, np.ones(2, dtype=np.int32) * 7,
-                       np.ones(2, dtype=np.int32) * 8)
+        e.put_side_set(
+            4, np.ones(5, dtype=np.int32) * 2, np.ones(5, dtype=np.int32) * 3
+        )
+        e.put_side_set(
+            7, np.ones(2, dtype=np.int32) * 7, np.ones(2, dtype=np.int32) * 8
+        )
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
@@ -1047,25 +1400,29 @@ def test_filling_two_side_sets(tmpdir, io_size):
                 "data": [2, 2, 2, 2, 2],
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)},
+                "shape": (5,),
+            },
             "side_ss1": {
                 "attrs": {},
                 "data": [3, 3, 3, 3, 3],
                 "dimensions": ("num_side_ss1",),
                 "dtype": np.int32,
-                "shape": (5,)},
+                "shape": (5,),
+            },
             "elem_ss2": {
                 "attrs": {},
                 "data": [7, 7],
                 "dimensions": ("num_side_ss2",),
                 "dtype": np.int32,
-                "shape": (2,)},
+                "shape": (2,),
+            },
             "side_ss2": {
                 "attrs": {},
                 "data": [8, 8],
                 "dimensions": ("num_side_ss2",),
                 "dtype": np.int32,
-                "shape": (2,)}
+                "shape": (2,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -1082,52 +1439,367 @@ def test_filling_two_side_sets(tmpdir, io_size):
 def test_put_info_records(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2,
-                io_size=io_size["io_size"]) as e:
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ) as e:
         e.put_info_records(["", "how", "are", "you"])
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'info_records': {
-                'attrs': {},
-                'data': np.array([
-                    ['', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', ''],
-                    ['h', 'o', 'w', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', ''],
-                    ['a', 'r', 'e', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', ''],
-                    ['y', 'o', 'u', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '', '', '', '', '', '', '',
-                     '', '', '', '', '']], dtype='|S1'),
-                'dimensions': ('num_info', 'len_line'),
-                'dtype': np.dtype('S1'),
-                'shape': (4, 81)}}
+            "info_records": {
+                "attrs": {},
+                "data": np.array(
+                    [
+                        [
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                        ],
+                        [
+                            "h",
+                            "o",
+                            "w",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                        ],
+                        [
+                            "a",
+                            "r",
+                            "e",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                        ],
+                        [
+                            "y",
+                            "o",
+                            "u",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                        ],
+                    ],
+                    dtype="|S1",
+                ),
+                "dimensions": ("num_info", "len_line"),
+                "dtype": np.dtype("S1"),
+                "shape": (4, 81),
+            }
+        }
 
         for key in sorted(expected.keys()):
             a = f.variables[key]
@@ -1147,10 +1819,19 @@ def test_compression(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
     # No compression at first.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2,
-                io_size=io_size["io_size"]):
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        io_size=io_size["io_size"],
+    ):
         pass
 
     with h5netcdf.File(filename) as f:
@@ -1167,10 +1848,20 @@ def test_compression(tmpdir, io_size):
     os.remove(filename)
 
     # No turn on compression.
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1,
-                numNodeSets=0, numSideSets=2, compression=("gzip", 2),
-                io_size=io_size["io_size"]):
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=2,
+        compression=("gzip", 2),
+        io_size=io_size["io_size"],
+    ):
         pass
 
     with h5netcdf.File(filename) as f:
@@ -1185,40 +1876,46 @@ def test_compression(tmpdir, io_size):
 def test_init_multiple_element_blocks(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=3,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=3,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.close()
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'eb_names': {'attrs': {},
-                         'data': np.array([
-                             [''] * 256,
-                             [''] * 256,
-                             [''] * 256],
-                             dtype='|S1'),
-                         'dimensions': ('num_el_blk', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (3, 256)},
-            'eb_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([-1, -1, -1], dtype=np.int32),
-                         'dimensions': ('num_el_blk',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (3,)},
-            'eb_status': {'attrs': {},
-                          'data': np.array([0, 0, 0], dtype=np.int32),
-                          'dimensions': ('num_el_blk',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (3,)}
+            "eb_names": {
+                "attrs": {},
+                "data": np.array(
+                    [[""] * 256, [""] * 256, [""] * 256], dtype="|S1"
+                ),
+                "dimensions": ("num_el_blk", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (3, 256),
+            },
+            "eb_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([-1, -1, -1], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
+            "eb_status": {
+                "attrs": {},
+                "data": np.array([0, 0, 0], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -1235,47 +1932,54 @@ def test_init_multiple_element_blocks(tmpdir, io_size):
 def test_init_multiple_element_blocks_and_set_first_one(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=3,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=3,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_elem_blk_info(7, "SEVEN", 6, 3, 0)
     e.close()
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'eb_names': {'attrs': {},
-                         'data': np.array([
-                             [''] * 256,
-                             [''] * 256,
-                             [''] * 256],
-                             dtype='|S1'),
-                         'dimensions': ('num_el_blk', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (3, 256)},
-            "connect1": {"attrs": {"elem_type": b"SEVEN"},
-                         "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk1",
-                                        "num_nod_per_el1"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)},
-            'eb_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([7, -1, -1], dtype=np.int32),
-                         'dimensions': ('num_el_blk',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (3,)},
-            'eb_status': {'attrs': {},
-                          'data': np.array([1, 0, 0], dtype=np.int32),
-                          'dimensions': ('num_el_blk',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (3,)}
+            "eb_names": {
+                "attrs": {},
+                "data": np.array(
+                    [[""] * 256, [""] * 256, [""] * 256], dtype="|S1"
+                ),
+                "dimensions": ("num_el_blk", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (3, 256),
+            },
+            "connect1": {
+                "attrs": {"elem_type": b"SEVEN"},
+                "data": np.zeros((6, 3), dtype=np.int32),
+                "dimensions": ("num_el_in_blk1", "num_nod_per_el1"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            },
+            "eb_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([7, -1, -1], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
+            "eb_status": {
+                "attrs": {},
+                "data": np.array([1, 0, 0], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -1292,17 +1996,19 @@ def test_init_multiple_element_blocks_and_set_first_one(tmpdir, io_size):
 def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
 
-    e = exodus(filename,
-               mode="w",
-               title="Example",
-               array_type="numpy",
-               numDims=3,
-               numNodes=5,
-               numElems=6,
-               numBlocks=3,
-               numNodeSets=0,
-               numSideSets=1,
-               io_size=io_size["io_size"])
+    e = exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=3,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    )
     e.put_elem_blk_info(7, "SEVEN", 6, 3, 0)
     e.put_elem_blk_info(1, "ONE", 6, 3, 0)
     e.put_elem_blk_info(3, "THREE", 6, 3, 0)
@@ -1310,43 +2016,50 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
 
     with h5netcdf.File(filename, mode="r") as f:
         expected = {
-            'eb_names': {'attrs': {},
-                         'data': np.array([
-                             [''] * 256,
-                             [''] * 256,
-                             [''] * 256],
-                             dtype='|S1'),
-                         'dimensions': ('num_el_blk', 'len_name'),
-                         'dtype': np.dtype('S1'),
-                         'shape': (3, 256)},
-            "connect1": {"attrs": {"elem_type": b"SEVEN"},
-                         "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk1",
-                                        "num_nod_per_el1"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)},
-            "connect2": {"attrs": {"elem_type": b"ONE"},
-                         "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk2",
-                                        "num_nod_per_el2"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)},
-            "connect3": {"attrs": {"elem_type": b"THREE"},
-                         "data": np.zeros((6, 3), dtype=np.int32),
-                         "dimensions": ("num_el_in_blk3",
-                                        "num_nod_per_el3"),
-                         "dtype": np.int32,
-                         "shape": (6, 3)},
-            'eb_prop1': {'attrs': {'name': b'ID'},
-                         'data': np.array([7, 1, 3], dtype=np.int32),
-                         'dimensions': ('num_el_blk',),
-                         'dtype': np.dtype('int32'),
-                         'shape': (3,)},
-            'eb_status': {'attrs': {},
-                          'data': np.array([1, 1, 1], dtype=np.int32),
-                          'dimensions': ('num_el_blk',),
-                          'dtype': np.dtype('int32'),
-                          'shape': (3,)}
+            "eb_names": {
+                "attrs": {},
+                "data": np.array(
+                    [[""] * 256, [""] * 256, [""] * 256], dtype="|S1"
+                ),
+                "dimensions": ("num_el_blk", "len_name"),
+                "dtype": np.dtype("S1"),
+                "shape": (3, 256),
+            },
+            "connect1": {
+                "attrs": {"elem_type": b"SEVEN"},
+                "data": np.zeros((6, 3), dtype=np.int32),
+                "dimensions": ("num_el_in_blk1", "num_nod_per_el1"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            },
+            "connect2": {
+                "attrs": {"elem_type": b"ONE"},
+                "data": np.zeros((6, 3), dtype=np.int32),
+                "dimensions": ("num_el_in_blk2", "num_nod_per_el2"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            },
+            "connect3": {
+                "attrs": {"elem_type": b"THREE"},
+                "data": np.zeros((6, 3), dtype=np.int32),
+                "dimensions": ("num_el_in_blk3", "num_nod_per_el3"),
+                "dtype": np.int32,
+                "shape": (6, 3),
+            },
+            "eb_prop1": {
+                "attrs": {"name": b"ID"},
+                "data": np.array([7, 1, 3], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
+            "eb_status": {
+                "attrs": {},
+                "data": np.array([1, 1, 1], dtype=np.int32),
+                "dimensions": ("num_el_blk",),
+                "dtype": np.dtype("int32"),
+                "shape": (3,),
+            },
         }
 
         for key in sorted(expected.keys()):
@@ -1362,11 +2075,22 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
 
 def test_get_elem_type_for_block(tmpdir, io_size):
     filename = os.path.join(tmpdir.strpath, "example.e")
-    with exodus(filename, mode="w", title="Example", array_type="numpy",
-                numDims=3, numNodes=5, numElems=6, numBlocks=1, numNodeSets=0,
-                numSideSets=1, io_size=io_size["io_size"]) as e:
-        e.put_coords(xCoords=np.arange(5), yCoords=np.arange(5),
-                     zCoords=np.arange(5))
+    with exodus(
+        filename,
+        mode="w",
+        title="Example",
+        array_type="numpy",
+        numDims=3,
+        numNodes=5,
+        numElems=6,
+        numBlocks=1,
+        numNodeSets=0,
+        numSideSets=1,
+        io_size=io_size["io_size"],
+    ) as e:
+        e.put_coords(
+            xCoords=np.arange(5), yCoords=np.arange(5), zCoords=np.arange(5)
+        )
         e.put_elem_blk_info(1, "HEX", 6, 3, 0)
 
         assert e.get_elem_type_for_block(1) == "HEX"
