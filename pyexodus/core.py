@@ -332,8 +332,8 @@ class exodus(object):
 
             idx = 0
             while idx < ne:
-                self._f.variables[var_name][idx : idx + chunk_size] = (
-                    _t[idx : idx + chunk_size] + shift_indices
+                self._f.variables[var_name][idx : idx + chunk_size] = (  # NOQA
+                    _t[idx : idx + chunk_size] + shift_indices  # NOQA
                 )
                 idx += chunk_size
         else:
