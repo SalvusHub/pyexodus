@@ -1,14 +1,13 @@
 language: python
 
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
 
 env:
   global:
-  - secure: K6dO7Mksu4WVMi8HUboI7zTdOOTlRiEhVNNDdajiSzypAXjliCckQedupiB0rIDQuLnT1bZjCozGFVlm0HOVpd+jEEVCBgUufA6vJK/xvt2fgNzONWJzWysEV2wL98wGt8SILLXI2l7auG0Y5EU/Txi4hawVo8dSicco0WKVBzyNrtEZQTMUQ6IpwNd/MVMkwsu64v+R8l6lsCJshHIO1mHwJOUGI2S33s51Egvv085tMyk1fmbjUGI1hnreqTVsS/+hMQ3uNuL6oN2ncO8wdRgjiJHBeXhNz6zW1uxJKQZb1vbPorV+SkLgLGREd58KJU9K0TKrt4LYlSUs8eXng94lwsMig3jRYwuuFMEYiy+QTS/tfBAyEnaw4hmR5q4ZTZD2hLCiZ8oQE/LWEtlFEqabLKNRJQfo/ogWw/p+e71NWXqafnwMYeIjYkhIwdkooOA14GBB5IjSURP41Q5wLqf0oSmDqnWKm5JzhvQ+ni0Cb2oGLj90DipWQfOLz+ChdU8XH/O2NpQf27GuILxxx2JMq+T1AbpjX23c+9Qdn0cmqoLXUdQpgLHL6lQyOgLJhquzX8VbxvQmSaGwmnPA9skfFOIP/WWscnN5jaTu84RHfxwh/9uT3GHnJ9eROe1RmmzzYYN9eK247jdjISa7nCBDn/rpNvF0NNXrA+M2hhg=
+    - secure: K6dO7Mksu4WVMi8HUboI7zTdOOTlRiEhVNNDdajiSzypAXjliCckQedupiB0rIDQuLnT1bZjCozGFVlm0HOVpd+jEEVCBgUufA6vJK/xvt2fgNzONWJzWysEV2wL98wGt8SILLXI2l7auG0Y5EU/Txi4hawVo8dSicco0WKVBzyNrtEZQTMUQ6IpwNd/MVMkwsu64v+R8l6lsCJshHIO1mHwJOUGI2S33s51Egvv085tMyk1fmbjUGI1hnreqTVsS/+hMQ3uNuL6oN2ncO8wdRgjiJHBeXhNz6zW1uxJKQZb1vbPorV+SkLgLGREd58KJU9K0TKrt4LYlSUs8eXng94lwsMig3jRYwuuFMEYiy+QTS/tfBAyEnaw4hmR5q4ZTZD2hLCiZ8oQE/LWEtlFEqabLKNRJQfo/ogWw/p+e71NWXqafnwMYeIjYkhIwdkooOA14GBB5IjSURP41Q5wLqf0oSmDqnWKm5JzhvQ+ni0Cb2oGLj90DipWQfOLz+ChdU8XH/O2NpQf27GuILxxx2JMq+T1AbpjX23c+9Qdn0cmqoLXUdQpgLHL6lQyOgLJhquzX8VbxvQmSaGwmnPA9skfFOIP/WWscnN5jaTu84RHfxwh/9uT3GHnJ9eROe1RmmzzYYN9eK247jdjISa7nCBDn/rpNvF0NNXrA+M2hhg=
 
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -23,7 +22,7 @@ before_install:
   # build doc only on Python 2.7
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then conda install --yes sphinx ; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install klink ; fi
-  - pip install flake8  # Make sure this is up-to-date (don't use conda).
+  - pip install flake8 # Make sure this is up-to-date (don't use conda).
   - pip install codecov
 
 install:
