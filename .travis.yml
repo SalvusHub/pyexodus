@@ -12,7 +12,10 @@ env:
 before_install:
   - pip install numpy h5netcdf pytest pytest-cov codecov
   # build doc only on Python 3.8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then pip install sphinx klink ; fi
+  # XXX: Klink does not exist for Python 3 but we also don't need to update the docs right now
+  # as nothing in quite some time.
+  # Let's deal with it as we hit it.
+  # - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then pip install sphinx klink ; fi
 
 install:
   - git version
@@ -26,8 +29,10 @@ install:
 script:
   - py.test --cov=pyexodus
   # Docs only need to be built once.
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+  # XXX: Reenable to rebuild docs.
+  # - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; codecov
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
+  # XXX: Reenable to rebuild docs.
+  # - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
