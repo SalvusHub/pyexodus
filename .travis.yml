@@ -10,20 +10,9 @@ env:
     - secure: K6dO7Mksu4WVMi8HUboI7zTdOOTlRiEhVNNDdajiSzypAXjliCckQedupiB0rIDQuLnT1bZjCozGFVlm0HOVpd+jEEVCBgUufA6vJK/xvt2fgNzONWJzWysEV2wL98wGt8SILLXI2l7auG0Y5EU/Txi4hawVo8dSicco0WKVBzyNrtEZQTMUQ6IpwNd/MVMkwsu64v+R8l6lsCJshHIO1mHwJOUGI2S33s51Egvv085tMyk1fmbjUGI1hnreqTVsS/+hMQ3uNuL6oN2ncO8wdRgjiJHBeXhNz6zW1uxJKQZb1vbPorV+SkLgLGREd58KJU9K0TKrt4LYlSUs8eXng94lwsMig3jRYwuuFMEYiy+QTS/tfBAyEnaw4hmR5q4ZTZD2hLCiZ8oQE/LWEtlFEqabLKNRJQfo/ogWw/p+e71NWXqafnwMYeIjYkhIwdkooOA14GBB5IjSURP41Q5wLqf0oSmDqnWKm5JzhvQ+ni0Cb2oGLj90DipWQfOLz+ChdU8XH/O2NpQf27GuILxxx2JMq+T1AbpjX23c+9Qdn0cmqoLXUdQpgLHL6lQyOgLJhquzX8VbxvQmSaGwmnPA9skfFOIP/WWscnN5jaTu84RHfxwh/9uT3GHnJ9eROe1RmmzzYYN9eK247jdjISa7nCBDn/rpNvF0NNXrA+M2hhg=
 
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b -p $HOME/miniconda
-  - export PATH=$HOME/miniconda/bin:$PATH
-  - conda update --yes conda
-  - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
-  - conda install --yes -n condaenv pip
-  - source activate condaenv
-  - conda install --yes -c conda-forge numpy h5netcdf pytest pytest-cov python=$TRAVIS_PYTHON_VERSION
+  - pip install numpy h5netcdf pytest pytest-cov codecov
   # build doc only on Python 3.8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then conda install --yes sphinx ; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then pip install klink ; fi
-  - pip install flake8 # Make sure this is up-to-date (don't use conda).
-  - pip install codecov
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.8' ]]; then pip install sphinx klink ; fi
 
 install:
   - git version
@@ -31,7 +20,7 @@ install:
   - git remote add pyexodus git://github.com/SalvusHub/pyexodus.git
   - git fetch pyexodus --tags
   - git status
-  - pip install --no-deps -v -e .
+  - pip install -v -e .
   - git status
 
 script:
