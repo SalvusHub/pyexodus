@@ -29,28 +29,7 @@ def get_package_data():
     Returns a list of all files needed for the installation relative to the
     'pyexodus' subfolder.
     """
-    filenames = []
-    # The lasif root dir.
-    root_dir = os.path.join(
-        os.path.dirname(
-            os.path.abspath(inspect.getfile(inspect.currentframe()))
-        ),
-        "pyexodus",
-    )
-    # Recursively include all files in these folders:
-    folders = [os.path.join(root_dir, "tests", "data")]
-    for folder in folders:
-        for directory, _, files in os.walk(folder):
-            for filename in files:
-                # Exclude hidden files.
-                if filename.startswith("."):
-                    continue
-                filenames.append(
-                    os.path.relpath(
-                        os.path.join(directory, filename), root_dir
-                    )
-                )
-    return filenames
+    return ["RELEASE-VERSION"]
 
 
 setup_config = dict(
