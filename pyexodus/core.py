@@ -156,7 +156,7 @@ class exodus(object):
             self._f = h5netcdf.File(file, mode=mode)
 
             # Currently no logic for this.
-            if self._f.dimensions["num_el_blk"] > 1:  # pragma: no cover
+            if self._f.dimensions["num_el_blk"].size > 1:  # pragma: no cover
                 msg = (
                     "The file has more than one element block. pyexodus "
                     "currently contains no logic to deal with that. "
@@ -173,7 +173,7 @@ class exodus(object):
         """
         Number of dimensions in the exodus file.
         """
-        return int(self._f.dimensions["num_dim"])
+        return int(self._f.dimensions["num_dim"].size)
 
     def put_info_records(self, info):
         """
@@ -188,9 +188,9 @@ class exodus(object):
             return
 
         for _i, value in enumerate(info):
-            assert len(value) < self._f.dimensions["len_line"], (
+            assert len(value) < self._f.dimensions["len_line"].size, (
                 "Records '%s' is longer then %i letters."
-                % (value, self._f.dimensions["len_line"])
+                % (value, self._f.dimensions["len_line"].size)
             )
 
         self._f.dimensions["num_info"] = len(info)
@@ -245,7 +245,7 @@ class exodus(object):
         :param numAttrsPerElem: The number of attributes per element.
         """
         assert (
-            numElems <= self._f.dimensions["num_elem"]
+            numElems <= self._f.dimensions["num_elem"].size
         ), "Canont have more elements in the block then globally set."
         assert numAttrsPerElem == 0, "Must be 0 for now."
 
@@ -316,13 +316,13 @@ class exodus(object):
         )
 
         assert connectivity.size == (
-            self._f.dimensions[num_el_name]
-            * self._f.dimensions[num_node_per_el_name]
+            self._f.dimensions[num_el_name].size
+            * self._f.dimensions[num_node_per_el_name].size
         )
 
         if shift_indices:
-            ne = self._f.dimensions[num_el_name]
-            nn = self._f.dimensions[num_node_per_el_name]
+            ne = self._f.dimensions[num_el_name].size
+            nn = self._f.dimensions[num_node_per_el_name].size
 
             chunk_size = int(
                 chunk_size_in_mb * 1024 ** 2 / connectivity.dtype.itemsize / nn
@@ -519,8 +519,8 @@ class exodus(object):
         """
         assert step > 0, "Step must be larger than 0."
         assert (
-            self._f.dimensions["time_step"] is None
-            or step <= self._f.dimensions["time_step"]
+            self._f.dimensions["time_step"].size == 0
+            or step <= self._f.dimensions["time_step"].size
         )
 
         num_elem_name = "num_el_in_blk%i" % blockId
@@ -605,10 +605,10 @@ class exodus(object):
     def __resize_time_if_necessary(self, step):
         assert step > 0, "Step must be larger than 0."
         assert (
-            self._f.dimensions["time_step"] is None
-            or step <= self._f.dimensions["time_step"]
+            self._f.dimensions["time_step"].size == 0
+            or step <= self._f.dimensions["time_step"].size
         )
-        if step > self._f._current_dim_sizes["time_step"]:
+        if step > self._f.dimensions["time_step"].size:
             self._f.resize_dimension("time_step", step)
 
     def put_node_variable_values(self, name, step, values):
@@ -647,11 +647,11 @@ class exodus(object):
         # way to test this. But it might still happen if somebody reads a file
         # created with an older pyexodus version so I'll leave the block in
         # but mark it as uncovered by the tests.
-        if self._f.dimensions["time_step"] is not None and not (
-            0 < step <= self._f.dimensions["time_step"]
+        if self._f.dimensions["time_step"].size != 0 and not (
+            0 < step <= self._f.dimensions["time_step"].size
         ):  # pragma: no cover
             msg = (
-                "Step must be 0 < step < %i." % self._f.dimensions["time_step"]
+                "Step must be 0 < step < %i." % self._f.dimensions["time_step"].size
             )
             raise ValueError(msg)
         # Will raise with a reasonable error message if name is not correct.
@@ -660,7 +660,7 @@ class exodus(object):
 
         d_name = "vals_nod_var%i" % idx
         # If it is resizeable, check the actual size.
-        if self._f.dimensions["time_step"] is None:
+        if self._f.dimensions["time_step"].size == 0:
             available_steps = self._f.variables[d_name].shape[0]
             if not (0 < step <= available_steps):
                 msg = "Step must be 0 < step <= %i." % available_steps
@@ -688,7 +688,7 @@ class exodus(object):
         _t = self._f.variables["ss_status"][:]
         count = len(_t[_t > 0])
         assert (
-            count < self._f.dimensions["num_side_sets"]
+            count < self._f.dimensions["num_side_sets"].size
         ), "Maximum number of side sets reached."
 
         idx = count + 1
@@ -866,7 +866,7 @@ class exodus(object):
         i = list(np.atleast_1d(i) - 1)
         if len(i) == 1:
             i = i[0]
-            if not 1 <= i + 1 <= self._f.dimensions["num_nodes"]:
+            if not 1 <= i + 1 <= self._f.dimensions["num_nodes"].size:
                 raise ValueError(
                     "Invalid index. Coordinate bounds: [1, %i]."
                     % self._f.dimensions["num_nodes"]
@@ -874,7 +874,7 @@ class exodus(object):
 
         x = self._f.variables["coordx"][i]
         y = self._f.variables["coordy"][i]
-        if self._f.dimensions["num_dim"] == 2:
+        if self._f.dimensions["num_dim"].size == 2:
             return x, y, np.zeros_like(x)
         return x, y, self._f.variables["coordz"][i]
 
@@ -956,7 +956,7 @@ class exodus(object):
             "/eb_prop1",
             ("num_el_blk",),
             dtype=np.int32,
-            data=[-1] * self._f.dimensions["num_el_blk"],
+            data=[-1] * self._f.dimensions["num_el_blk"].size,
             **self._comp_opts
         )
         self._f.variables["eb_prop1"].attrs["name"] = np.string_("ID")
@@ -990,7 +990,7 @@ class exodus(object):
                 "/ss_prop1",
                 ("num_side_sets",),
                 dtype=np.int32,
-                data=[-1] * self._f.dimensions["num_side_sets"],
+                data=[-1] * self._f.dimensions["num_side_sets"].size,
                 **self._comp_opts
             )
             self._f.variables["ss_prop1"].attrs["name"] = np.string_("ID")
