@@ -22,9 +22,13 @@ _p = [
 ]
 
 if platform.architecture()[0] == "64bit":  # pragma: no cover
-    _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
+    _p.append(
+        {"io_size": 0, "word_size": 8, "f_dtype": np.float64},
+    )
 else:  # pragma: no cover
-    _p.append({"io_size": 0, "word_size": 4, "f_dtype": np.float32},)
+    _p.append(
+        {"io_size": 0, "word_size": 4, "f_dtype": np.float32},
+    )
 
 
 @pytest.fixture(params=_p, ids=["io_size_%i" % _i["io_size"] for _i in _p])

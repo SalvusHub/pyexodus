@@ -61,9 +61,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"pyexodus"
-copyright = u"2016, Lion Krischer"
-author = u"Lion Krischer"
+project = "pyexodus"
+copyright = "2016, Lion Krischer"
+author = "Lion Krischer"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -272,8 +272,8 @@ latex_documents = [
     (
         master_doc,
         "pyexodus.tex",
-        u"pyexodus Documentation",
-        u"Lion Krischer",
+        "pyexodus Documentation",
+        "Lion Krischer",
         "manual",
     ),
 ]
@@ -315,7 +315,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "pyexodus", u"pyexodus Documentation", [author], 1)]
+man_pages = [(master_doc, "pyexodus", "pyexodus Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 #
@@ -331,7 +331,7 @@ texinfo_documents = [
     (
         master_doc,
         "pyexodus",
-        u"pyexodus Documentation",
+        "pyexodus Documentation",
         author,
         "pyexodus",
         "One line description of project.",

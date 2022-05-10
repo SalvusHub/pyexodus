@@ -14,6 +14,7 @@ import numpy as np
 import pytest
 
 from pyexodus import exodus
+from pyexodus.compat import get_dim_size
 
 _p = [
     {"io_size": 4, "word_size": 4, "f_dtype": np.float32},
@@ -21,9 +22,13 @@ _p = [
 ]
 
 if platform.architecture()[0] == "64bit":  # pragma: no cover
-    _p.append({"io_size": 0, "word_size": 8, "f_dtype": np.float64},)
+    _p.append(
+        {"io_size": 0, "word_size": 8, "f_dtype": np.float64},
+    )
 else:  # pragma: no cover
-    _p.append({"io_size": 0, "word_size": 4, "f_dtype": np.float32},)
+    _p.append(
+        {"io_size": 0, "word_size": 4, "f_dtype": np.float32},
+    )
 
 
 @pytest.fixture(params=_p, ids=["io_size_%i" % _i["io_size"] for _i in _p])
@@ -32,6 +37,32 @@ def io_size(request):
     Fixture to parametrize over the io_sizes.
     """
     return request.param
+
+
+def to_string(x):
+    return x.decode() if isinstance(x, bytes) else x
+
+
+def normalize(v):
+    v = to_string(v)
+    if isinstance(v, np.ndarray) and len(v) == 1:
+        v = v[0]
+    if hasattr(h5netcdf, "Dimension") and isinstance(v, h5netcdf.Dimension):
+        if v.isunlimited() is False:
+            v = v.size
+        elif v.size == 0:
+            v = None
+        else:
+            breakpoint()
+            pass
+    return v
+
+
+def norm_dict(d):
+    """
+    Attempt to get dicts the same, independent of the h5netcdf version.
+    """
+    return {normalize(k): normalize(v) for k, v in dict(d).items()}
 
 
 def test_initialization(tmpdir, io_size):
@@ -59,19 +90,21 @@ def test_initialization(tmpdir, io_size):
 
     # Just manually test everything.
     with h5netcdf.File(filename, mode="r") as f:
-        assert dict(f.attrs) == {
-            "api_version": np.array([7.05], dtype=np.float32),
-            "file_size": np.array([1], dtype=np.int32),
-            "floating_point_word_size": np.array(
-                [io_size["word_size"]], dtype=np.int32
-            ),
-            "int64_status": np.array([0], dtype=np.int32),
-            "maximum_name_length": np.array([32], dtype=np.int32),
-            "title": b"Example",
-            "version": np.array([7.05], dtype=np.float32),
-        }
+        assert norm_dict(f.attrs) == norm_dict(
+            {
+                "api_version": np.array([7.05], dtype=np.float32),
+                "file_size": np.array([1], dtype=np.int32),
+                "floating_point_word_size": np.array(
+                    [io_size["word_size"]], dtype=np.int32
+                ),
+                "int64_status": np.array([0], dtype=np.int32),
+                "maximum_name_length": np.array([32], dtype=np.int32),
+                "title": b"Example",
+                "version": np.array([7.05], dtype=np.float32),
+            }
+        )
 
-        assert dict(f.dimensions) == {
+        assert norm_dict(dict(f.dimensions)) == {
             "four": 4,
             "len_line": 81,
             "len_name": 256,
@@ -182,7 +215,7 @@ def test_initialization(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -286,8 +319,8 @@ def test_put_elem_blk_info(tmpdir, io_size):
 
     with h5netcdf.File(filename, mode="r") as f:
         # Two new dimensions.
-        assert f.dimensions["num_el_in_blk1"] == 6
-        assert f.dimensions["num_nod_per_el1"] == 3
+        assert get_dim_size(f, "num_el_in_blk1") == 6
+        assert get_dim_size(f, "num_nod_per_el1") == 3
 
         # One new variable.
         expected = {
@@ -311,7 +344,7 @@ def test_put_elem_blk_info(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -364,7 +397,7 @@ def test_put_elem_connectivity(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -417,7 +450,7 @@ def test_put_elem_connectivity_indices_shift(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -1038,7 +1071,7 @@ def test_put_side_set_params(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -1313,7 +1346,7 @@ def test_status_in_file_with_two_side_sets_only_one_set(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -1361,7 +1394,7 @@ def test_status_in_file_with_two_side_sets_with_two_set(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -1922,7 +1955,7 @@ def test_init_multiple_element_blocks(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -1986,7 +2019,7 @@ def test_init_multiple_element_blocks_and_set_first_one(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
@@ -2066,7 +2099,7 @@ def test_init_multiple_element_blocks_and_set_all(tmpdir, io_size):
             a = f.variables[key]
             e = expected[key]
 
-            assert dict(a.attrs) == e["attrs"], key
+            assert norm_dict(dict(a.attrs)) == norm_dict(e["attrs"]), key
             np.testing.assert_equal(a[:], e["data"], err_msg=key)
             assert a.dimensions == e["dimensions"], key
             assert a.dtype == e["dtype"], key
