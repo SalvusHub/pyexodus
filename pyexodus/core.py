@@ -872,7 +872,7 @@ class exodus(object):
         # Make it work with single indices and arrays.
         i = list(np.atleast_1d(i) - 1)
         if len(i) == 1:
-            i = i[0]
+            i = int(i[0])
             if not 1 <= i + 1 <= get_dim_size(self._f, "num_nodes"):
                 raise ValueError(
                     "Invalid index. Coordinate bounds: [1, %i]."
