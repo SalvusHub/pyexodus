@@ -4,7 +4,7 @@
 Setup script for the pyexodus module.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
+    Lion Krischer (lion.krischer@mondaic.com), 2016-2024
 :license:
     MIT License
 """

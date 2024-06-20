@@ -157,16 +157,6 @@ class exodus(object):
                 assert os.path.exists(file), "File '%s' does not exist." % file
             self._f = h5netcdf.File(file, mode=mode)
 
-            # Currently no logic for this.
-            if get_dim_size(self._f, "num_el_blk") > 1:  # pragma: no cover
-                msg = (
-                    "The file has more than one element block. pyexodus "
-                    "currently contains no logic to deal with that. "
-                    "Proceed at your own risk and best contact the "
-                    "developers."
-                )
-                warnings.warn(msg)
-
         else:  # pragma: no cover
             raise NotImplementedError
 
@@ -176,6 +166,13 @@ class exodus(object):
         Number of dimensions in the exodus file.
         """
         return int(get_dim_size(self._f, "num_dim"))
+
+    @property
+    def num_el_blk(self):
+        """
+        Number of element blocks in the exodus file.
+        """
+        return int(get_dim_size(self._f, "num_el_blk"))
 
     def put_info_records(self, info):
         """
@@ -872,7 +869,7 @@ class exodus(object):
         # Make it work with single indices and arrays.
         i = list(np.atleast_1d(i) - 1)
         if len(i) == 1:
-            i = i[0]
+            i = int(i[0])
             if not 1 <= i + 1 <= get_dim_size(self._f, "num_nodes"):
                 raise ValueError(
                     "Invalid index. Coordinate bounds: [1, %i]."

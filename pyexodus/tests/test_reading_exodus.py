@@ -94,7 +94,7 @@ def test_read_global_variables(tmpdir, io_size):
         e.put_global_variable_name("Test", 1)
         e.put_global_variable_value("Test", 1, 1.1)
 
-    with (exodus(filename, mode="r")) as e:
+    with exodus(filename, mode="r") as e:
         assert e.get_global_variable_names() == ["Test"]
         value = e.get_global_variable_values("Test")
         np.testing.assert_almost_equal(value, 1.1)
