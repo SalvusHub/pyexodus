@@ -9,8 +9,8 @@ description = "Module for creating Exodus files"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Lion Krischer", email = "lionkrischer@gmail.com"},
-    {name = "Mondaic Ltd.", email = "support@mondaic.com"}
+    {name = "Lion Krischer", email = "lion.krischer@mondaic.com"},
+    {name = "Mondaic Ltd.", email = "info@mondaic.com"}
 ]
 requires-python = ">=3.9"
 classifiers = [

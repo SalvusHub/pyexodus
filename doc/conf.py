@@ -64,7 +64,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pyexodus"
-copyright = "2016, Lion Krischer"
+copyright = "2026 Mondaic Ltd."
 author = "Lion Krischer"
 
 # The version info for the project you're documenting, acts as replacement for
