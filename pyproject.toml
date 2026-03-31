@@ -1,2 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyexodus"
+dynamic = ["version"]
+description = "Module for creating Exodus files"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Lion Krischer", email = "lionkrischer@gmail.com"},
+    {name = "Mondaic Ltd.", email = "support@mondaic.com"}
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy",
+    "h5netcdf>=0.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/SalvusHub/pyexodus"
+Documentation = "https://salvushub.github.io/pyexodus/"
+
+[tool.setuptools]
+packages = ["pyexodus"]
+
+[tool.setuptools_scm]
+version_file = "pyexodus/_version.py"
+fallback_version = "0.0.0"
+
 [tool.black]
 line-length = 79
