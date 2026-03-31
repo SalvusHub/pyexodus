@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 :copyright:
-    Lion Krischer (lionkrischer@gmail.com), 2016
+    Lion Krischer (lion.krischer@mondaic.com), 2016-2026
+    Mondaic Ltd. (info@mondaic.com), 2020-2026
 :license:
     MIT License
 """
-from __future__ import absolute_import
+from importlib.metadata import version as _get_version
 
 from .core import exodus  # NOQA
-from .version import get_git_version
 
-__version__ = get_git_version()
+__version__ = _get_version("pyexodus")

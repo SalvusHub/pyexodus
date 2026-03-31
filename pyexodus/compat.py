@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 :copyright:
-    Lion Krischer (lionkrischer@gmail.com), 2022
+    Lion Krischer (lion.krischer@mondaic.com), 2022-2026
+    Mondaic Ltd. (info@mondaic.com), 2022-2026
 :license:
     MIT License
 """

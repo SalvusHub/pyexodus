@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 :copyright:
-    Lion Krischer (lionkrischer@gmail.com), 2022
+    Lion Krischer (lion.krischer@mondaic.com), 2022-2026
+    Mondaic Ltd. (info@mondaic.com), 2022-2026
 :license:
     MIT License
 """
@@ -270,7 +271,7 @@ class exodus(object):
             dtype=np.int32,
             **self._comp_opts
         )
-        self._f.variables[var_name].attrs["elem_type"] = np.string_(elemType)
+        self._f.variables[var_name].attrs["elem_type"] = np.bytes_(elemType)
 
         # Set the status and thus "claim" the element block id.
         self._f.variables["eb_status"][idx - 1] = 1
@@ -934,7 +935,7 @@ class exodus(object):
         self._f.attrs["file_size"] = np.array([1], dtype=np.int32)
         self._f.attrs["maximum_name_length"] = np.array([32], dtype=np.int32)
         self._f.attrs["int64_status"] = np.array([0], dtype=np.int32)
-        self._f.attrs["title"] = np.string_(title)
+        self._f.attrs["title"] = np.bytes_(title)
 
     def _create_variables(self):
         # Time steps.
@@ -963,7 +964,7 @@ class exodus(object):
             data=[-1] * get_dim_size(self._f, "num_el_blk"),
             **self._comp_opts
         )
-        self._f.variables["eb_prop1"].attrs["name"] = np.string_("ID")
+        self._f.variables["eb_prop1"].attrs["name"] = np.bytes_("ID")
 
         # Coordinate names.
         self._f.create_variable(
@@ -997,7 +998,7 @@ class exodus(object):
                 data=[-1] * get_dim_size(self._f, "num_side_sets"),
                 **self._comp_opts
             )
-            self._f.variables["ss_prop1"].attrs["name"] = np.string_("ID")
+            self._f.variables["ss_prop1"].attrs["name"] = np.bytes_("ID")
             self._f.create_variable(
                 "/ss_status",
                 ("num_side_sets",),

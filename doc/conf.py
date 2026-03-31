@@ -31,11 +31,13 @@
 # ones.
 import pyexodus
 
-import klink
-
-html_theme = "klink"
-html_theme_path = [klink.get_html_theme_path()]
-html_theme_options = {"github": "SalvusHub/pyexodus", "logo": "logo.svg"}
+html_theme = "furo"
+html_theme_options = {
+    "source_repository": "https://github.com/SalvusHub/pyexodus",
+    "source_branch": "main",
+    "source_directory": "doc/",
+}
+html_logo = "_static/logo.svg"
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -62,7 +64,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pyexodus"
-copyright = "2016, Lion Krischer"
+copyright = "2026 Mondaic Ltd."
 author = "Lion Krischer"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -79,7 +81,7 @@ release = pyexodus.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -357,4 +359,4 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"https://docs.python.org/": None}
+intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
