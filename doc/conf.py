@@ -31,11 +31,13 @@
 # ones.
 import pyexodus
 
-import klink
-
-html_theme = "klink"
-html_theme_path = [klink.get_html_theme_path()]
-html_theme_options = {"github": "SalvusHub/pyexodus", "logo": "logo.svg"}
+html_theme = "furo"
+html_theme_options = {
+    "source_repository": "https://github.com/SalvusHub/pyexodus",
+    "source_branch": "main",
+    "source_directory": "doc/",
+}
+html_logo = "_static/logo.svg"
 
 extensions = [
     "sphinx.ext.autodoc",
