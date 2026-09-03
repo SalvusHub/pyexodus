@@ -156,7 +156,13 @@ class exodus(object):
         elif mode in ["r", "a"]:
             if mode == "r":
                 assert os.path.exists(file), "File '%s' does not exist." % file
-            self._f = h5netcdf.File(file, mode=mode)
+            # Some writers produce valid netCDF-4 files whose dimension
+            # scales are created but never attached to the variables. The
+            # dimension ids are then only recorded in the
+            # `_Netcdf4Coordinates` attributes. h5netcdf resolves dimensions
+            # from the HDF5 attachment alone and thus refuses to open those
+            # files without `phony_dims`.
+            self._f = h5netcdf.File(file, mode=mode, phony_dims="sort")
 
         else:  # pragma: no cover
             raise NotImplementedError
