@@ -698,10 +698,9 @@ def test_get_node_variable_values(tmpdir, io_size):
         e.get_node_variable_values(name="good friend", step=10)
     assert err.value.args[0] == "Step must be 0 < step <= 1."
 
-    # Invalid name.
-    with pytest.raises(ValueError) as err:
+    # Invalid name. The list.index() error wording varies across Python versions.
+    with pytest.raises(ValueError, match="not in list"):
         e.get_node_variable_values(name="random", step=1)
-    assert err.value.args[0] == "'random' is not in list"
 
 
 def test_get_node_variable_names(tmpdir, io_size):
